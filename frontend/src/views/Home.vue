@@ -1,13 +1,17 @@
 <template>
-<h1>Home sweet home</h1>
+	<div class="content">
+
+	</div>
 </template>
 
 <script>
 export default {
-	name: "Home"
+	name: "Home",
 }
 </script>
 
 <style scoped lang="scss">
-
+	.content {
+		min-height: 5vh;
+	}
 </style>
