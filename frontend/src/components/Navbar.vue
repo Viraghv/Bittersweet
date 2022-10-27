@@ -8,16 +8,55 @@
 			/>
 		</router-link>
 
-		<div class="buttons col-lg-2 col-md-3 col-sm-8 row">
-			<button type="button" class="login-button w-50 col-md-2 col-sm-5" data-bs-toggle="modal" data-bs-target="#login-modal">
+		<div class="buttons col-lg-4 col-md-6 col-sm-8 row">
+			<button type="button" class="login-button col-lg-4 col-md-5 col-sm-6" data-bs-toggle="modal" data-bs-target="#login-modal" v-if="!loggedIn">
 				<img class="loginIcon" src="@/assets/log-in_white.png" alt="login">
 				Log in
 			</button>
 
-			<button type="button" class="signup-button w-50 col-md-2 col-sm-5" data-bs-toggle="modal" data-bs-target="#signup-modal">
+			<button type="button" class="signup-button col-lg-4 col-md-5 col-sm-6" data-bs-toggle="modal" data-bs-target="#signup-modal" v-if="!loggedIn">
 				<img class="signUpIcon" src="@/assets/add-user_white.png" alt="signup">
 				Sign up
 			</button>
+
+			<button type="button" class="admin-button col-lg-3 col-md-3 col-sm-4" v-if="loggedIn && admin">
+				<img class="lockIcon" src="@/assets/lock.png" alt="lock">
+				Admin
+			</button>
+
+			<button type="button" class="upload-recipe-button col-lg-5 col-md-5 col-sm-6" v-if="loggedIn">
+				<img class="addIcon" src="@/assets/add_icon.png" alt="add">
+				Upload recipe
+			</button>
+
+			<div class="profile-dropdown  dropdown dropdown-menu-end col-lg-1 col-md-2 col-sm-2" v-if="loggedIn">
+				<div class="profile-button pfp-container" data-bs-toggle="dropdown" data-bs-offset="10,15">
+					<img class="pfp" src="@/assets/pfps/default.png" alt="pfp">
+				</div>
+				<ul class="profile-dropdown-list dropdown-menu">
+					<li><a class="dropdown-item" href="#">
+						<img class="calendarIcon" src="@/assets/calendar.png" alt="calendar">
+						Weekly menu
+					</a></li>
+					<li><a class="dropdown-item" href="#">
+						<img class="heartIcon" src="@/assets/heart.png" alt="heart">
+						Favourite
+					</a></li>
+					<li><a class="dropdown-item" href="#">
+						<img class="shoppingListIcon" src="@/assets/shopping-list.png" alt="shoppinglist">
+						Shopping list
+					</a></li>
+					<li><a class="dropdown-item" href="#">
+						<img class="profileIcon" src="@/assets/profile.png" alt="profile">
+						Profile
+					</a></li>
+					<li><hr class="dropdown-divider mx-auto"></li>
+					<li><a class="dropdown-item" href="#">
+						<img class="logoutIcon" src="@/assets/logout.png" alt="logout">
+						Log out
+					</a></li>
+				</ul>
+			</div>
 		</div>
 	</div>
 
@@ -43,13 +82,19 @@
 						<label for="password-again">Password again:</label><br/>
 						<input class="input-field" type="password" id="password-again" v-model="signupData.passwordAgain">
 					</div>
+					<div class="signup-alert alert alert-danger" v-if="signupErrorMsgs.length !== 0">
+						<strong>Signup failed!</strong><br>
+						<ul>
+							<li class="signup-error-items" v-for="(error, index) in signupErrorMsgs" :key="index">{{error}}</li>
+						</ul>
+					</div>
 					<div class="signup-button-container">
-						<button class="signup-button">Sign up</button>
+						<button class="signup-button" @click="signup">Sign up</button>
 					</div>
 					<hr class="signup-line" />
 					<div class="have-account-container">
 						<p>Already have an account?</p>
-						<button class="login-button">Log in here</button>
+						<button class="login-button" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#login-modal">Log in here</button>
 					</div>
 				</div>
 
@@ -68,19 +113,24 @@
 
 				<!-- Modal body -->
 				<div class="modal-body login-modal-body">
+
 					<div class="login-inputs">
 						<label for="email-or-username">Email or username:</label><br/>
 						<input class="input-field" type="text" id="email-or-username" v-model="loginData.emailUsername"><br>
 						<label for="password-login" >Password:</label><br/>
 						<input class="input-field" type="password" id="password-login" v-model="loginData.password">
 					</div>
+					<div class="login-alert alert alert-danger" v-if="loginErrorMsg">
+						<strong>Login failed!</strong><br>
+						{{loginErrorMsg}}
+					</div>
 					<div class="login-button-container">
-						<button class="login-button">Log in</button>
+						<button class="login-button" @click="login">Log in</button>
 					</div>
 					<hr class="login-line" />
 					<div class="no-account-container">
 						<p>Don't have an account yet?</p>
-						<button class="signup-button">Sign up here</button>
+						<button class="signup-button" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#signup-modal">Sign up here</button>
 					</div>
 				</div>
 
@@ -107,12 +157,18 @@ export default {
 				password: "",
 				passwordAgain: "",
 			},
+
+			loggedIn: 0,
+			admin: 0,
+			loginErrorMsg: "",
+			signupErrorMsgs: [],
 		}
 	},
 	methods: {
 		clearLoginFields(){
 			this.loginData.emailUsername = "";
 			this.loginData.password = "";
+			this.loginErrorMsg = "";
 		},
 
 		clearSignupFields(){
@@ -120,7 +176,51 @@ export default {
 			this.signupData.email = "";
 			this.signupData.password = "";
 			this.signupData.passwordAgain = "";
+			this.signupErrorMsgs = [];
 		},
+
+		login(){
+			this.loginErrorMsg = "Invalid email, username, or password."
+			//TODO
+		},
+
+		signup(){
+			this.signupErrorMsgs = this.areInputsValid;
+			if(this.signupErrorMsgs.length === 0){
+				//TODO
+				//szervernek shuuu
+			}
+		}
+	},
+
+	computed: {
+		areInputsValid(){
+			let errors = [];
+
+			if(this.signupData.username.trim() === "" || this.signupData.email.trim() === "" ||
+			   this.signupData.password.trim() === "" || this.signupData.passwordAgain.trim() === ""){
+				errors.push("Please fill in all fields");
+			}
+
+			if(this.signupData.username.trim().length > 100) {
+				errors.push("Username can't be longer than 100 characters");
+			}
+
+			if(this.signupData.email.trim() !== "" &&
+			   !this.signupData.email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+				errors.push("Invalid email");
+			}
+
+			if(this.signupData.password.trim().length < 6 && this.signupData.password.trim() !== ""){
+				errors.push("Password must be at least 6 characters long")
+			}
+
+			if(this.signupData.password !== this.signupData.passwordAgain){
+				errors.push("Passwords do not match");
+			}
+
+			return errors;
+		}
 	},
 
 	mounted() {
@@ -156,10 +256,90 @@ export default {
 			font-weight: bold;
 		}
 
-		.loginIcon, .signUpIcon {
+		.loginIcon, .signUpIcon, .addIcon {
 			height: 1.5rem;
 			margin-right: 1%;
 		}
+
+		.lockIcon {
+			height: 1rem;
+			margin-right: 1%;
+		}
+	}
+
+	.pfp-container {
+		width: 40px;
+		height: 40px;
+		background-color: var(--lightgreen);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		border-radius: 30px;
+		border: solid 2px var(--lightgreen);
+
+		overflow: hidden;
+
+
+		.pfp {
+			max-width: 40px;
+			max-height: 40px;
+		}
+
+		&:hover {
+			cursor: pointer;
+		}
+	}
+
+	.profile-dropdown-list{
+		background-color: var(--lightgreen);
+		padding: 20px;
+		width: 250px;
+		border-radius: 15px;
+		border-color: transparent;
+		box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+		-webkit-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+		-moz-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+
+		.calendarIcon, .heartIcon, .shoppingListIcon, .profileIcon, .logoutIcon {
+			height: 1.3rem;
+			margin-right: 5%;
+		}
+
+		.dropdown-item{
+			margin-bottom: 5%;
+			border-radius: 10px;
+
+			&:hover {
+				background-color: var(--darkgreen);
+			}
+
+			&:active {
+				color: black;
+			}
+		}
+	}
+
+	.dropdown-menu::before {
+		border-bottom: 9px solid rgba(0, 0, 0, 0.2);
+		border-left: 9px solid rgba(0, 0, 0, 0);
+		border-right: 9px solid rgba(0, 0, 0, 0);
+		content: "";
+		display: inline-block;
+		left: 210px;
+		position: absolute;
+		top: -8px;
+	}
+	.dropdown-menu::after {
+		border-bottom: 8px solid var(--lightgreen);
+		border-left: 9px solid rgba(0, 0, 0, 0);
+		border-right: 9px solid rgba(0, 0, 0, 0);
+		content: "";
+		display: inline-block;
+		left: 210px;
+		position: absolute;
+		top: -7px;
 	}
 }
 
@@ -237,6 +417,19 @@ export default {
 			}
 		}
 
+		.alert {
+			margin-left: 10%;
+			margin-right: 10%;
+			margin-bottom: 5%;
+
+			.signup-error-items {
+				font-size: 0.8rem;
+			}
+
+			&.signup-alert {
+				padding-bottom: 5px;
+			}
+		}
 	}
 
 
