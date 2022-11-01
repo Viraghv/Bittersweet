@@ -62,12 +62,12 @@
 
 
 	<!-- The Modal -->
-	<div class="modal fade" id="signup-modal">
+	<div class="modal fade" id="signup-modal" ref="signup-modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
 
 				<div class="modal-header">
-					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					<button id="signup-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 
 				<!-- Modal body -->
@@ -108,21 +108,23 @@
 			<div class="modal-content">
 
 				<div class="modal-header">
-					<button type="button" class="btn-close"  data-bs-dismiss="modal"></button>
+					<button id="login-close-button" type="button" class="btn-close"  data-bs-dismiss="modal"></button>
 				</div>
 
 				<!-- Modal body -->
 				<div class="modal-body login-modal-body">
 
 					<div class="login-inputs">
-						<label for="email-or-username">Email or username:</label><br/>
-						<input class="input-field" type="text" id="email-or-username" v-model="loginData.emailUsername"><br>
+						<label for="username-login">Username:</label><br/>
+						<input class="input-field" type="text" id="username-login" v-model="loginData.username"><br>
 						<label for="password-login" >Password:</label><br/>
 						<input class="input-field" type="password" id="password-login" v-model="loginData.password">
 					</div>
-					<div class="login-alert alert alert-danger" v-if="loginErrorMsg">
+					<div class="login-alert alert alert-danger" v-if="loginErrorMsgs.length !== 0">
 						<strong>Login failed!</strong><br>
-						{{loginErrorMsg}}
+						<ul>
+							<li class="login-error-items" v-for="(error, index) in loginErrorMsgs" :key="index">{{error}}</li>
+						</ul>
 					</div>
 					<div class="login-button-container">
 						<button class="login-button" @click="login">Log in</button>
@@ -147,7 +149,7 @@ export default {
 	data() {
 		return {
 			loginData: {
-				emailUsername: "",
+				username: "",
 				password: "",
 			},
 
@@ -158,17 +160,17 @@ export default {
 				passwordAgain: "",
 			},
 
-			loggedIn: 0,
-			admin: 0,
-			loginErrorMsg: "",
+			loggedIn: false,
+			admin: false,
+			loginErrorMsgs: [],
 			signupErrorMsgs: [],
 		}
 	},
 	methods: {
 		clearLoginFields(){
-			this.loginData.emailUsername = "";
+			this.loginData.username = "";
 			this.loginData.password = "";
-			this.loginErrorMsg = "";
+			this.loginErrorMsgs = [];
 		},
 
 		clearSignupFields(){
@@ -179,22 +181,43 @@ export default {
 			this.signupErrorMsgs = [];
 		},
 
-		login(){
-			this.loginErrorMsg = "Invalid email, username, or password."
-			//TODO
+		async login(){
+			this.loginErrorMsgs = this.areLoginInputsValid;
+			if (this.loginErrorMsgs.length === 0){
+				try {
+					let result = await this.axios.post(`${this.$requestURL}/user/login`, {
+						username: this.loginData.username,
+						password: this.loginData.password,
+					}, {withCredentials: true})
+					this.$cookies.set("sessionToken", result.data.sessionToken);
+					document.getElementById("login-close-button").click();
+				} catch (err) {
+					this.loginErrorMsgs.push(...err.response.data.errorMessage);
+					console.log(err)
+				}
+			}
 		},
 
-		signup(){
-			this.signupErrorMsgs = this.areInputsValid;
-			if(this.signupErrorMsgs.length === 0){
-				//TODO
-				//szervernek shuuu
+		async signup() {
+			this.signupErrorMsgs = this.areSignupInputsValid;
+			if (this.signupErrorMsgs.length === 0) {
+				try {
+					await this.axios.post(`${this.$requestURL}/user/register`, {
+						username: this.signupData.username,
+						email: this.signupData.email,
+						password: this.signupData.password,
+						passwordAgain: this.signupData.passwordAgain,
+					})
+					document.getElementById("signup-close-button").click();
+				} catch (err) {
+					this.signupErrorMsgs.push(...err.response.data.errorMessage);
+				}
 			}
 		}
 	},
 
 	computed: {
-		areInputsValid(){
+		areSignupInputsValid(){
 			let errors = [];
 
 			if(this.signupData.username.trim() === "" || this.signupData.email.trim() === "" ||
@@ -206,12 +229,16 @@ export default {
 				errors.push("Username can't be longer than 100 characters");
 			}
 
+			if(this.signupData.email.trim().length > 100) {
+				errors.push("Email can't be longer than 100 characters");
+			}
+
 			if(this.signupData.email.trim() !== "" &&
 			   !this.signupData.email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
 				errors.push("Invalid email");
 			}
 
-			if(this.signupData.password.trim().length < 6 && this.signupData.password.trim() !== ""){
+			if(this.signupData.password.trim() !== "" && this.signupData.password.trim().length < 6){
 				errors.push("Password must be at least 6 characters long")
 			}
 
@@ -219,6 +246,15 @@ export default {
 				errors.push("Passwords do not match");
 			}
 
+			return errors;
+		},
+
+		areLoginInputsValid(){
+			let errors = [];
+
+			if(this.loginData.username.trim() === "" || this.loginData.password.trim() === ""){
+				errors.push("Please fill in all fields");
+			}
 			return errors;
 		}
 	},
