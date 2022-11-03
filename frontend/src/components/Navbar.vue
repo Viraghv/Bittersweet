@@ -10,22 +10,22 @@
 
 		<div class="buttons col-lg-4 col-md-6 col-sm-8 row">
 			<button type="button" class="login-button col-lg-4 col-md-5 col-sm-6" data-bs-toggle="modal" data-bs-target="#login-modal" v-if="!loggedIn">
-				<img class="loginIcon" src="@/assets/log-in_white.png" alt="login">
+				<img class="loginIcon" src="@/assets/icons/log-in_white.png" alt="login">
 				Log in
 			</button>
 
 			<button type="button" class="signup-button col-lg-4 col-md-5 col-sm-6" data-bs-toggle="modal" data-bs-target="#signup-modal" v-if="!loggedIn">
-				<img class="signUpIcon" src="@/assets/add-user_white.png" alt="signup">
+				<img class="signUpIcon" src="@/assets/icons/add-user_white.png" alt="signup">
 				Sign up
 			</button>
 
 			<button type="button" class="admin-button col-lg-3 col-md-3 col-sm-4" v-if="loggedIn && admin">
-				<img class="lockIcon" src="@/assets/lock.png" alt="lock">
+				<img class="lockIcon" src="@/assets/icons/lock.png" alt="lock">
 				Admin
 			</button>
 
 			<button type="button" class="upload-recipe-button col-lg-5 col-md-5 col-sm-6" v-if="loggedIn">
-				<img class="addIcon" src="@/assets/add_icon.png" alt="add">
+				<img class="addIcon" src="@/assets/icons/add_icon.png" alt="add">
 				Upload recipe
 			</button>
 
@@ -35,24 +35,24 @@
 				</div>
 				<ul class="profile-dropdown-list dropdown-menu">
 					<li><a class="dropdown-item" href="#">
-						<img class="calendarIcon" src="@/assets/calendar.png" alt="calendar">
+						<img class="calendarIcon" src="@/assets/icons/calendar.png" alt="calendar">
 						Weekly menu
 					</a></li>
 					<li><a class="dropdown-item" href="#">
-						<img class="heartIcon" src="@/assets/heart.png" alt="heart">
+						<img class="heartIcon" src="@/assets/icons/heart.png" alt="heart">
 						Favourite
 					</a></li>
 					<li><a class="dropdown-item" href="#">
-						<img class="shoppingListIcon" src="@/assets/shopping-list.png" alt="shoppinglist">
+						<img class="shoppingListIcon" src="@/assets/icons/shopping-list.png" alt="shoppinglist">
 						Shopping list
 					</a></li>
 					<li><a class="dropdown-item" href="#">
-						<img class="profileIcon" src="@/assets/profile.png" alt="profile">
+						<img class="profileIcon" src="@/assets/icons/profile.png" alt="profile">
 						Profile
 					</a></li>
 					<li><hr class="dropdown-divider mx-auto"></li>
 					<li><a class="dropdown-item" href="#">
-						<img class="logoutIcon" src="@/assets/logout.png" alt="logout">
+						<img class="logoutIcon" src="@/assets/icons/logout.png" alt="logout">
 						Log out
 					</a></li>
 				</ul>

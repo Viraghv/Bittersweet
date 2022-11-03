@@ -20,12 +20,11 @@ export default {
 .footer {
 	display: flex;
 	justify-content: right;
-	position: absolute;
+	position: fixed;
 	bottom: 0;
 	width: 100%;
 	background-color: var(--darkgrey);
 	padding: 2vh 4vh;
-
 
 	.logo{
 		width: 100%;
