@@ -1,7 +1,7 @@
 <template>
 	<div class="searchbar-header">
 		<div class="search-container col-xxl-4 col-xl-5 col-lg-6 col-md-7 col-sm-8 col-9">
-			<input type="text" class="searchbar" placeholder="Search for recipe..."/>
+			<input type="text" class="searchbar" placeholder="Search for a recipe..."/>
 			<button type="button" class="search-button">
 				<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
 			</button>
@@ -32,7 +32,7 @@ export default {
 		.search-container {
 			margin-top: auto;
 			margin-bottom: auto;
-			margin-left: 10%;
+			margin-left: 20%;
 			display: flex;
 			align-items: center;
 
