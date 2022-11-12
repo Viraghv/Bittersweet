@@ -137,6 +137,7 @@ model RecipeInCategory {
   categoryId Int
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
+  primary Boolean @default(false)
 
   @@id([categoryId, recipeId])
 }

@@ -25,6 +25,7 @@ export default {
 	width: 100%;
 	background-color: var(--darkgrey);
 	padding: 2vh 4vh;
+	z-index: 20;
 
 	.logo{
 		width: 100%;

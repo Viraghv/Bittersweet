@@ -9,17 +9,21 @@ const userRouter = require('./routes/userRouter');
 
 const app = express();
 
+app.use(cookieParser());
+
 let corsOptions = {
     origin: process.env.CLIENT_REQUEST_URL,
     methods: "GET, POST, PUT, DELETE",
     credentials: true,
+    exposedHeaders: ["set-cookie", "sessionToken"],
 }
 
 app.use(cors(corsOptions));
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+
 
 
 app.use('/user', userRouter);

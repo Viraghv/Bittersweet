@@ -1,22 +1,22 @@
 <template>
 	<div class="recipe-card-search">
 		<div class="image-container">
-			<img class="recipe-image" src="@/assets/example-recipe-image.jpg" alt="recipe-image">
+			<img class="recipe-image" :src="image || '/src/assets/recipe_photos/default_recipe_photo.png'" alt="recipe-image">
 		</div>
 		<div class="type-container">
-			<p class="type-name">breakfast</p>
+			<p class="type-name">{{ type }}</p>
 		</div>
 		<div class="recipe-title-container">
-			<p class="recipe-title">Cheese garlic sandwich</p>
+			<p class="recipe-title">{{title}}</p>
 		</div>
 		<div class="recipe-info-container">
 			<div class="difficulty-info-container">
 				<img class="difficulty-icon" src="@/assets/icons/difficulty_icon.png" alt="dif-icon">
-				<p class="difficulty-name">easy</p>
+				<p class="difficulty-name">{{ difficulty }}</p>
 			</div>
 			<div class="time-info-container">
 				<img class="time-icon" src="@/assets/icons/time_icon.png" alt="time-icon">
-				<p class="time-name">20min</p>
+				<p class="time-name">{{ time }}</p>
 			</div>
 		</div>
 
@@ -25,7 +25,14 @@
 
 <script>
 export default {
-	name: "RecipeCardSearch"
+	name: "RecipeCardSearch",
+	props: {
+		title: "",
+		difficulty: "",
+		time: "",
+		type: "",
+		image: "",
+	},
 }
 </script>
 

@@ -27,6 +27,5 @@ package-lock.json
 *.sln
 *.sw?
 /src/assets/pfps/me.jpg
-/src/assets/example-recipe-image.jpg
 /src/assets/long.png
 /src/assets/wide.png
