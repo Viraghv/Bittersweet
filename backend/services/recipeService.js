@@ -100,16 +100,11 @@ module.exports.createOne = async (recipeData, userId) => {
 
 }
 
-module.exports.uploadImage = async (image, recipeId) => {
-    const allowedTypes = ["image/jpeg", "image/png"];
-
-    if(!allowedTypes.includes(image.mimetype)){
-        throw new BadRequest(["Incorrect file type."])
-    }
-
+module.exports.uploadImage = async (image, recipeId, errors) => {
     try {
-        return recipeRepository.uploadImage(image.filename, Number(recipeId));
+        return recipeRepository.uploadImage(image, Number(recipeId), errors);
     } catch (exception){
+        console.log(exception);
         throw exception
     }
 }

@@ -26,6 +26,14 @@
 						@change="setRecipeImage($event)"
 					>
 				</div>
+				<div class="image-alert-container">
+					<div class="image-alert alert alert-danger" v-if="imageErrors.length !== 0">
+						<strong>Error!</strong><br>
+						<ul>
+							<li class="image-error-items" v-for="(error, index) in imageErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+				</div>
 				<textarea class="description-input" placeholder="Description (max. 300 characters)" maxlength="300" v-model="recipe.description"/>
 				<span class="description-character-counter">{{recipe.description.length}}/300</span>
 
@@ -198,6 +206,7 @@ export default {
 			allergenOptions: {},
 
 			errors: [],
+			imageErrors: [],
 
 			showLoader: false,
 		};
@@ -210,7 +219,7 @@ export default {
 		pickFile () {
 			let input = this.$refs.fileInput
 			let file = input.files
-			if(file[0].type === "image/jpeg" || file[0].type === "image/png"){
+			if((file[0].type === "image/jpeg" || file[0].type === "image/png") && file[0].size <= 512000){
 				if (file && file[0]) {
 					let reader = new FileReader
 					reader.onload = e => {
@@ -223,11 +232,21 @@ export default {
 		},
 
 		setRecipeImage(event){
+			this.imageErrors = [];
+
 			if(event.target.files.length === 0){
 				return;
 			}
 
 			if(event.target.files[0].type !== "image/jpeg" && event.target.files[0].type !== "image/png"){
+				this.imageErrors.push("Incorrect file type.")
+			}
+
+			if(event.target.files[0].size > 512000){
+				this.imageErrors.push("File can't be bigger than 500KB")
+			}
+
+			if(this.imageErrors.length > 0){
 				this.previewImage = "";
 				this.recipe.image = null;
 				return;
@@ -321,29 +340,29 @@ export default {
 		},
 
 		async submitRecipe(){
-			let categories = [];
-
-			if(this.recipe.primaryCategory){
-				categories.push({
-					primary: true,
-					category: Number(this.recipe.primaryCategory),
-				})
-			}
-
-			for(const category of this.recipe.categories){
-				categories.push({
-					primary: false,
-					category: Number(category),
-				})
-			}
-
-			for (let i = 0; i < this.recipe.allergens.length; i++) {
-				this.recipe.allergens[i] = Number(this.recipe.allergens[i]);
-			}
-
 			this.errors = this.inputsValid;
 
 			if(this.errors.length === 0){
+				let categories = [];
+
+				if(this.recipe.primaryCategory){
+					categories.push({
+						primary: true,
+						category: Number(this.recipe.primaryCategory),
+					})
+				}
+
+				for(const category of this.recipe.categories){
+					categories.push({
+						primary: false,
+						category: Number(category),
+					})
+				}
+
+				for (let i = 0; i < this.recipe.allergens.length; i++) {
+					this.recipe.allergens[i] = Number(this.recipe.allergens[i]);
+				}
+
 				this.showLoader = true;
 				const formData = new FormData();
 				formData.append('image', this.recipe.image);
@@ -426,6 +445,10 @@ export default {
 
 			if(!this.recipe.image){
 				errors.push("Please upload a valid image (jpg, png, gif).");
+			}
+
+			if(this.recipe.image && this.recipe.image.size > 512000){
+				errors.push("File can't be bigger than 500KB.")
 			}
 
 			if(this.recipe.ingredients.length === 0){

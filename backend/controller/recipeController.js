@@ -21,7 +21,7 @@ module.exports.createOne = async (req, res) => {
 
 module.exports.uploadImage = async (req, res) => {
     try {
-        res.json(await recipeService.uploadImage(req.file, req.params.id));
+        res.json(await recipeService.uploadImage(req.file, req.params.id, req.fileValidationErrors));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

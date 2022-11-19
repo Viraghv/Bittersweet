@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client')
 const InternalServerError = require("../exceptions/InternalServerError");
 const {session} = require("../session/sessionStorage");
+const HttpException = require("../exceptions/HttpException");
 
 const prisma = new PrismaClient();
 
@@ -73,11 +74,17 @@ module.exports.createOneRecipe = async (recipeData, userId) => {
         console.log(exception);
 
         if(newRecipe){
-            await prisma.Recipe.delete({
-                where: {
-                    id: newRecipe.id
-                }
-            })
+            try{
+                await prisma.Recipe.delete({
+                    where: {
+                        id: newRecipe.id
+                    }
+                })
+            } catch (exception) {
+                console.log(exception);
+                throw new InternalServerError(["Something went wrong!"]);
+            }
+
         }
 
         throw new InternalServerError(["Something went wrong during the creation of the recipe."]);
@@ -87,19 +94,22 @@ module.exports.createOneRecipe = async (recipeData, userId) => {
 
 }
 
-module.exports.uploadImage = async (filename, recipeId) => {
+module.exports.uploadImage = async (image, recipeId, errors) => {
     try{
-        await prisma.Recipe.update({
-            where: {
-                id: recipeId
-            },
-            data: {
-                photo: filename
-            }
-        })
+        if(errors.length === 0){
+            await prisma.Recipe.update({
+                where: {
+                    id: recipeId
+                },
+                data: {
+                    photo: image.filename
+                }
+            })
+        } else {
+            throw errors;
+        }
     } catch (error) {
         console.log(error);
-
 
         try{
             await prisma.Recipe.delete({
