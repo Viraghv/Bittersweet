@@ -3,7 +3,7 @@
 		<div class="image-container">
 			<img class="recipe-image" :src="image || '/src/assets/recipe_photos/default_recipe_photo.png'" alt="recipe-image">
 		</div>
-		<div class="type-container">
+		<div class="type-container" v-if="type">
 			<p class="type-name">{{ type }}</p>
 		</div>
 		<div class="recipe-title-container">
@@ -12,11 +12,11 @@
 		<div class="recipe-info-container">
 			<div class="difficulty-info-container">
 				<img class="difficulty-icon" src="@/assets/icons/difficulty_icon.png" alt="dif-icon">
-				<p class="difficulty-name">{{ difficulty }}</p>
+				<p class="difficulty-name">{{ difficulty ? difficulty : "-" }}</p>
 			</div>
 			<div class="time-info-container">
 				<img class="time-icon" src="@/assets/icons/time_icon.png" alt="time-icon">
-				<p class="time-name">{{ time }}</p>
+				<p class="time-name">{{ time ? time : "-" }}</p>
 			</div>
 		</div>
 
@@ -27,12 +27,18 @@
 export default {
 	name: "RecipeCardSearch",
 	props: {
+		index: null,
 		title: "",
 		difficulty: "",
 		time: "",
 		type: "",
 		image: "",
 	},
+	mounted() {
+		if(!this.type){
+			document.getElementsByClassName("recipe-title-container").item(this.index).style.marginTop = "15px";
+		}
+	}
 }
 </script>
 

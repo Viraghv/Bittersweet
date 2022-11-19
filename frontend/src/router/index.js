@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
+import {useUserStore} from "@/stores/userStore.js";
 
 const routes = [
     {
@@ -14,7 +15,17 @@ const routes = [
     {
         name: "UploadRecipe",
         path: "/upload_recipe",
-        component: () => import('@/views/UploadRecipe.vue')
+        component: () => import('@/views/UploadRecipe.vue'),
+        beforeEnter: (to, from, next) => {
+            if (!useUserStore().loggedIn){
+                next({
+                    path: '/',
+                    replace: true
+                })
+            } else {
+                next()
+            }
+        }
     }
 ]
 

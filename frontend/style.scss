@@ -1,6 +1,7 @@
 $modal-content-bg: var(--lightgreen);
 
 @import "/node_modules/bootstrap/scss/bootstrap";
+@import "@vueform/multiselect/themes/default.css";
 
 :root {
   --darkgrey: #333533;
@@ -10,4 +11,10 @@ $modal-content-bg: var(--lightgreen);
   --lightgreen: #E8EDDF;
   --yellow: #F5CB5C;
 
+
+  --ms-tag-bg: var(--yellow);
+  --ms-tag-color: var(--darkgrey);
+  --ms-option-bg-selected: var(--yellow);
+  --ms-option-bg-selected-pointed: var(--yellow);
+  --ms-placeholder-color: grey;
 }

@@ -3,7 +3,7 @@
 	<div class="content">
 		<h1 class="home-title">New and Hot!</h1>
 		<div class="recipe_cards">
-			<RecipeCardSearch v-for="(recipe, index) in recipes" :key="index" :title="recipe.title" :difficulty="recipe.difficulty" :time="recipe.time" :type="recipe.type" :image="recipe.image"/>
+			<RecipeCardSearch v-for="(recipe, index) in recipes" :key="index" :index="index" :title="recipe.title" :difficulty="recipe.difficulty" :time="recipe.time" :type="recipe.type" :image="recipe.image"/>
 		</div>
 
 	</div>
@@ -21,15 +21,15 @@ export default {
 				{
 					title: "Cheese garlic sandwich",
 					difficulty: "easy",
-					time: "20min",
+					time: "",
 					type: "breakfast",
 					image: null,
 				},
 				{
 					title: "Cheese garlic sandwich",
-					difficulty: "easy",
+					difficulty: "",
 					time: "20min",
-					type: "breakfast",
+					type: "",
 					image: "/src/assets/example-recipe-image.jpg",
 				},
 				{

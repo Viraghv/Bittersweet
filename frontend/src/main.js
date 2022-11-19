@@ -80,5 +80,7 @@ const app = createApp(App)
     .use(vueCookies)
     .use(pinia)
 
+
+
 app.mount('#app')
 

@@ -6,8 +6,11 @@ const cors = require('cors');
 require("dotenv").config();
 
 const userRouter = require('./routes/userRouter');
+const recipeRouter = require('./routes/recipeRouter');
 
 const app = express();
+
+
 
 app.use(cookieParser());
 
@@ -27,5 +30,6 @@ app.use(express.urlencoded({ extended: false }));
 
 
 app.use('/user', userRouter);
+app.use('/recipe', recipeRouter);
 
 module.exports = app;

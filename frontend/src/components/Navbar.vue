@@ -28,7 +28,7 @@
 			<button type="button" class="upload-recipe-button col-lg-5 col-md-5 col-sm-6" v-if="userStore.loggedIn" >
 				<router-link class="upload-recipe-button" :to="{name: 'UploadRecipe'}">
 					<img class="addIcon" src="@/assets/icons/add_icon_white.png" alt="add">
-					Upload recipe
+					<span>Upload recipe</span>
 				</router-link>
 			</button>
 
@@ -75,16 +75,16 @@
 
 				<!-- Modal body -->
 				<div class="modal-body signup-modal-body">
-					<div class="signup-inputs">
+					<form class="signup-inputs">
 						<label for="username">Username:</label><br/>
-						<input class="input-field" type="text" id="username" v-model="signupData.username"><br>
+						<input class="input-field" type="text" id="username" autocomplete="off" v-model="signupData.username" v-on:keydown.enter.exact.prevent="signup"><br>
 						<label for="email">Email:</label><br/>
-						<input class="input-field" type="email" id="email" v-model="signupData.email"><br>
+						<input class="input-field" type="email" id="email" autocomplete="off" v-model="signupData.email" v-on:keydown.enter.exact.prevent="signup"><br>
 						<label for="password-signup">Password:</label><br/>
-						<input class="input-field" type="password" id="password-signup" v-model="signupData.password">
+						<input class="input-field" type="password" id="password-signup" autocomplete="new-password" v-model="signupData.password" v-on:keydown.enter.exact.prevent="signup">
 						<label for="password-again">Password again:</label><br/>
-						<input class="input-field" type="password" id="password-again" v-model="signupData.passwordAgain">
-					</div>
+						<input class="input-field" type="password" id="password-again" autocomplete="off" v-model="signupData.passwordAgain" v-on:keydown.enter.exact.prevent="signup">
+					</form>
 					<div class="signup-alert alert alert-danger" v-if="signupErrorMsgs.length !== 0">
 						<strong>Signup failed!</strong><br>
 						<ul>
@@ -117,12 +117,12 @@
 				<!-- Modal body -->
 				<div class="modal-body login-modal-body">
 
-					<div class="login-inputs">
+					<form class="login-inputs">
 						<label for="username-login">Username:</label><br/>
-						<input class="input-field" type="text" id="username-login" v-model="loginData.username"><br>
+						<input class="input-field" type="text" id="username-login" autocomplete="username" v-model="loginData.username" v-on:keydown.enter.exact.prevent="login"><br>
 						<label for="password-login" >Password:</label><br/>
-						<input class="input-field" type="password" id="password-login" v-model="loginData.password">
-					</div>
+						<input class="input-field" type="password" id="password-login" autocomplete="current-password" v-model="loginData.password" v-on:keydown.enter.exact.prevent="login">
+					</form>
 					<div class="login-alert alert alert-danger" v-if="loginErrorMsgs.length !== 0">
 						<strong>Login failed!</strong><br>
 						<ul>
@@ -214,7 +214,7 @@ export default {
 				this.$cookies.remove("tokenExpiration");
 				this.axios.defaults.headers.common["Authorization"] = "";
 				this.userStore.logout();
-				console.log("Successful logout");
+				await this.$router.replace({name: 'Home'});
 			} catch (error) {
 				console.log(error);
 			}
@@ -339,6 +339,16 @@ export default {
 			font-family: Gotu,serif;
 			text-decoration: none;
 			color: white;
+
+			&:hover{
+				cursor: default;
+			}
+
+			img, span {
+				&:hover{
+					cursor: pointer;
+				}
+			}
 		}
 	}
 
@@ -462,6 +472,10 @@ export default {
 				background-color: var(--yellow);
 				font-size: 1.2rem;
 				padding: 5px 30px;
+
+				&:hover {
+					opacity: 0.8;
+				}
 			}
 		}
 
@@ -489,6 +503,10 @@ export default {
 				padding: 5px 30px;
 				width: 40%;
 				margin-bottom: 5%;
+
+				&:hover {
+					opacity: 0.8;
+				}
 			}
 		}
 

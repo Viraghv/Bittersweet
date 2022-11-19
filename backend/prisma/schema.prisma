@@ -36,7 +36,7 @@ model User {
 model Recipe {
   id Int @id @default(autoincrement())
   name String @db.VarChar(100)
-  description String? @db.VarChar(300)
+  description String @db.VarChar(300)
   hour Int?
   minute Int?
   difficulty Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
@@ -52,10 +52,10 @@ model Recipe {
   userId Int?
   ingredients Ingredient[]
   steps Step[]
-  comments Comment[]
-  recipeGroups RecipeInGroup[]
   recipeCategories RecipeInCategory[]
   allergens AllergenInRecipe[]
+  comments Comment[]
+  recipeGroups RecipeInGroup[]
   shoppingListCategories ShoppingListCategory[]
   usersFavourite Favourite[]
   weeklyMenuItems WeeklyMenuItem[]
