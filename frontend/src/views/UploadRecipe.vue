@@ -342,7 +342,7 @@ export default {
 		async submitRecipe(){
 			this.errors = this.inputsValid;
 
-			if(this.errors.length === 0){
+			if(this.errors.length === 0 && this.imageErrors.length === 0){
 				let categories = [];
 
 				if(this.recipe.primaryCategory){
@@ -447,10 +447,6 @@ export default {
 				errors.push("Please upload a valid image (jpg, png, gif).");
 			}
 
-			if(this.recipe.image && this.recipe.image.size > 512000){
-				errors.push("File can't be bigger than 500KB.")
-			}
-
 			if(this.recipe.ingredients.length === 0){
 				errors.push("Please list the necessary ingredients.");
 			} else {
@@ -495,10 +491,10 @@ export default {
 				}
 			}
 
-			if((this.recipe.timeHour !== null && this.recipe.timeHour !== Math.floor(this.recipe.timeHour)) ||
-			   (this.recipe.timeMinute !== null && this.recipe.timeMinute !== Math.floor(this.recipe.timeMinute)) ||
-			   (this.recipe.portions !== null && this.recipe.portions !== Math.floor(this.recipe.portions)) ||
-			   (this.recipe.calories !== null && this.recipe.calories !== Math.floor(this.recipe.calories))){
+			if((this.recipe.timeHour && this.recipe.timeHour !== Math.floor(this.recipe.timeHour)) ||
+			   (this.recipe.timeMinute && this.recipe.timeMinute !== Math.floor(this.recipe.timeMinute)) ||
+			   (this.recipe.portions && this.recipe.portions !== Math.floor(this.recipe.portions)) ||
+			   (this.recipe.calories && this.recipe.calories !== Math.floor(this.recipe.calories))){
 
 				errors.push("Please only enter whole numbers in the 'Additional information' section.");
 			}
