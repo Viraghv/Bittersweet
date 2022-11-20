@@ -1,6 +1,6 @@
 <template>
 	<h1 class="title">Upload recipe</h1>
-	<form class="content col-xxl-7 col-xl-9 col-lg-8 col-md-10 col-sm-11">
+	<form class="content col-xxl-8 col-xl-9 col-lg-8 col-md-10 col-sm-11">
 		<div class="column-container">
 			<div class="column-left">
 				<input type="text" class="name-input" placeholder="Name" v-model="recipe.name">
@@ -595,8 +595,8 @@ export default {
 			}
 
 			.imagePreviewWrapper {
-				//width: 80%;
-				height: 30vh;
+				max-width: 600px;
+				height: 400px;
 				cursor: pointer;
 				background-size: contain;
 				background-repeat: no-repeat;
@@ -698,11 +698,11 @@ export default {
 					}
 
 					.ingredient-name-input {
-						width: 55%;
+						width: 50%;
 					}
 
 					.ingredient-amount-input {
-						width: 15%;
+						width: 20%;
 						margin-left: 10px;
 
 						&::-webkit-outer-spin-button,

@@ -1,6 +1,6 @@
 <template>
 	<Searchbar/>
-	<div class="content">
+	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<h1 class="home-title">New and Hot!</h1>
 		<div class="recipe_cards">
 			<RecipeCardSearch v-for="(recipe, index) in recipes" :key="index" :index="index" :title="recipe.title" :difficulty="recipe.difficulty" :time="recipe.time" :type="recipe.type" :image="recipe.image"/>
@@ -96,7 +96,7 @@ export default {
 
 <style scoped lang="scss">
 	.content {
-		margin: 60px 20% 140px 20%;
+		margin: 60px auto 140px auto;
 
 		.home-title {
 			font-family: Gotu,serif;

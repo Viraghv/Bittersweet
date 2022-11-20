@@ -230,6 +230,11 @@ export default {
 						password: this.signupData.password,
 						passwordAgain: this.signupData.passwordAgain,
 					})
+					this.loginData.username = this.signupData.username;
+					this.loginData.password = this.signupData.password;
+
+					await this.login();
+
 					document.getElementById("signup-close-button").click();
 				} catch (err) {
 					this.signupErrorMsgs.push(...err.response.data.errorMessage);
