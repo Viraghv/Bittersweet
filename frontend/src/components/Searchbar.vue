@@ -38,18 +38,18 @@ export default {
 
 			.searchbar {
 				font-family: Gotu,serif;
-				font-size: 16px;
+				font-size: 1rem;
 				width: 90%;
 				padding: 10px 15px;
 				border-radius: 20px 0 0 20px;
-				height: 4vh;
+				height: 3rem;
 				border-right: none;
 				border-color: transparent;
 			}
 
 			.search-button {
 				width: 10%;
-				height: 4vh;
+				height: 3rem;
 				border-left: none;
 				border-radius: 0 20px 20px 0;
 				border-color: transparent;

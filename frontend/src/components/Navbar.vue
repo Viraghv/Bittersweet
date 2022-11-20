@@ -312,6 +312,7 @@ export default {
 	background-color: var(--darkgrey);
 	padding: 2vh;
 	align-items: center;
+  height: 80px;
 
 	.logo{
 		width: 100%;
