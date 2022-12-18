@@ -5,12 +5,28 @@ const routes = [
     {
         name: "Home",
         path: "/",
-        component: () => import('@/views/Home')
+        component: () => import('@/views/Home'),
     },
     {
         name: "Profile",
         path: "/profile",
-        component: () => import('@/views/Profile')
+        component: () => import('@/views/Profile'),
+        beforeEnter: (to, from, next) => {
+            if (!useUserStore().loggedIn) {
+                next({
+                    path: '/',
+                    replace: true
+                })
+            } else {
+                next()
+            }
+        }
+    },
+    {
+        name: "Recipe",
+        path: "/recipe/:recipeID",
+        props: true,
+        component: () => import('@/views/Recipe.vue')
     },
     {
         name: "UploadRecipe",

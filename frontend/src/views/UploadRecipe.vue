@@ -598,7 +598,7 @@ export default {
 				max-width: 600px;
 				height: 400px;
 				cursor: pointer;
-				background-size: contain;
+				background-size: cover;
 				background-repeat: no-repeat;
 				background-position: center center;
 				background-color: var(--yellow);

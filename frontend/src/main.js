@@ -8,6 +8,8 @@ import vueAxios from "vue-axios";
 import vueCookies from "vue3-cookies";
 import {createPinia} from "pinia";
 import {useUserStore} from "@/stores/userStore.js";
+import VueAwesomePaginate from "vue-awesome-paginate";
+import "vue-awesome-paginate/dist/style.css";
 
 
 function getCookieByName(name){
@@ -79,7 +81,7 @@ const app = createApp(App)
     .use(vueAxios, axios)
     .use(vueCookies)
     .use(pinia)
-
+    .use(VueAwesomePaginate)
 
 
 app.mount('#app')

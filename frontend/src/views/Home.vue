@@ -5,16 +5,24 @@
 		<div class="recipe_cards">
 			<RecipeCardSearch v-for="(recipe, index) in recipes" :key="index" :index="index" :title="recipe.title" :difficulty="recipe.difficulty" :time="recipe.time" :type="recipe.type" :image="recipe.image"/>
 		</div>
-
+		<div class="pagination-container">
+			<Pagination :total-items="allRecipesCount" :items-per-page="12" @change-page="initRecipes"/>
+		</div>
 	</div>
 </template>
 
 <script>
 import Searchbar from "@/components/Searchbar.vue";
 import RecipeCardSearch from "@/components/RecipeCardSearch.vue";
+import Pagination from "@/components/Pagination.vue";
+
 export default {
 	name: "Home",
-	components: {RecipeCardSearch, Searchbar},
+	components: {
+		RecipeCardSearch,
+		Searchbar,
+		Pagination,
+	},
 	data(){
 		return {
 			recipes: [
@@ -88,9 +96,17 @@ export default {
 					type: "breakfast",
 					image: "/src/assets/example-recipe-image.jpg",
 				},
-			]
+			],
+
+			allRecipesCount: 100,
 		}
-	}
+	},
+
+	methods: {
+		async initRecipes(page){
+			console.log(page);
+		}
+	},
 }
 </script>
 
@@ -110,6 +126,12 @@ export default {
 			grid-template-columns: repeat(auto-fill, 400px);
 			justify-content: space-evenly;
 			grid-gap: 20px 10px;
+		}
+
+		.pagination-container {
+			display: flex;
+			justify-content: center;
+			margin-top: 30px;
 		}
 	}
 </style>

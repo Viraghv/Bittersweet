@@ -312,7 +312,7 @@ export default {
 	background-color: var(--darkgrey);
 	padding: 2vh;
 	align-items: center;
-  height: 80px;
+  	height: 80px;
 
 	.logo{
 		width: 100%;
@@ -436,6 +436,7 @@ export default {
 
 .modal {
 	font-family: Gotu, serif;
+	margin-top: 70px;
 
 	.modal-header {
 		border-bottom: none;
