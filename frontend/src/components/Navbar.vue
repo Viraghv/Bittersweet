@@ -466,6 +466,11 @@ export default {
 			}
 		}
 
+    .login-alert, .signup-alert{
+      padding-bottom: 5px;
+      padding-top: 20px;
+    }
+
 		.login-button-container, .signup-button-container{
 			width: 100%;
 			display: flex;
