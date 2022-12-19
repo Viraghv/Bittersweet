@@ -109,6 +109,78 @@ module.exports.uploadImage = async (image, recipeId, errors) => {
     }
 }
 
+module.exports.getRecipeById = async (recipeId) => {
+    try {
+        let recipe = await recipeRepository.getRecipeById(recipeId);
+
+        recipe.categories = [];
+
+        recipe.difficulty = recipe.difficulty ? recipe.difficulty.name : null;
+        recipe.cost = recipe.cost ? recipe.cost.name : null;
+
+
+        for (let i = 0; i < recipe.recipeCategories.length; i++) {
+            recipe.categories.push(recipe.recipeCategories[i].recipeCategory.name);
+        }
+        delete recipe.recipeCategories;
+
+        for (let i = 0; i < recipe.allergens.length; i++) {
+            recipe.allergens[i] = recipe.allergens[i].allergen.name;
+        }
+
+        for (let i = 0; i < recipe.ingredients.length; i++) {
+            if(recipe.ingredients[i].unit){
+                recipe.ingredients[i].unit = recipe.ingredients[i].unit.name;
+            }
+        }
+
+        return recipe;
+
+    } catch (exception){
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.getCommentsByRecipeId = async (recipeId, page) => {
+    let comments = [];
+
+    try {
+        comments = await recipeRepository.getCommentsByRecipeId(recipeId, page);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return comments;
+}
+
+module.exports.getCommentCountById = async (recipeId) => {
+    let commentCount;
+
+    try {
+        commentCount = await recipeRepository.getCommentCountById(recipeId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return commentCount;
+}
+
+module.exports.getAverageRatingById = async (recipeId) => {
+    let averageRating;
+
+    try {
+        averageRating = await recipeRepository.getAverageRatingById(recipeId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return averageRating;
+}
+
 module.exports.getAllUnits = async () => {
     let units = [];
     units = await recipeRepository.getAllUnits();

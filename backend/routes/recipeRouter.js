@@ -45,6 +45,13 @@ const upload = multer({
 router.post('/create', authMiddleware, recipeController.createOne);
 router.post('/uploadImage/:id', authMiddleware, upload.single('image'), recipeController.uploadImage);
 
+router.get('/recipeById/:id', recipeController.getRecipeById);
+router.get('/recipeImage/:filename', recipeController.getRecipeImage);
+
+router.get('/commentsByRecipeId/:id/:page', recipeController.getCommentsByRecipeId);
+router.get('/commentCount/:id', recipeController.getCommentCountById);
+router.get('/averageRating/:id', recipeController.getAverageRatingById);
+
 router.get('/units', authMiddleware, recipeController.getAllUnits);
 router.get('/difficulties', authMiddleware, recipeController.getAllDifficulties);
 router.get('/categories', authMiddleware, recipeController.getAllCategories);

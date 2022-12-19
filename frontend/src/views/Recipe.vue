@@ -58,7 +58,8 @@
 		<div class="column-container">
 			<div class="column-left">
 				<div class="recipe-image-container">
-					<img class="recipe-image" :src="recipe.image || '/src/assets/recipe_photos/default_recipe_photo.png'" alt="recipe-image">
+					<img class="recipe-image" :src="'data:image/' + recipe.imageExt + ';base64,'+ recipe.image" alt="recipe-image" v-if="recipe.imageUrl && recipe.imageUrl !== 'default'" />
+					<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
 				</div>
 				<div class="steps-header-container">
 					<h3 class="steps-header">Steps</h3>
@@ -101,11 +102,11 @@
 						<button class="add-shoppinglist-btn" type="button" @click="addToShoppingList">+ Shopping list</button>
 					</form>
 				</div>
-				<div class="allergens-header">
+				<div class="allergens-header" v-show="recipe.allergens.length !== 0">
 					<img class="warning-icon" src="@/assets/icons/warning.png" alt="warning"/>
 					<span class="allergens-text">Allergens</span>
 				</div>
-				<div class="allergens">
+				<div class="allergens" v-show="recipe.allergens.length !== 0">
 					<div class="allergen" v-for="(allergen, index) in recipe.allergens" :key="index">
 						<span>{{allergen}}</span>
 					</div>
@@ -115,11 +116,12 @@
 		<div class="user-description-container">
 			<div class="user-info">
 				<div class="pfp-container">
-					<img class="pfp" :src="user.pfp" alt="pfp">
+					<img class="pfp" :src="'data:image/' + user.pfpExt + ';base64,'+ user.pfp" alt="pfp" v-if="user.pfpUrl" />
+					<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<div class="user">
 					<span class="username">{{user.username}}</span><br>
-					<span class="recipe-count">{{"Recipes: " + user.recipieCount}}</span>
+					<span class="recipe-count">{{ "Recipes: " + user.recipeCount }}</span>
 				</div>
 			</div>
 			<div class="description-container">
@@ -128,8 +130,8 @@
 			</div>
 		</div>
 		<div class="timestamp-container">
-			<span class="uploded">Uploaded: {{recipe.uploaded}}</span><br>
-			<span class="last-modified" v-show="wasModified">Last modified: {{recipe.lastModified}}</span>
+			<span class="uploded">Uploaded: {{formattedUploaded}}</span><br>
+			<span class="last-modified" v-show="wasModified">Last modified: {{formattedLastModified}}</span>
 		</div>
 		<div class="ratings-header">
 			<h3 class="ratings-text">Ratings ({{ratingCount}})</h3>
@@ -148,18 +150,21 @@
 					<span class="star star-two" :class=starsChecked.first>☆</span>
 					<span class="star star-one" :class=starsChecked.noStar>☆</span>
 				</div>
-				<span class="rating">{{rating.toFixed(2)}}</span>
+				<span class="rating">{{rating ? rating.toFixed(2) : "-"}}</span>
 			</div>
 		</div>
-		<div class="comments">
+		<div class="comments" v-if="comments.length !== 0">
 			<hr>
 			<div class="comment" v-for="(comment, index) in comments" :key="index">
 				<Comment :comment="comment"/>
 				<hr>
 			</div>
 		</div>
+		<div class="no-comment" v-else>
+			<span>There are no ratings yet</span>
+		</div>
 		<div class="my-pagination-container">
-			<Pagination :total-items="ratingCount" :items-per-page="5" @change-page="initComments"/>
+			<Pagination :total-items="ratingCount" :items-per-page="5" @change-page="initComments" v-show="rating"/>
 		</div>
 	</div>
 
@@ -265,112 +270,36 @@ export default {
 	data(){
 		return {
 			recipe: {
-				name: "Cheese garlic sandwich",
-				description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n",
-				categories: ["breakfast", "sandwich", "packable"],
+				name: "",
+				description: "",
+				categories: [],
 				timeHour: null,
-				timeMinute: 20,
-				difficulty: "easy",
-				cost: "very cheap",
-				portions: 4,
-				calories: 300,
-				image: "/src/assets/example-recipe-image.jpg",
-				uploaded: "2022-11-17 17:27:13.501",
-				lastModified: "2022-11-18 18:27:13.501",
-				userId: 1,
-				steps: [
-					{
-						number: 1,
-						content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-					},
-					{
-						number: 3,
-						content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
-					},
-					{
-						number: 4,
-						content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-					},
-					{
-						number: 2,
-						content: "Lorem ipsum dolor sit amet"
-					},
-				],
-				ingredients: [
-					{
-						name: "eggs",
-						amount: 12,
-						unit: null,
-						unitId: null,
-					},
-					{
-						name: "bread",
-						amount: 1,
-						unit: "kg",
-						unitId: 13
-					},
-					{
-						name: "love",
-						amount: null,
-						unit: "pinch(es) of",
-						unitId: 15
-					}
-				],
-				allergens: [
-					"gluten",
-					"milk",
-					"eggs",
-					"peanuts",
-					"celery",
-					"crustaceans",
-				],
+				timeMinute: null,
+				difficulty: "",
+				cost: "",
+				portions: null,
+				calories: null,
+				imageUrl: "",
+				image: null,
+				imageExt: "",
+				uploaded: "",
+				lastModified: "",
+				steps: [],
+				ingredients: [],
+				allergens: [],
 			},
 
-			rating: 4.4,
-			ratingCount: 315,
-			comments: [
-				{
-					content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-					rating: 4,
-					uploaded: "2022-11-17 17:27:13.501",
-					user: {
-						username: "Username",
-						pfp: "/src/assets/pfps/default.png"
-					}
-				},
-				{
-					content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut.",
-					rating: 2,
-					uploaded: "2022-11-17 17:27:13.501",
-					user: {
-						username: "Username",
-						pfp: "/src/assets/pfps/default.png"
-					}
-				},
-				{
-					content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-					rating: 1,
-					uploaded: "2022-11-17 17:27:13.501",
-					user: {
-						username: "Username",
-						pfp: "/src/assets/pfps/default.png"
-					}
-				},
-				{
-					content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
-					rating: 5,
-					uploaded: "2022-11-17 17:27:13.501",
-					user: {
-						username: "Username",
-						pfp: "/src/assets/pfps/default.png"
-					}
-				},
-			],
+			rating: 0,
+			ratingCount: null,
+			comments: [],
 
 			user: {
-				username: "Username",
-				pfp: "/src/assets/pfps/default.png",
-				recipieCount: 54,
+				id: null,
+				username: "",
+				pfpUrl: "",
+				pfp: "",
+				pfpExt: "",
+				recipeCount: null,
 			},
 
 			starsChecked: {
@@ -437,17 +366,98 @@ export default {
 			}
 		},
 
-		formatDates(){
+		setWasModified(){
 			if (this.recipe.uploaded !== this.recipe.lastModified) {
 				this.wasModified = true;
 			}
+		},
 
-			this.recipe.uploaded = new Date(this.recipe.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
-			this.recipe.lastModified = new Date(this.recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB");
+		async initRecipe(){
+			try {
+				const response = await this.axios.get(`/recipe/recipeById/${this.recipeID}`);
+				this.recipe.name = response.data.name;
+				this.recipe.description = response.data.description;
+				this.recipe.categories = response.data.categories;
+				this.recipe.timeHour = response.data.hour;
+				this.recipe.timeMinute = response.data.minute;
+				this.recipe.difficulty = response.data.difficulty;
+				this.recipe.cost = response.data.cost;
+				this.recipe.portions = response.data.portions;
+				this.recipe.calories = response.data.calories;
+				this.recipe.imageUrl = response.data.photo;
+				this.recipe.uploaded = response.data.uploaded;
+				this.recipe.lastModified = response.data.lastModified;
+				this.recipe.steps = response.data.steps;
+				this.recipe.ingredients = response.data.ingredients;
+				this.recipe.allergens = response.data.allergens;
+
+				this.user.id = response.data.user.id;
+				this.user.username = response.data.user.username;
+				this.user.pfpUrl = response.data.user.profilepicture;
+
+				this.joinCategoriesToString();
+				this.sortSteps();
+				this.setWasModified();
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initRecipeImage(){
+			try {
+				const response = await this.axios.get(`/recipe/recipeImage/${this.recipe.imageUrl}`);
+				this.recipe.image = response.data;
+				this.recipe.imageExt = this.recipe.imageUrl.split(".")[1];
+			} catch (error) {
+				console.log(error.response.data);
+			}
+
+		},
+
+		async initUserPfp(){
+			try {
+				const response = await this.axios.get(`/user/pfp/${this.user.pfpUrl}`);
+				this.user.pfp = response.data;
+				this.user.pfpExt = this.user.pfpUrl.split(".")[1];
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initRating(){
+			try {
+				const response = await this.axios.get(`/recipe/averageRating/${this.recipeID}`)
+				this.rating = response.data;
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initRatingCount(){
+			try {
+				const response = await this.axios.get(`/recipe/commentCount/${this.recipeID}`)
+				this.ratingCount = response.data;
+			} catch (error) {
+				console.log(error.response.data);
+			}
 		},
 
 		async initComments(page){
-			console.log(page);
+			try {
+				const response = await this.axios.get(`/recipe/commentsByRecipeId/${this.recipeID}/${page}`)
+				this.comments = response.data;
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initUserRecipeCount(){
+			try {
+				const response = await this.axios.get(`/user/uploadedRecipeCount/${this.user.id}`)
+				this.user.recipeCount = response.data;
+			} catch (error) {
+				console.log(error.response.data);
+			}
 		},
 
 		async addToFavourites(){
@@ -459,7 +469,6 @@ export default {
 		async removeFromFavourites(){
 			//TODO
 			this.userFavourite = false;
-			this.closeFavouriteModal();
 		},
 
 		async addToGroup(){
@@ -501,17 +510,33 @@ export default {
 	},
 
 	computed: {
+		formattedUploaded(){
+			return new Date(this.recipe.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
+		},
 
+		formattedLastModified(){
+			return new Date(this.recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB");
+		}
 	},
 
-	mounted() {
+	async mounted() {
 		const favouriteModal = document.getElementById('favourite-modal');
 		favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
 
+		await this.initRecipe();
+		if(this.recipe.imageUrl && this.recipe.imageUrl !== "default"){
+			await this.initRecipeImage();
+		}
+		if(this.user.pfpUrl) {
+			await this.initUserPfp();
+		}
+		await this.initRating();
+		await this.initRatingCount();
+		await this.initUserRecipeCount();
+		await this.initComments(1);
+
 		this.setStarsChecked();
-		this.joinCategoriesToString();
-		this.sortSteps();
-		this.formatDates();
+
 	}
 }
 </script>
@@ -640,12 +665,14 @@ export default {
 					flex-direction: column;
 					padding: 40px 25px;
 					border-bottom: 1px solid var(--lightgrey);
+					width: 100%;
 
 					.step-container {
 						display: flex;
 						align-items: center;
 						margin-bottom: 5px;
 						padding: 10px;
+
 
 						&:hover {
 							background-color: var(--verylightgrey);
@@ -826,6 +853,7 @@ export default {
 			.description-container {
 				background-color: var(--lightgreen);
 				padding: 5% 3%;
+				width: 100%;
 
 				.description-title {
 					margin-bottom: 30px;
@@ -881,6 +909,12 @@ export default {
 
 
 			}
+		}
+
+		.no-comment {
+			text-align: center;
+			margin-top: 20px;
+			font-size: 1.2rem;
 		}
 
 		.my-pagination-container {

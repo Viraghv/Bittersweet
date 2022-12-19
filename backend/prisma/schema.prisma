@@ -26,6 +26,7 @@ model User {
   costPref Cost? @relation(fields: [costId], references: [id], onDelete: SetNull)
   costId Int?
   recipes Recipe[]
+  comments Comment[]
   recipeGroups RecipeGroup[]
   allergies UserAllergy[]
   shoppingListCategories ShoppingListCategory[]
@@ -108,6 +109,8 @@ model Comment {
   uploaded DateTime @default(now())
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId Int?
 }
 
 model RecipeGroup {

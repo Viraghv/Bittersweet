@@ -44,3 +44,22 @@ module.exports.getUserByUsername = async (username) => {
         throw new InternalServerError("Something went wrong during login.");
     }
 }
+
+module.exports.getUploadedRecipeCountById = async (userId) => {
+    let recipeCount = 0;
+
+    try {
+        recipeCount = await prisma.Recipe.count({
+            where: {
+                userId: userId,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return recipeCount;
+}

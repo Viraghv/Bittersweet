@@ -62,3 +62,16 @@ module.exports.login = async (loginData) => {
         throw exception
     }
 }
+
+module.exports.getUploadedRecipeCountById = async (userId) => {
+    let recipeCount;
+
+    try {
+        recipeCount = await userRepository.getUploadedRecipeCountById(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return recipeCount;
+}

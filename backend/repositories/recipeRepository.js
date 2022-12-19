@@ -129,6 +129,166 @@ module.exports.uploadImage = async (image, recipeId, errors) => {
 
 }
 
+module.exports.getRecipeById = async (recipeId) => {
+    let recipe;
+
+    try {
+        recipe = await prisma.Recipe.findUnique({
+            where: {
+                id: recipeId,
+            },
+            select: {
+                name: true,
+                description: true,
+                hour: true,
+                minute: true,
+                recipeCategories: {
+                  include: {
+                      recipeCategory: {
+                          select: {
+                              name: true,
+                          }
+                      },
+                  }
+                },
+                difficulty: {
+                    select: {
+                        name: true,
+                    }
+                },
+                cost: {
+                    select: {
+                        name: true,
+                    }
+                },
+                portions: true,
+                calories: true,
+                photo: true,
+                uploaded: true,
+                lastModified: true,
+                steps: {
+                    select: {
+                        number: true,
+                        content: true,
+                    }
+                },
+                ingredients: {
+                    select: {
+                        name: true,
+                        amount: true,
+                        unitId: true,
+                        unit: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                },
+                allergens: {
+                    include: {
+                        allergen: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                    }
+                },
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        profilepicture: true,
+                    }
+                }
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return recipe;
+}
+
+module.exports.getCommentsByRecipeId = async (recipeId, page) => {
+    let comments = [];
+    try {
+        comments = await prisma.Comment.findMany({
+            skip: (page - 1) * 5,
+            take: 5,
+            where: {
+                recipeId: recipeId
+            },
+            select: {
+                content: true,
+                rating: true,
+                uploaded: true,
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        profilepicture: true,
+                    }
+                }
+
+            },
+            orderBy: {
+                uploaded: 'desc',
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return comments;
+}
+
+module.exports.getCommentCountById = async (recipeId) => {
+    let commentCount = 0;
+
+    try {
+        commentCount = await prisma.Comment.count({
+            where: {
+                recipeId: recipeId,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return commentCount;
+}
+
+module.exports.getAverageRatingById = async (recipeId) => {
+    let averageRating = 0;
+
+    try {
+        averageRating = await prisma.Comment.aggregate({
+            _avg: {
+                rating: true,
+            },
+            where: {
+                recipeId: recipeId,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return averageRating._avg.rating;
+}
+
 module.exports.getAllUnits = async () => {
     let units = [];
     try {

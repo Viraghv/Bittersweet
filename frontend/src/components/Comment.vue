@@ -2,11 +2,13 @@
 	<div class="comment-header">
 		<div class="user">
 			<div class="pfp-container">
-				<img class="pfp" :src="comment.user.pfp" alt="pfp">
+				<img class="pfp" :src="'data:image/' + pfpExt + ';base64,'+ pfpImage" alt="pfp" v-if="comment.user.profilepicture" />
+<!--				<img class="pfp" :src="comment.user.pfp" alt="pfp" v-if="comment.imageUrl">-->
+				<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 			</div>
 			<span class="username">{{comment.user.username}}</span>
 		</div>
-		<span class="uploaded">{{comment.uploaded}}</span>
+		<span class="uploaded">{{formattedDate}}</span>
 	</div>
 	<div class="stars">
 		<span class="star star-extra" :class=starsChecked.fifth>☆</span>
@@ -30,8 +32,9 @@ export default {
 			rating: null,
 			uploaded: "",
 			user: {
+				id: null,
 				username: "",
-				pfp: "",
+				profilepicture: "",
 			}
 		},
 	},
@@ -46,14 +49,13 @@ export default {
 				fifth: "",
 				noStar: "",
 			},
+
+			pfpImage: "",
+			pfpExt: "",
 		}
 	},
 
 	methods: {
-		formatDate(){
-			this.comment.uploaded = new Date(this.comment.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
-		},
-
 		setStarsChecked(){
 			switch (this.comment.rating) {
 				case 1: this.starsChecked.first = "checked"; break;
@@ -64,10 +66,26 @@ export default {
 				default: this.starsChecked.noStar = "checked";
 			}
 		},
+
+		async initUserPfp(){
+			try {
+				const response = await this.axios.get(`/user/pfp/${this.comment.user.profilepicture}`);
+				this.pfpImage = response.data;
+				this.pfpExt = this.comment.user.profilepicture.split(".")[1];
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+	},
+
+	computed: {
+		formattedDate(){
+			return new Date(this.comment.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
+		}
 	},
 
 	mounted() {
-		this.formatDate();
+		this.initUserPfp();
 		this.setStarsChecked();
 	}
 }
