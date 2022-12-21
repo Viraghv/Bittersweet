@@ -63,6 +63,7 @@ module.exports.login = async (loginData) => {
     }
 }
 
+
 module.exports.getUploadedRecipeCountById = async (userId) => {
     let recipeCount;
 
@@ -74,4 +75,50 @@ module.exports.getUploadedRecipeCountById = async (userId) => {
     }
 
     return recipeCount;
+}
+
+module.exports.createGroupForCurrentUser = async (name, userId) => {
+    try {
+        return await userRepository.createGroupForCurrentUser(name, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.getAllGroupsOfUserById = async (userId) => {
+    let userGroups;
+
+    try {
+        userGroups = await userRepository.getAllGroupsOfUserById(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return userGroups;
+}
+
+module.exports.addRecipeToGroup = async (data) => {
+    try {
+        await userRepository.addRecipeToGroup(data);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteRecipeFromGroup = async (recipeId, userGroups) => {
+    try {
+        let userGroupIds = [];
+
+        for (let i = 0; i < userGroups.length; i++) {
+            userGroupIds.push(userGroups[i].id)
+        }
+
+        await userRepository.deleteRecipeFromGroup(recipeId, userGroupIds);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 }

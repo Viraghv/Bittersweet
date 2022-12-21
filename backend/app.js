@@ -7,6 +7,8 @@ require("dotenv").config();
 
 const userRouter = require('./routes/userRouter');
 const recipeRouter = require('./routes/recipeRouter');
+const favouriteRouter = require('./routes/favouriteRouter');
+const shoppingListRouter = require('./routes/shoppingListRouter');
 
 const app = express();
 
@@ -31,5 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/user', userRouter);
 app.use('/recipe', recipeRouter);
+app.use('/favourite', favouriteRouter);
+app.use('/shoppingList', shoppingListRouter);
 
 module.exports = app;

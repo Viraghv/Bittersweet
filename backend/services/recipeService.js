@@ -4,8 +4,6 @@ const {compareSync} = require("bcrypt");
 
 
 module.exports.createOne = async (recipeData, userId) => {
-    //console.log(recipeData);
-
     let errors = [];
 
     if(!recipeData.name?.trim()  || !recipeData.description?.trim()){

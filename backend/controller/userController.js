@@ -93,6 +93,48 @@ module.exports.getPfp = async (req, res) => {
     }
 }
 
+module.exports.createGroupForCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await userService.createGroupForCurrentUser(req.body.name, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllGroupsOfCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await userService.getAllGroupsOfUserById(userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.addRecipeToGroup = async (req, res) => {
+    try {
+        res.json( await userService.addRecipeToGroup(req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getSessionState = (req, res) => {
     res.json(session);
 }

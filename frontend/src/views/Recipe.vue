@@ -14,7 +14,7 @@
 				<span class="rating-count">({{ratingCount}} ratings)</span>
 			</div>
 		</div>
-		<div class="favourite-container">
+		<div class="favourite-container" v-show="userStore.loggedIn">
 			<button class="favourite-button" :class="userFavourite ? 'yellow' : ''" @click="changeFavourites">
 				<img class="heart-icon" v-show="!userFavourite" src="@/assets/icons/heart_outline_lightgrey.png" alt="heart">
 				<img class="heart-icon" v-show="userFavourite" src="@/assets/icons/heart_yellow.png" alt="heart">
@@ -80,7 +80,7 @@
 					<form>
 						<div class="ingredients-header">
 							<h3 class="ingredients-header-text">Ingredients</h3>
-							<div class="check-all-container">
+							<div class="check-all-container" v-show="userStore.loggedIn">
 								<label for="check-all">All</label>
 								<input class="check-all" type="checkbox" id="check-all" @change="changeAll">
 							</div>
@@ -94,12 +94,12 @@
 											<span class="unit">{{ingredient.unit ? ingredient.unit + " " : ""}}</span>
 											<span class="name">{{ingredient.name}}</span>
 										</label>
-										<input class="checkbox-input" type="checkbox" :id="'check-ingredient' + index" v-model="selectedIngredients" :value="ingredient">
+										<input class="checkbox-input" type="checkbox" :id="'check-ingredient' + index" v-model="selectedIngredients" :value="ingredient" v-show="userStore.loggedIn">
 									</div>
 								</li>
 							</ul>
 						</div>
-						<button class="add-shoppinglist-btn" type="button" @click="addToShoppingList">+ Shopping list</button>
+						<button class="add-shoppinglist-btn" type="button" @click="addToShoppingList" v-show="userStore.loggedIn">+ Shopping list</button >
 					</form>
 				</div>
 				<div class="allergens-header" v-show="recipe.allergens.length !== 0">
@@ -135,7 +135,7 @@
 		</div>
 		<div class="ratings-header">
 			<h3 class="ratings-text">Ratings ({{ratingCount}})</h3>
-			<button class="rate-btn" data-bs-toggle="modal" data-bs-target="#comment-modal">Rate this recipe</button>
+			<button class="rate-btn" data-bs-toggle="modal" data-bs-target="#comment-modal" v-show="userStore.loggedIn">Rate this recipe</button>
 		</div>
 		<div class="average-rating-container">
 			<div>
@@ -182,7 +182,7 @@
 					<label class="add-to-group-label" for="add-to-group">Add to group:</label><br/>
 					<form class="add-to-group">
 						<Multiselect class="add-to-group-input" name="add-to-group" v-model="selectedGroupInput" :options="userGroups" :searchable="true" :can-clear="false"/>
-						<button class="add-to-group-button" type="submit" @click="addToGroup">Add</button><br>
+						<button class="add-to-group-button" type="button" @click="addToGroup">Add</button><br>
 					</form>
 
 					<hr class="form-divide"/>
@@ -190,7 +190,7 @@
 					<label class="create-group-label" for="create-group-input">Create group and add recipe:</label><br/>
 					<form class="create-group">
 						<input class="create-group-input" type="text" id="create-group-input" autocomplete="off" v-model="createGroupInput">
-						<button class="create-group-button" type="submit" @click="createAndAddToGroup">Create</button><br>
+						<button class="create-group-button" type="button" @click="createAndAddToGroup">Create</button><br>
 					</form>
 
 				</div>
@@ -222,29 +222,46 @@
 				<div class="modal-header">
 					<button id="favourite-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
-					<form class="comment-modal-container">
-						<div class="rating-container">
-							<span class="rating-text">Rating:</span>
-							<div class="rating">
-								<input type="radio" name="rating" value="5" id="5" v-model="newComment.rating"><label for="5">☆</label>
-								<input type="radio" name="rating" value="4" id="4" v-model="newComment.rating"><label for="4">☆</label>
-								<input type="radio" name="rating" value="3" id="3" v-model="newComment.rating"><label for="3">☆</label>
-								<input type="radio" name="rating" value="2" id="2" v-model="newComment.rating"><label for="2">☆</label>
-								<input type="radio" name="rating" value="1" id="1" v-model="newComment.rating"><label for="1">☆</label>
-							</div>
+				<form class="comment-modal-container">
+					<div class="rating-container">
+						<span class="rating-text">Rating:</span>
+						<div class="rating">
+							<input type="radio" name="rating" value="5" id="5" v-model="newComment.rating"><label for="5">☆</label>
+							<input type="radio" name="rating" value="4" id="4" v-model="newComment.rating"><label for="4">☆</label>
+							<input type="radio" name="rating" value="3" id="3" v-model="newComment.rating"><label for="3">☆</label>
+							<input type="radio" name="rating" value="2" id="2" v-model="newComment.rating"><label for="2">☆</label>
+							<input type="radio" name="rating" value="1" id="1" v-model="newComment.rating"><label for="1">☆</label>
 						</div>
-						<div class="comment-content-container">
-							<label for="comment-content" class="content-text">Content:</label>
-							<textarea class="comment-content-input" id="comment-content" maxlength="300" v-model="newComment.content"/>
-							<span class="comment-content-counter">{{newComment.content.length}}/300</span>
-						</div>
-						<div class="submit-rating-btn-container">
-							<button class="submit-rating-btn" type="button" @click="submitRating">Submit rating</button>
-						</div>
-					</form>
+					</div>
+					<div class="comment-content-container">
+						<label for="comment-content" class="content-text">Content:</label>
+						<textarea class="comment-content-input" id="comment-content" maxlength="300" v-model="newComment.content"/>
+						<span class="comment-content-counter">{{newComment.content.length}}/300</span>
+					</div>
+					<div class="submit-rating-btn-container">
+						<button class="submit-rating-btn" type="button" @click="submitRating">Submit rating</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="shopping-list-modal" ref="shopping-list-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="shopping-list-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="shopping-list-modal-container">
+					<div class="hopping-list-modal-text-container">
+						<span class="shopping-list-modal-text">The items have been added to your shopping list!</span>
+					</div>
+					<button class="shopping-list-modal-button" type="button" data-bs-dismiss="modal">OK</button>
 				</div>
 			</div>
 		</div>
+	</div>
 </template>
 
 <script>
@@ -252,7 +269,8 @@ import {Modal} from 'bootstrap'
 import Multiselect from '@vueform/multiselect'
 import Comment from '@/components/Comment.vue'
 import Pagination from "@/components/Pagination.vue";
-
+import {useUserStore} from "@/stores/userStore.js";
+import {mapStores} from "pinia";
 
 export default {
 	name: "Recipe",
@@ -319,7 +337,7 @@ export default {
 			userFavourite: false,
 			modalMode: "",
 
-			userGroups: ["group1", "group2", "group3"],
+			userGroups: {},
 
 			selectedGroupInput: "",
 			createGroupInput: "",
@@ -460,27 +478,111 @@ export default {
 			}
 		},
 
+		async initFavourite(){
+			try {
+				const response = await this.axios.get(`/favourite/allUserFavourites`)
+				let userFavourites = response.data;
+				if(userFavourites.includes(Number(this.recipeID))){
+					this.userFavourite = true;
+				} else {
+					this.userFavourite = false;
+				}
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initGroups(){
+			try {
+				const response = await this.axios.get("/user/groups/allCurrentUser");
+				for(const group of response.data){
+					this.userGroups[group.id] = group.name;
+				}
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
 		async addToFavourites(){
-			//TODO
-			await new Promise(r => setTimeout(r, 1000));
-			this.userFavourite = true;
+			try {
+				await this.axios.get(`/favourite/add/${this.recipeID}`)
+				await this.initFavourite();
+			} catch (error) {
+				console.log(error.response.data);
+				throw error
+			}
 		},
 
 		async removeFromFavourites(){
-			//TODO
-			this.userFavourite = false;
+			try {
+				await this.axios.get(`/favourite/delete/${this.recipeID}`);
+				document.getElementById("favourite-close-button").click();
+				await this.initFavourite();
+			} catch (error) {
+				console.log(error.response.data);
+				throw error
+			}
 		},
 
 		async addToGroup(){
-			//TODO
+			try {
+				await this.axios.post("/user/groups/addRecipe", {
+					groupId: Number(this.selectedGroupInput),
+					recipeId: Number(this.recipeID),
+				});
+
+				document.getElementById("favourite-close-button").click();
+
+			} catch (error) {
+				console.log(error.response.data);
+				throw error
+			}
 		},
 
 		async createAndAddToGroup(){
-			//TODO
+			try {
+				let response = await this.axios.post("/user/groups/createForCurrentUser", {
+					name: this.createGroupInput
+				});
+
+				await this.axios.post("/user/groups/addRecipe", {
+					groupId: Number(response.data.id),
+					recipeId: Number(this.recipeID),
+				});
+
+				document.getElementById("favourite-close-button").click();
+
+			} catch (error) {
+				console.log(error.response.data);
+				throw error
+			}
 		},
 
 		async addToShoppingList(){
-			//TODO
+			if(this.selectedIngredients.length > 0){
+				let selectedIngredientsCopy = JSON.parse(JSON.stringify(this.selectedIngredients))
+
+				for (let i = 0; i < selectedIngredientsCopy.length; i++) {
+					delete selectedIngredientsCopy[i].unit;
+				}
+
+				try {
+					await this.axios.post("/shoppingList/addCategoryAndItems", {
+						categoryName: this.recipe.name,
+						items: selectedIngredientsCopy,
+					});
+
+					let shoppingListModal = new Modal(document.getElementById("shopping-list-modal"), {});
+					shoppingListModal.show();
+
+					document.getElementById("check-all").checked = false;
+					this.allChecked = false;
+					this.selectedIngredients = [];
+				} catch (error) {
+					console.log(error.response.data);
+					throw error
+				}
+			}
 		},
 
 		async submitRating(){
@@ -488,25 +590,36 @@ export default {
 		},
 
 		async changeFavourites(){
-			if(!this.userFavourite){
+			try {
+				if(!this.userFavourite){
 
-				//TODO addToFavourites
-				await this.addToFavourites();
+					await this.addToFavourites();
 
-				this.modalMode = "add"
-				let favouriteModal = new Modal(document.getElementById("favourite-modal"), {});
-				favouriteModal.show();
-			} else {
-				this.modalMode = "remove"
-				let favouriteModal = new Modal(document.getElementById("favourite-modal"), {});
-				favouriteModal.show();
+					this.modalMode = "add"
+					let favouriteModal = new Modal(document.getElementById("favourite-modal"), {});
+					favouriteModal.show();
+
+					await this.initGroups();
+				} else {
+					this.modalMode = "remove"
+					let favouriteModal = new Modal(document.getElementById("favourite-modal"), {});
+					favouriteModal.show();
+				}
+			} catch (error) {
+				console.log(error.response.data);
 			}
+
 		},
 
 		clearFavouriteModal(){
 			this.selectedGroupInput =  "";
 			this.createGroupInput = "";
 		},
+
+		clearCommentModal(){
+			this.newComment.rating = null;
+			this.newComment.content = "";
+		}
 	},
 
 	computed: {
@@ -516,12 +629,17 @@ export default {
 
 		formattedLastModified(){
 			return new Date(this.recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB");
-		}
+		},
+
+		...mapStores(useUserStore),
 	},
 
 	async mounted() {
 		const favouriteModal = document.getElementById('favourite-modal');
 		favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
+
+		const commentModal = document.getElementById('comment-modal');
+		commentModal.addEventListener("hidden.bs.modal", () => this.clearCommentModal());
 
 		await this.initRecipe();
 		if(this.recipe.imageUrl && this.recipe.imageUrl !== "default"){
@@ -530,6 +648,11 @@ export default {
 		if(this.user.pfpUrl) {
 			await this.initUserPfp();
 		}
+
+		if(this.userStore.loggedIn){
+			await this.initFavourite();
+		}
+
 		await this.initRating();
 		await this.initRatingCount();
 		await this.initUserRecipeCount();
@@ -1201,6 +1324,24 @@ export default {
 				border: 1px solid var(--lightgrey);
 				border-radius: 15px;
 				padding: 5px 30px;
+			}
+		}
+	}
+
+	.shopping-list-modal-container {
+		margin: 0 10% 30px 10%;
+		font-family: Gotu,serif;
+		text-align: center;
+
+		.shopping-list-modal-button {
+			border: 1px solid var(--lightgrey);
+			border-radius: 20px;
+			padding: 5px 30px;
+			margin-top: 15px;
+			background-color: var(--yellow);
+
+			&:hover {
+				opacity: 0.8;
 			}
 		}
 	}

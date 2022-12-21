@@ -3,7 +3,6 @@
 		<div class="user">
 			<div class="pfp-container">
 				<img class="pfp" :src="'data:image/' + pfpExt + ';base64,'+ pfpImage" alt="pfp" v-if="comment.user.profilepicture" />
-<!--				<img class="pfp" :src="comment.user.pfp" alt="pfp" v-if="comment.imageUrl">-->
 				<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 			</div>
 			<span class="username">{{comment.user.username}}</span>
@@ -85,7 +84,9 @@ export default {
 	},
 
 	mounted() {
-		this.initUserPfp();
+		if(this.comment.user.profilepicture){
+			this.initUserPfp();
+		}
 		this.setStarsChecked();
 	}
 }

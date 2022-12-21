@@ -63,3 +63,71 @@ module.exports.getUploadedRecipeCountById = async (userId) => {
 
     return recipeCount;
 }
+
+module.exports.createGroupForCurrentUser = async (name, userId) => {
+    try {
+        return await prisma.RecipeGroup.create({
+            data: {
+                name: name,
+                userId: userId,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getAllGroupsOfUserById = async (userId) => {
+    try {
+        return await prisma.RecipeGroup.findMany({
+            where: {
+                userId: userId,
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.addRecipeToGroup = async (data) => {
+    try {
+        return await prisma.RecipeInGroup.create({
+            data: {
+                ...data
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.deleteRecipeFromGroup = async (recipeId, userGroupIds) => {
+    try {
+        return await prisma.RecipeInGroup.deleteMany({
+            where: {
+                recipeId: recipeId,
+                groupId: {
+                    in: userGroupIds,
+                }
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
