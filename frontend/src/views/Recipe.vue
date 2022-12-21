@@ -4,12 +4,12 @@
 			<h1 class="recipe-title">{{recipe.name}}</h1>
 			<div class="rating">
 				<div class="stars">
-					<span class="star star-extra" :class=starsChecked.fifth>☆</span>
-					<span class="star star-five" :class=starsChecked.fourth>☆</span>
-					<span class="star star-four" :class=starsChecked.third>☆</span>
-					<span class="star star-three" :class=starsChecked.second>☆</span>
-					<span class="star star-two" :class=starsChecked.first>☆</span>
-					<span class="star star-one" :class=starsChecked.noStar>☆</span>
+					<span class="star star-extra" :class="Math.round(rating) === 5 ? 'checked' : ''">☆</span>
+					<span class="star star-five" :class="Math.round(rating) === 4 ? 'checked' : ''">☆</span>
+					<span class="star star-four" :class="Math.round(rating) === 3 ? 'checked' : ''">☆</span>
+					<span class="star star-three" :class="Math.round(rating) === 2 ? 'checked' : ''">☆</span>
+					<span class="star star-two" :class="Math.round(rating) === 1 ? 'checked' : ''">☆</span>
+					<span class="star star-one" >☆</span>
 				</div>
 				<span class="rating-count">({{ratingCount}} ratings)</span>
 			</div>
@@ -120,8 +120,8 @@
 					<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<div class="user">
-					<span class="username">{{user.username}}</span><br>
-					<span class="recipe-count">{{ "Recipes: " + user.recipeCount }}</span>
+					<span class="username">{{user.username.length < 15 ? user.username : user.username.substring(0, 15) + '...' }}</span><br>
+					<div class="recipe-count">{{ "Recipes: " + user.recipeCount }}</div>
 				</div>
 			</div>
 			<div class="description-container">
@@ -135,7 +135,21 @@
 		</div>
 		<div class="ratings-header">
 			<h3 class="ratings-text">Ratings ({{ratingCount}})</h3>
-			<button class="rate-btn" data-bs-toggle="modal" data-bs-target="#comment-modal" v-show="userStore.loggedIn">Rate this recipe</button>
+			<button class="rate-btn"
+					data-bs-toggle="modal"
+					data-bs-target="#comment-modal"
+					v-show="userStore.loggedIn && user.id !== userStore.user?.id"
+					v-if="!hasCommented">
+					Rate this recipe
+			</button>
+			<button class="rate-btn"
+					data-bs-toggle="modal"
+					data-bs-target="#comment-modal"
+					@click="initEditComment"
+					v-show="userStore.loggedIn && user.id !== userStore.user?.id"
+					v-else>
+					Edit your rating
+			</button>
 		</div>
 		<div class="average-rating-container">
 			<div>
@@ -143,12 +157,12 @@
 			</div>
 			<div class="stars-and-rating">
 				<div class="stars rating-stars">
-					<span class="star star-extra" :class=starsChecked.fifth>☆</span>
-					<span class="star star-five" :class=starsChecked.fourth>☆</span>
-					<span class="star star-four" :class=starsChecked.third>☆</span>
-					<span class="star star-three" :class=starsChecked.second>☆</span>
-					<span class="star star-two" :class=starsChecked.first>☆</span>
-					<span class="star star-one" :class=starsChecked.noStar>☆</span>
+					<span class="star star-extra" :class="Math.round(rating) === 5 ? 'checked' : ''">☆</span>
+					<span class="star star-five" :class="Math.round(rating) === 4 ? 'checked' : ''">☆</span>
+					<span class="star star-four" :class="Math.round(rating) === 3 ? 'checked' : ''">☆</span>
+					<span class="star star-three" :class="Math.round(rating) === 2 ? 'checked' : ''">☆</span>
+					<span class="star star-two" :class="Math.round(rating) === 1 ? 'checked' : ''">☆</span>
+					<span class="star star-one" >☆</span>
 				</div>
 				<span class="rating">{{rating ? rating.toFixed(2) : "-"}}</span>
 			</div>
@@ -220,7 +234,7 @@
 			<div class="modal-content">
 
 				<div class="modal-header">
-					<button id="favourite-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					<button id="comment-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<form class="comment-modal-container">
 					<div class="rating-container">
@@ -238,8 +252,15 @@
 						<textarea class="comment-content-input" id="comment-content" maxlength="300" v-model="newComment.content"/>
 						<span class="comment-content-counter">{{newComment.content.length}}/300</span>
 					</div>
+					<div class="comment-alert alert alert-danger" v-if="ratingErrors.length !== 0">
+						<strong>Submit failed!</strong><br>
+						<ul>
+							<li class="comment-error-items" v-for="(error, index) in ratingErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
 					<div class="submit-rating-btn-container">
-						<button class="submit-rating-btn" type="button" @click="submitRating">Submit rating</button>
+						<button class="submit-rating-btn" type="button" @click="submitRating" v-if="!hasCommented">Submit rating</button>
+						<button class="submit-rating-btn" type="button" @click="editRating" v-else>Edit rating</button>
 					</div>
 				</form>
 			</div>
@@ -320,15 +341,6 @@ export default {
 				recipeCount: null,
 			},
 
-			starsChecked: {
-				first: "",
-				second: "",
-				third: "",
-				fourth: "",
-				fifth: "",
-				noStar: "",
-			},
-
 			newComment: {
 				rating: null,
 				content: "",
@@ -349,23 +361,14 @@ export default {
 
 			wasModified: false,
 
+			hasCommented: false,
+
+			ratingErrors: [],
+
 		}
 	},
 
 	methods: {
-		setStarsChecked(){
-			let rating = Math.round(this.rating);
-
-			switch (rating) {
-				case 1: this.starsChecked.first = "checked"; break;
-				case 2: this.starsChecked.second = "checked"; break;
-				case 3: this.starsChecked.third = "checked"; break;
-				case 4: this.starsChecked.fourth = "checked"; break;
-				case 5: this.starsChecked.fifth = "checked"; break;
-				default: this.starsChecked.noStar = "checked";
-			}
-		},
-
 		sortSteps(){
 			this.recipe.steps.sort((a, b) => a.number - b.number);
 		},
@@ -464,6 +467,18 @@ export default {
 			try {
 				const response = await this.axios.get(`/recipe/commentsByRecipeId/${this.recipeID}/${page}`)
 				this.comments = response.data;
+
+				for (let i = 0; i < this.comments.length; i++) {
+					if(this.comments[i].user.profilepicture){
+						try {
+							const response = await this.axios.get(`/user/pfp/${this.comments[i].user.profilepicture}`);
+							this.comments[i].user.pfpImage = response.data;
+							this.comments[i].user.pfpExt = this.comments[i].user.profilepicture.split(".")[1];
+						} catch (error) {
+							console.log(error.response.data);
+						}
+					}
+				}
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -503,6 +518,19 @@ export default {
 			}
 		},
 
+		async initHasCommented(){
+			try {
+				const response = await this.axios.get("/user/currentUserAllRecipesWithComments");
+				if(response.data.includes(Number(this.recipeID))){
+					this.hasCommented = true;
+				} else {
+					this.hasCommented = false;
+				}
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
 		async addToFavourites(){
 			try {
 				await this.axios.get(`/favourite/add/${this.recipeID}`)
@@ -525,36 +553,40 @@ export default {
 		},
 
 		async addToGroup(){
-			try {
-				await this.axios.post("/user/groups/addRecipe", {
-					groupId: Number(this.selectedGroupInput),
-					recipeId: Number(this.recipeID),
-				});
+			if(this.selectedGroupInput) {
+				try {
+					await this.axios.post("/user/groups/addRecipe", {
+						groupId: Number(this.selectedGroupInput),
+						recipeId: Number(this.recipeID),
+					});
 
-				document.getElementById("favourite-close-button").click();
+					document.getElementById("favourite-close-button").click();
 
-			} catch (error) {
-				console.log(error.response.data);
-				throw error
+				} catch (error) {
+					console.log(error.response.data);
+					throw error
+				}
 			}
 		},
 
 		async createAndAddToGroup(){
-			try {
-				let response = await this.axios.post("/user/groups/createForCurrentUser", {
-					name: this.createGroupInput
-				});
+			if(this.createGroupInput.trim() !== ""){
+				try {
+					let response = await this.axios.post("/user/groups/createForCurrentUser", {
+						name: this.createGroupInput
+					});
 
-				await this.axios.post("/user/groups/addRecipe", {
-					groupId: Number(response.data.id),
-					recipeId: Number(this.recipeID),
-				});
+					await this.axios.post("/user/groups/addRecipe", {
+						groupId: Number(response.data.id),
+						recipeId: Number(this.recipeID),
+					});
 
-				document.getElementById("favourite-close-button").click();
+					document.getElementById("favourite-close-button").click();
 
-			} catch (error) {
-				console.log(error.response.data);
-				throw error
+				} catch (error) {
+					console.log(error.response.data);
+					throw error
+				}
 			}
 		},
 
@@ -586,7 +618,56 @@ export default {
 		},
 
 		async submitRating(){
-			//TODO
+			this.ratingErrors = this.ratingInputsAreValid;
+			if(this.ratingErrors.length === 0){
+				try {
+					await this.axios.post("/recipe/addComment", {
+						content: this.newComment.content,
+						rating: Number(this.newComment.rating),
+						recipeId: Number(this.recipeID),
+					});
+
+					document.getElementById("comment-close-button").click();
+					await this.initHasCommented();
+					await this.initComments(1);
+					await this.initRating();
+					await this.initRatingCount()
+
+				} catch (error) {
+					this.ratingErrors.push(...error.response.data.errorMessage);
+					console.log(error.response.data);
+				}
+			}
+		},
+
+		async initEditComment(){
+			try {
+				const response = await this.axios.get(`/recipe/getCommentOfCurrentUserByRecipeId/${this.recipeID}`)
+				this.newComment = response.data[0];
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async editRating(){
+			this.ratingErrors = this.ratingInputsAreValid;
+			if(this.ratingErrors.length === 0){
+				try {
+					await this.axios.post("/recipe/editComment", {
+						id: Number(this.newComment.id),
+						content: this.newComment.content,
+						rating: Number(this.newComment.rating),
+					});
+
+					document.getElementById("comment-close-button").click();
+					await this.initComments(1);
+					await this.initRating();
+
+				} catch (error) {
+					this.ratingErrors.push(...error.response.data.errorMessage);
+					console.log(error.response.data);
+				}
+			}
 		},
 
 		async changeFavourites(){
@@ -619,6 +700,7 @@ export default {
 		clearCommentModal(){
 			this.newComment.rating = null;
 			this.newComment.content = "";
+			this.ratingErrors = [];
 		}
 	},
 
@@ -629,6 +711,22 @@ export default {
 
 		formattedLastModified(){
 			return new Date(this.recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB");
+		},
+
+		ratingInputsAreValid(){
+			let errors = [];
+
+			if(!this.newComment.rating){
+				errors.push("Please rate the recipe.");
+			} else if(this.newComment.rating < 1 || this.newComment.rating > 5) {
+				errors.push("Rating must be between 1-5 stars.");
+			}
+
+			if(this.newComment.content?.trim().length > 300){
+				errors.push("Content of comment can't be longer than 300 characters.");
+			}
+
+			return errors;
 		},
 
 		...mapStores(useUserStore),
@@ -657,6 +755,7 @@ export default {
 		await this.initRatingCount();
 		await this.initUserRecipeCount();
 		await this.initComments(1);
+		await this.initHasCommented();
 
 		this.setStarsChecked();
 
@@ -1315,6 +1414,11 @@ export default {
 			}
 		}
 
+		.comment-alert {
+			padding-bottom: 5px;
+			padding-top: 20px;
+		}
+
 		.submit-rating-btn-container {
 			display: flex;
 			justify-content: center;
@@ -1324,6 +1428,10 @@ export default {
 				border: 1px solid var(--lightgrey);
 				border-radius: 15px;
 				padding: 5px 30px;
+
+				&:hover {
+					opacity: 0.8;
+				}
 			}
 		}
 	}

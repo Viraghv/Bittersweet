@@ -80,6 +80,68 @@ module.exports.createGroupForCurrentUser = async (name, userId) => {
     }
 }
 
+module.exports.getUserById = async (userId) => {
+    try {
+        return await prisma.User.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+                profilepicture: true,
+                emailValidated: true,
+                difficultyPref: true,
+                costPref: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getUsersAllRecipesWithCommentsById = async (userId) => {
+    try {
+        return await prisma.Comment.findMany({
+            where: {
+                userId: userId,
+            },
+            select: {
+                recipeId: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getUsersAllRecipeIds = async (userId) => {
+    try {
+        return await prisma.Recipe.findMany({
+            where: {
+                userId: userId,
+            },
+            select: {
+                id: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
 module.exports.getAllGroupsOfUserById = async (userId) => {
     try {
         return await prisma.RecipeGroup.findMany({

@@ -1,7 +1,8 @@
 <template>
-	<div class="recipe-card-search">
+	<div class="recipe-card-search" @click="navigateToRecipePage">
 		<div class="image-container">
-			<img class="recipe-image" :src="image || '/src/assets/recipe_photos/default_recipe_photo.png'" alt="recipe-image">
+			<img class="recipe-image" :src="'data:image/' + imageExt + ';base64,'+ image" alt="recipe-image" v-if="imageUrl && imageUrl !== 'default'" />
+			<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
 		</div>
 		<div class="type-container" v-if="type">
 			<p class="type-name">{{ type }}</p>
@@ -16,7 +17,12 @@
 			</div>
 			<div class="time-info-container">
 				<img class="time-icon" src="@/assets/icons/time_icon.png" alt="time-icon">
-				<p class="time-name">{{ time ? time : "-" }}</p>
+				<p class="time-name" v-if="hour || minute">
+					<span>{{hour ? hour + "h" : ""}}</span>
+					<span v-show="hour && minute">{{" "}}</span>
+					<span>{{minute ? minute + "m" : ""}}</span>
+				</p>
+				<p class="time-name" v-else>-</p>
 			</div>
 		</div>
 
@@ -27,13 +33,23 @@
 export default {
 	name: "RecipeCardSearch",
 	props: {
+		id: null,
 		index: null,
 		title: "",
 		difficulty: "",
-		time: "",
+		hour: "",
+		minute: "",
 		type: "",
+		imageUrl: "",
 		image: "",
+		imageExt: "",
 	},
+	methods: {
+		navigateToRecipePage() {
+			this.$router.replace({path: `/recipe/${this.id}`});
+		},
+	},
+
 	mounted() {
 		if(!this.type){
 			document.getElementsByClassName("recipe-title-container").item(this.index).style.marginTop = "15px";
@@ -52,6 +68,11 @@ export default {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+
+		&:hover {
+			cursor: pointer;
+			opacity: 0.85;
+		}
 
 		.image-container {
 			background-color: var(--lightgreen);

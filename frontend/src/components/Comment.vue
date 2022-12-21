@@ -2,7 +2,7 @@
 	<div class="comment-header">
 		<div class="user">
 			<div class="pfp-container">
-				<img class="pfp" :src="'data:image/' + pfpExt + ';base64,'+ pfpImage" alt="pfp" v-if="comment.user.profilepicture" />
+				<img class="pfp" :src="'data:image/' + comment.user.pfpExt + ';base64,'+ comment.user.pfpImage" alt="pfp" v-if="comment.user.profilepicture" />
 				<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 			</div>
 			<span class="username">{{comment.user.username}}</span>
@@ -10,12 +10,12 @@
 		<span class="uploaded">{{formattedDate}}</span>
 	</div>
 	<div class="stars">
-		<span class="star star-extra" :class=starsChecked.fifth>☆</span>
-		<span class="star star-five" :class=starsChecked.fourth>☆</span>
-		<span class="star star-four" :class=starsChecked.third>☆</span>
-		<span class="star star-three" :class=starsChecked.second>☆</span>
-		<span class="star star-two" :class=starsChecked.first>☆</span>
-		<span class="star star-one" :class=starsChecked.noStar>☆</span>
+		<span class="star star-extra" :class="comment.rating === 5 ? 'checked' : ''">☆</span>
+		<span class="star star-five" :class="comment.rating === 4 ? 'checked' : ''">☆</span>
+		<span class="star star-four" :class="comment.rating === 3 ? 'checked' : ''">☆</span>
+		<span class="star star-three" :class="comment.rating === 2 ? 'checked' : ''">☆</span>
+		<span class="star star-two" :class="comment.rating === 1 ? 'checked' : ''">☆</span>
+		<span class="star star-one">☆</span>
 	</div>
 	<div class="content-container">
 		<p class="content">{{comment.content}}</p>
@@ -34,61 +34,16 @@ export default {
 				id: null,
 				username: "",
 				profilepicture: "",
+				pfpImage: "",
+				pfpExt: "",
 			}
 		},
 	},
-
-	data() {
-		return {
-			starsChecked: {
-				first: "",
-				second: "",
-				third: "",
-				fourth: "",
-				fifth: "",
-				noStar: "",
-			},
-
-			pfpImage: "",
-			pfpExt: "",
-		}
-	},
-
-	methods: {
-		setStarsChecked(){
-			switch (this.comment.rating) {
-				case 1: this.starsChecked.first = "checked"; break;
-				case 2: this.starsChecked.second = "checked"; break;
-				case 3: this.starsChecked.third = "checked"; break;
-				case 4: this.starsChecked.fourth = "checked"; break;
-				case 5: this.starsChecked.fifth = "checked"; break;
-				default: this.starsChecked.noStar = "checked";
-			}
-		},
-
-		async initUserPfp(){
-			try {
-				const response = await this.axios.get(`/user/pfp/${this.comment.user.profilepicture}`);
-				this.pfpImage = response.data;
-				this.pfpExt = this.comment.user.profilepicture.split(".")[1];
-			} catch (error) {
-				console.log(error.response.data);
-			}
-		},
-	},
-
 	computed: {
 		formattedDate(){
 			return new Date(this.comment.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
 		}
 	},
-
-	mounted() {
-		if(this.comment.user.profilepicture){
-			this.initUserPfp();
-		}
-		this.setStarsChecked();
-	}
 }
 </script>
 

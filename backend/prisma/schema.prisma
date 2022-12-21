@@ -64,7 +64,7 @@ model Recipe {
 model Ingredient {
   id Int @id @default(autoincrement())
   name String @db.VarChar(100)
-  amount Decimal? @db.Decimal(5,3)
+  amount Decimal? @db.Decimal(10,3)
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
   unit Unit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
@@ -108,8 +108,10 @@ model Comment {
   uploaded DateTime @default(now())
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId Int?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  @@unique([recipeId, userId])
 }
 
 model RecipeGroup {

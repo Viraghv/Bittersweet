@@ -3,7 +3,17 @@
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<h1 class="home-title">New and Hot!</h1>
 		<div class="recipe_cards">
-			<RecipeCardSearch v-for="(recipe, index) in recipes" :key="index" :index="index" :title="recipe.title" :difficulty="recipe.difficulty" :time="recipe.time" :type="recipe.type" :image="recipe.image"/>
+			<RecipeCardSearch v-for="(recipe, index) in recipes"
+							  :key="index" :id="recipe.id"
+							  :index="index"
+							  :title="recipe.name"
+							  :difficulty="recipe.difficulty"
+							  :hour="recipe.hour"
+							  :minute="recipe.minute"
+							  :type="recipe.type"
+							  :image-url="recipe.photo"
+			                  :image="recipe.photoImage"
+			                  :image-ext="recipe.photoExt"/>
 		</div>
 		<div class="pagination-container">
 			<Pagination :total-items="allRecipesCount" :items-per-page="12" @change-page="initRecipes"/>
@@ -25,78 +35,7 @@ export default {
 	},
 	data(){
 		return {
-			recipes: [
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "",
-					type: "breakfast",
-					image: null,
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "",
-					time: "20min",
-					type: "",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: null,
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-				{
-					title: "Cheese garlic sandwich",
-					difficulty: "easy",
-					time: "20min",
-					type: "breakfast",
-					image: "/src/assets/example-recipe-image.jpg",
-				},
-			],
+			recipes: [],
 
 			allRecipesCount: 100,
 		}
@@ -104,9 +43,39 @@ export default {
 
 	methods: {
 		async initRecipes(page){
-			console.log(page);
+			try {
+				const response = await this.axios.get(`/recipe/getAllCardsWithPagination/${page}`)
+				this.recipes = response.data;
+
+				for (let i = 0; i < this.recipes.length; i++) {
+					if(this.recipes[i].photo){
+						try {
+							const response = await this.axios.get(`/recipe/recipeImage/${this.recipes[i].photo}`);
+							this.recipes[i].photoImage = response.data;
+							this.recipes[i].photoExt = this.recipes[i].photo.split(".")[1];
+						} catch (error) {
+							console.log(error.response.data);
+						}
+					}
+				}
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initAllRecipesCount(){
+			try {
+				const response = await this.axios.get(`/recipe/allRecipeCount`);
+				this.allRecipesCount = response.data;
+			} catch (error) {
+				console.log(error.response.data);
+			}
 		}
 	},
+	mounted() {
+		this.initAllRecipesCount();
+		this.initRecipes(1);
+	}
 }
 </script>
 

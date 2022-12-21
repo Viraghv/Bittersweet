@@ -34,7 +34,8 @@
 
 			<div class="profile-dropdown  dropdown dropdown-menu-end col-lg-1 col-md-2 col-sm-2" v-if="userStore.loggedIn">
 				<div class="profile-button pfp-container" data-bs-toggle="dropdown" data-bs-offset="10,15">
-					<img class="pfp" src="@/assets/pfps/default.png" alt="pfp">
+					<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user.profilepicture" />
+					<img class="pfp" src="@/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<ul class="profile-dropdown-list dropdown-menu">
 					<li><a class="dropdown-item" href="#">
@@ -198,7 +199,10 @@ export default {
 					this.$cookies.set("sessionToken", result.data.sessionToken, expirationDate);
 					this.$cookies.set("tokenExpiration", expirationDate.toString(), expirationDate);
 					this.axios.defaults.headers.common["Authorization"] = result.data.sessionToken;
-					this.userStore.login();
+
+					await this.userStore.login();
+					await this.initUser();
+
 					document.getElementById("login-close-button").click();
 				} catch (err) {
 					this.loginErrorMsgs.push(...err.response.data.errorMessage);
@@ -240,7 +244,26 @@ export default {
 					this.signupErrorMsgs.push(...err.response.data.errorMessage);
 				}
 			}
-		}
+		},
+
+		async initUser(){
+			try {
+				const userResponse = await this.axios.get(`/user/getCurrentUser`);
+				let user = userResponse.data;
+
+				if(user.profilepicture){
+					const pfpResponse = await this.axios.get(`/user/pfp/${user.profilepicture}`);
+
+					user.pfp = pfpResponse.data;
+					user.pfpExt = user.profilepicture.split(".")[1];
+				}
+
+				this.userStore.setUser(user);
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
 	},
 
 	computed: {
@@ -297,7 +320,8 @@ export default {
 
 		try {
 			await this.axios.get("/user/isLoggedIn");
-			this.userStore.login();
+			await this.userStore.login();
+			await this.initUser();
 			console.log("User is logged in.");
 		} catch (err){
 			this.userStore.logout();

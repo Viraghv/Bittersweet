@@ -78,12 +78,67 @@ module.exports.getUploadedRecipeCountById = async (userId) => {
 }
 
 module.exports.createGroupForCurrentUser = async (name, userId) => {
+    if(name.trim() === ""){
+        throw new BadRequest(["Please provide a name for the group."]);
+    }
+
     try {
         return await userRepository.createGroupForCurrentUser(name, userId);
     } catch (exception) {
         console.log(exception);
         throw exception
     }
+}
+
+module.exports.getUserById = async (userId) => {
+    let user;
+
+    try {
+        user = await userRepository.getUserById(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return user;
+}
+
+module.exports.getUsersAllRecipesWithCommentsById = async (userId) => {
+    let recipeIds;
+
+    try {
+        recipeIds = await userRepository.getUsersAllRecipesWithCommentsById(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    let recipeIdsArray = [];
+
+    for (let i = 0; i < recipeIds.length; i++) {
+        recipeIdsArray.push(recipeIds[i].recipeId);
+    }
+
+    return recipeIdsArray;
+}
+
+module.exports.getUsersAllRecipeIds = async (userId) => {
+    let recipeIds;
+
+    try {
+        recipeIds = await userRepository.getUsersAllRecipeIds(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    let recipeIdsArray = [];
+
+    for (let i = 0; i < recipeIds.length; i++) {
+        recipeIdsArray.push(recipeIds[i].id);
+    }
+
+    return recipeIdsArray;
 }
 
 module.exports.getAllGroupsOfUserById = async (userId) => {

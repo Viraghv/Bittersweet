@@ -4,6 +4,8 @@ const NotFound = require("../exceptions/NotFound");
 const {sendHttpException, sendServerErrorResponse} = require("../httpHandler");
 const {session} = require("../session/sessionStorage");
 const fs = require("fs");
+const userService = require("../services/userService");
+const BadRequest = require("../exceptions/BadRequest");
 
 
 module.exports.createOne = async (req, res) => {
@@ -32,6 +34,18 @@ module.exports.uploadImage = async (req, res) => {
         sendServerErrorResponse(res, exception.message);
     }
 
+}
+
+module.exports.getAllRecipeCount = async (req, res) => {
+    try {
+        res.json( await recipeService.getAllRecipeCount());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
 }
 
 module.exports.getRecipeById = async (req, res) => {
@@ -69,6 +83,18 @@ module.exports.getRecipeImage = async (req, res) => {
     }
 }
 
+module.exports.getAllRecpieCardsWithPagination = async (req, res) => {
+    try {
+        res.json( await recipeService.getAllRecpieCardsWithPagination(Number(req.params.page)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getCommentsByRecipeId = async (req, res) => {
     try {
         res.json( await recipeService.getCommentsByRecipeId(Number(req.params.id), Number(req.params.page)));
@@ -96,6 +122,61 @@ module.exports.getCommentCountById = async (req, res) => {
 module.exports.getAverageRatingById = async (req, res) => {
     try {
         res.json( await recipeService.getAverageRatingById(Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.addComment = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        let commentedRecipeIds = await userService.getUsersAllRecipesWithCommentsById(userId);
+
+        if (!commentedRecipeIds.includes(Number(req.body.recipeId))){
+            let usersRecipes = await userService.getUsersAllRecipeIds(userId);
+
+            if (!usersRecipes.includes(Number(req.body.recipeId))){
+                res.json( await recipeService.addComment(req.body, userId));
+            } else {
+                throw new BadRequest(["A user can't comment on their own recipe."]);
+            }
+        } else {
+            throw new BadRequest(["The user already has commented on this recipe."]);
+        }
+
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editComment = async (req, res) => {
+    try {
+        res.json( await recipeService.editComment(req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getCommentOfCurrentUserByRecipeId = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await recipeService.getCommentByUserAndRecipeId(Number(req.params.id), userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

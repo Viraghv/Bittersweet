@@ -107,6 +107,19 @@ module.exports.uploadImage = async (image, recipeId, errors) => {
     }
 }
 
+module.exports.getAllRecipeCount = async () => {
+    let recipeCount;
+
+    try {
+        recipeCount = await recipeRepository.getAllRecipeCount();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return recipeCount;
+}
+
 module.exports.getRecipeById = async (recipeId) => {
     try {
         let recipe = await recipeRepository.getRecipeById(recipeId);
@@ -138,6 +151,30 @@ module.exports.getRecipeById = async (recipeId) => {
         console.log(exception);
         throw exception
     }
+}
+
+module.exports.getAllRecpieCardsWithPagination = async (page) => {
+    let recipes = [];
+
+    try {
+        recipes = await recipeRepository.getAllRecpieCardsWithPagination(page);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    for (let i = 0; i < recipes.length; i++) {
+        if(recipes[i].difficulty) {
+            recipes[i].difficulty = recipes[i].difficulty.name;
+        }
+
+        if(recipes[i].recipeCategories[0]){
+            recipes[i].type = recipes[i].recipeCategories[0].recipeCategory.name;
+            delete recipes[i].recipeCategories;
+        }
+    }
+
+    return recipes;
 }
 
 module.exports.getCommentsByRecipeId = async (recipeId, page) => {
@@ -177,6 +214,73 @@ module.exports.getAverageRatingById = async (recipeId) => {
     }
 
     return averageRating;
+}
+
+module.exports.addComment = async (commentData, userId) => {
+    let errors = [];
+
+    if(!commentData.rating){
+        errors.push("Please rate the recipe.");
+    }
+
+    if(commentData.rating < 1 || commentData.rating > 5) {
+        errors.push("Rating must be between 1-5 stars.");
+    }
+
+    if(commentData.content?.trim().length > 300){
+        errors.push("Content of comment can't be longer than 300 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+       return await recipeRepository.addComment(commentData, userId);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.editComment = async (commentData) => {
+    let errors = [];
+
+    if(!commentData.rating){
+        errors.push("Please rate the recipe.");
+    }
+
+    if(commentData.rating < 1 || commentData.rating > 5) {
+        errors.push("Rating must be between 1-5 stars.");
+    }
+
+    if(commentData.content?.trim().length > 300){
+        errors.push("Content of comment can't be longer than 300 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.editComment(commentData);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
+    let comment;
+
+    try {
+        comment = await recipeRepository.getCommentByUserAndRecipeId(recipeId, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return comment;
 }
 
 module.exports.getAllUnits = async () => {

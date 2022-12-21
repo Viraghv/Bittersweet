@@ -4,6 +4,7 @@ export const useUserStore = defineStore("user", {
     state: () => {
         return {
             loggedIn: false,
+            user: null,
         }
     },
 
@@ -14,6 +15,11 @@ export const useUserStore = defineStore("user", {
 
         logout(){
             this.loggedIn = false;
+            this.user = null;
+        },
+
+        setUser(user){
+            this.user = user;
         }
     }
 })

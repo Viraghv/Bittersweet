@@ -7,8 +7,11 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get("/logout", userController.logout);
 
+router.get('/getCurrentUser', authMiddleware, userController.getCurrentUser)
 router.get('/uploadedRecipeCount/:id', userController.getUploadedRecipeCountById)
 router.get('/pfp/:filename', userController.getPfp)
+router.get('/currentUserAllRecipesWithComments', authMiddleware, userController.getCurrentUserAllRecipesWithComments)
+router.get('/currentUserAllRecipeIds', authMiddleware, userController.getCurrentUserAllRecipeIds)
 
 router.post('/groups/createForCurrentUser', authMiddleware, userController.createGroupForCurrentUser)
 router.get('/groups/allCurrentUser', authMiddleware, userController.getAllGroupsOfCurrentUser)

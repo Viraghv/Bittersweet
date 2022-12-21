@@ -47,10 +47,16 @@ router.post('/uploadImage/:id', authMiddleware, upload.single('image'), recipeCo
 
 router.get('/recipeById/:id', recipeController.getRecipeById);
 router.get('/recipeImage/:filename', recipeController.getRecipeImage);
+router.get('/allRecipeCount', recipeController.getAllRecipeCount);
+router.get('/getAllCardsWithPagination/:page', recipeController.getAllRecpieCardsWithPagination)
 
 router.get('/commentsByRecipeId/:id/:page', recipeController.getCommentsByRecipeId);
 router.get('/commentCount/:id', recipeController.getCommentCountById);
 router.get('/averageRating/:id', recipeController.getAverageRatingById);
+
+router.post('/addComment', authMiddleware, recipeController.addComment);
+router.post('/editComment', authMiddleware, recipeController.editComment);
+router.get('/getCommentOfCurrentUserByRecipeId/:id', authMiddleware, recipeController.getCommentOfCurrentUserByRecipeId);
 
 router.get('/units', authMiddleware, recipeController.getAllUnits);
 router.get('/difficulties', authMiddleware, recipeController.getAllDifficulties);

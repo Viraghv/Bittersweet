@@ -129,6 +129,21 @@ module.exports.uploadImage = async (image, recipeId, errors) => {
 
 }
 
+module.exports.getAllRecipeCount = async () => {
+    let recipeCount = 0;
+
+    try {
+        recipeCount = await prisma.Recipe.count();
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return recipeCount;
+}
+
 module.exports.getRecipeById = async (recipeId) => {
     let recipe;
 
@@ -212,6 +227,50 @@ module.exports.getRecipeById = async (recipeId) => {
     return recipe;
 }
 
+module.exports.getAllRecpieCardsWithPagination = async (page) => {
+    let recipes = [];
+    try {
+        recipes = await prisma.Recipe.findMany({
+            skip: (page - 1) * 12,
+            take: 12,
+            select: {
+                id: true,
+                name: true,
+                hour: true,
+                minute: true,
+                difficulty: {
+                    select: {
+                        name: true,
+                    }
+                },
+                recipeCategories: {
+                    where: {
+                        primary: true,
+                    },
+                    include: {
+                        recipeCategory: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                    }
+                },
+                photo: true,
+            },
+            orderBy: {
+                uploaded: 'desc',
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return recipes;
+}
+
 module.exports.getCommentsByRecipeId = async (recipeId, page) => {
     let comments = [];
     try {
@@ -287,6 +346,64 @@ module.exports.getAverageRatingById = async (recipeId) => {
     }
 
     return averageRating._avg.rating;
+}
+
+module.exports.addComment = async (commentData, userId) => {
+    try {
+        return await prisma.Comment.create({
+            data: {
+                content: commentData.content,
+                rating: commentData.rating,
+                recipeId: commentData.recipeId,
+                userId: userId,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.editComment = async (commentData) => {
+    try {
+        return await prisma.Comment.update({
+            where: {
+                id: commentData.id
+            },
+            data: {
+                content: commentData.content,
+                rating: commentData.rating,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
+    try {
+        return  await prisma.Comment.findMany({
+            where: {
+                recipeId: recipeId,
+                userId: userId,
+            },
+            select: {
+                id: true,
+                content: true,
+                rating: true,
+            }
+        })
+    } catch (error){
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 }
 
 module.exports.getAllUnits = async () => {
