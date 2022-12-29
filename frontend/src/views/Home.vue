@@ -37,7 +37,7 @@ export default {
 		return {
 			recipes: [],
 
-			allRecipesCount: 100,
+			allRecipesCount: 0,
 		}
 	},
 
@@ -48,7 +48,7 @@ export default {
 				this.recipes = response.data;
 
 				for (let i = 0; i < this.recipes.length; i++) {
-					if(this.recipes[i].photo){
+					if(this.recipes[i].photo && this.recipes[i].photo !== "default"){
 						try {
 							const response = await this.axios.get(`/recipe/recipeImage/${this.recipes[i].photo}`);
 							this.recipes[i].photoImage = response.data;

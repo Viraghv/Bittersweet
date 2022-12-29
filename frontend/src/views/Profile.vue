@@ -3,8 +3,11 @@
 </template>
 
 <script>
+import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
+
 export default {
-	name: "Profile"
+	name: "Profile",
+	beforeRouteEnter,
 }
 </script>
 

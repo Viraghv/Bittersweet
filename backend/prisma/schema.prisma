@@ -37,7 +37,7 @@ model User {
 model Recipe {
   id Int @id @default(autoincrement())
   name String @db.VarChar(100)
-  description String @db.VarChar(300)
+  description String @db.VarChar(1000)
   hour Int?
   minute Int?
   difficulty Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
@@ -74,7 +74,7 @@ model Ingredient {
 model Step {
   id Int @id @default(autoincrement())
   number Int
-  content String @db.VarChar(300)
+  content String @db.VarChar(1000)
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
 }
@@ -127,6 +127,7 @@ model RecipeInGroup{
   groupId Int
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
+  added DateTime @default(now())
 
   @@id([groupId, recipeId])
 }
@@ -196,6 +197,7 @@ model Favourite {
   recipeId Int
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
+  added DateTime @default(now())
 
   @@id([recipeId, userId])
 }

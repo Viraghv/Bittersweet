@@ -154,6 +154,23 @@ module.exports.getAllGroupsOfUserById = async (userId) => {
     return userGroups;
 }
 
+module.exports.getAllGroupsOfFavouriteById = async (recipeId, userId) => {
+    let userGroups;
+
+    try {
+        userGroups = await userRepository.getAllGroupsOfFavouriteById(recipeId, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    for (let i = 0; i < userGroups.length; i++) {
+       userGroups[i] = userGroups[i].recipeGroup;
+    }
+
+    return userGroups;
+}
+
 module.exports.addRecipeToGroup = async (data) => {
     try {
         await userRepository.addRecipeToGroup(data);
@@ -163,7 +180,34 @@ module.exports.addRecipeToGroup = async (data) => {
     }
 }
 
-module.exports.deleteRecipeFromGroup = async (recipeId, userGroups) => {
+module.exports.editNameOfGroup = async (groupId, newName, userId) => {
+    try {
+        await userRepository.editNameOfGroup(groupId, newName, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteGroup = async (groupId, userId) => {
+    try {
+        await userRepository.deleteGroup(groupId, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteRecipeFromGroup = async (groupId, recipeId, userId) => {
+    try {
+        await userRepository.deleteRecipeFromGroup(groupId, recipeId, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteRecipeFromGroups = async (recipeId, userGroups) => {
     try {
         let userGroupIds = [];
 
@@ -171,9 +215,39 @@ module.exports.deleteRecipeFromGroup = async (recipeId, userGroups) => {
             userGroupIds.push(userGroups[i].id)
         }
 
-        await userRepository.deleteRecipeFromGroup(recipeId, userGroupIds);
+        await userRepository.deleteRecipeFromGroups(recipeId, userGroupIds);
     } catch (exception) {
         console.log(exception);
         throw exception
     }
+}
+
+module.exports.getAllRecipeCardsOfGroup = async (sortBy, groupId, page, userId) => {
+    let recipeCards = [];
+
+    try {
+        recipeCards = await userRepository.getAllRecipeCardsOfGroup(sortBy, groupId, page, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    for (let i = 0; i < recipeCards.length; i++) {
+        recipeCards[i] = recipeCards[i].recipe;
+    }
+
+    return recipeCards;
+}
+
+module.exports.getRecipeCountOfGroup = async (groupId, userId) => {
+    let recipeCount = 0;
+
+    try {
+        recipeCount = await userRepository.getRecipeCountOfGroup(groupId, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return recipeCount;
 }

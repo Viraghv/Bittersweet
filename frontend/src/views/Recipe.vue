@@ -16,8 +16,8 @@
 		</div>
 		<div class="favourite-container" v-show="userStore.loggedIn">
 			<button class="favourite-button" :class="userFavourite ? 'yellow' : ''" @click="changeFavourites">
-				<img class="heart-icon" v-show="!userFavourite" src="@/assets/icons/heart_outline_lightgrey.png" alt="heart">
-				<img class="heart-icon" v-show="userFavourite" src="@/assets/icons/heart_yellow.png" alt="heart">
+				<img class="heart-icon" v-if="!userFavourite" src="@/assets/icons/heart_outline_lightgrey.png" alt="heart">
+				<img class="heart-icon" v-else src="@/assets/icons/heart_yellow.png" alt="heart">
 				Favourite
 			</button>
 		</div>
@@ -80,7 +80,7 @@
 					<form>
 						<div class="ingredients-header">
 							<h3 class="ingredients-header-text">Ingredients</h3>
-							<div class="check-all-container" v-show="userStore.loggedIn">
+							<div class="check-all-container" v-if="userStore.loggedIn">
 								<label for="check-all">All</label>
 								<input class="check-all" type="checkbox" id="check-all" @change="changeAll">
 							</div>
@@ -329,7 +329,7 @@ export default {
 			},
 
 			rating: 0,
-			ratingCount: null,
+			ratingCount: 0,
 			comments: [],
 
 			user: {
@@ -366,6 +366,19 @@ export default {
 			ratingErrors: [],
 
 		}
+	},
+
+	created() {
+		// watch the params of the route to fetch the data again
+		this.$watch(
+			() => this.$route.params,
+			() => {
+				this.initPage();
+			},
+			// fetch the data when the view is created and the data is
+			// already being observed
+			{ immediate: true }
+		)
 	},
 
 	methods: {
@@ -649,6 +662,34 @@ export default {
 			}
 		},
 
+		setModalHandlers() {
+			const favouriteModal = document.getElementById('favourite-modal');
+			favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
+
+			const commentModal = document.getElementById('comment-modal');
+			commentModal.addEventListener("hidden.bs.modal", () => this.clearCommentModal());
+		},
+
+		async initPage(){
+			await this.initRecipe();
+			if(this.recipe.imageUrl && this.recipe.imageUrl !== "default"){
+				await this.initRecipeImage();
+			}
+			if(this.user.pfpUrl) {
+				await this.initUserPfp();
+			}
+
+			if(this.userStore.loggedIn){
+				await this.initFavourite();
+			}
+
+			await this.initRating();
+			await this.initRatingCount();
+			await this.initUserRecipeCount();
+			await this.initComments(1);
+			await this.initHasCommented();
+		},
+
 		async editRating(){
 			this.ratingErrors = this.ratingInputsAreValid;
 			if(this.ratingErrors.length === 0){
@@ -732,33 +773,17 @@ export default {
 		...mapStores(useUserStore),
 	},
 
-	async mounted() {
-		const favouriteModal = document.getElementById('favourite-modal');
-		favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
-
-		const commentModal = document.getElementById('comment-modal');
-		commentModal.addEventListener("hidden.bs.modal", () => this.clearCommentModal());
-
-		await this.initRecipe();
-		if(this.recipe.imageUrl && this.recipe.imageUrl !== "default"){
-			await this.initRecipeImage();
+	watch : {
+		'userStore.loggedIn'(loggedIn) {
+			if(loggedIn) {
+				this.initPage();
+			}
 		}
-		if(this.user.pfpUrl) {
-			await this.initUserPfp();
-		}
+	},
 
-		if(this.userStore.loggedIn){
-			await this.initFavourite();
-		}
-
-		await this.initRating();
-		await this.initRatingCount();
-		await this.initUserRecipeCount();
-		await this.initComments(1);
-		await this.initHasCommented();
-
-		this.setStarsChecked();
-
+	mounted() {
+		this.setModalHandlers();
+		this.initPage();
 	}
 }
 </script>
@@ -1203,7 +1228,7 @@ export default {
 		.add-to-group-label {
 			margin-top: 20px;
 			margin-bottom: 5px;
-		};
+		}
 
 		.add-to-group {
 			display: flex;

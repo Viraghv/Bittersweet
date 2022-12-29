@@ -14,8 +14,14 @@ router.get('/currentUserAllRecipesWithComments', authMiddleware, userController.
 router.get('/currentUserAllRecipeIds', authMiddleware, userController.getCurrentUserAllRecipeIds)
 
 router.post('/groups/createForCurrentUser', authMiddleware, userController.createGroupForCurrentUser)
+router.post('/groups/edit', authMiddleware, userController.editNameOfGroup)
+router.get('/groups/delete/:id', authMiddleware, userController.deleteGroup)
 router.get('/groups/allCurrentUser', authMiddleware, userController.getAllGroupsOfCurrentUser)
+router.get('/groups/allOfRecipeAndUser/:id', authMiddleware, userController.getAllGroupsOfFavourite)
 router.post('/groups/addRecipe', authMiddleware, userController.addRecipeToGroup)
+router.post('/groups/deleteRecipe', authMiddleware, userController.deleteRecipeFromGroup)
+router.get('/groups/getAllRecipeCards/:sortBy/:id/:page', authMiddleware, userController.getAllRecipeCardsOfGroup)
+router.get('/groups/recipeCount/:id', authMiddleware, userController.getRecipeCountOfGroup)
 
 router.get("/getSessionState", authMiddleware, userController.getSessionState);
 router.get("/isLoggedIn", authMiddleware, userController.isLoggedIn);

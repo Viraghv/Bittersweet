@@ -34,7 +34,7 @@
 
 			<div class="profile-dropdown  dropdown dropdown-menu-end col-lg-1 col-md-2 col-sm-2" v-if="userStore.loggedIn">
 				<div class="profile-button pfp-container" data-bs-toggle="dropdown" data-bs-offset="10,15">
-					<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user.profilepicture" />
+					<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user && userStore.user.profilepicture" />
 					<img class="pfp" src="@/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<ul class="profile-dropdown-list dropdown-menu">
@@ -42,10 +42,10 @@
 						<img class="calendarIcon" src="@/assets/icons/calendar.png" alt="calendar">
 						Weekly menu
 					</a></li>
-					<li><a class="dropdown-item" href="#">
+					<li><router-link class="dropdown-item" :to="{name: 'Favourites'}">
 						<img class="heartIcon" src="@/assets/icons/heart.png" alt="heart">
 						Favourite
-					</a></li>
+					</router-link></li>
 					<li><a class="dropdown-item" href="#">
 						<img class="shoppingListIcon" src="@/assets/icons/shopping-list.png" alt="shoppinglist">
 						Shopping list
@@ -218,7 +218,7 @@ export default {
 				this.$cookies.remove("tokenExpiration");
 				this.axios.defaults.headers.common["Authorization"] = "";
 				this.userStore.logout();
-				await this.$router.replace({name: 'Home'});
+				this.$router.replace({name: 'Home'});
 			} catch (error) {
 				console.log(error);
 			}
@@ -485,7 +485,7 @@ export default {
 				padding: 5px 10px;
 
 				&:focus {
-					outline: var(--darkgreen) solid 3px;
+					outline: var(--darkestgreen) solid 3px;
 				}
 			}
 		}

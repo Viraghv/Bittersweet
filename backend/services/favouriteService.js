@@ -40,3 +40,33 @@ module.exports.getallUserFavourites = async (userId) => {
 
     return arrayFavourites;
 }
+
+module.exports.getAllUserFavouriteCards = async (page, sortBy, userId) => {
+    let favouriteCards = [];
+
+    try {
+        favouriteCards = await favouriteRepository.getAllUserFavouriteCards(page, sortBy, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    for (let i = 0; i < favouriteCards.length; i++) {
+        favouriteCards[i] = favouriteCards[i].recipe;
+    }
+
+    return favouriteCards;
+}
+
+module.exports.getAllUserFavouriteCount = async (userId) => {
+    let favouritesCount = 0;
+
+    try {
+        favouritesCount = await favouriteRepository.getAllUserFavouriteCount(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return favouritesCount;
+}

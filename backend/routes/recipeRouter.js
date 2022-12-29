@@ -26,8 +26,8 @@ const fileFilter = function (req, file, cb) {
         req.fileValidationErrors.push('Incorrect file type.');
     }
 
-    if(fileSize > 512000){
-        req.fileValidationErrors.push("File can't be bigger than 500KB.");
+    if(fileSize > 1024000){
+        req.fileValidationErrors.push("File can't be bigger than 1MB.");
     }
 
     if(req.fileValidationErrors.length > 0){

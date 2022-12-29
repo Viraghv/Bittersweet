@@ -38,8 +38,8 @@ module.exports.createOne = async (recipeData, userId) => {
                 errors.push("Please provide the description of every step.");
                 break;
             }
-            if(step.content?.trim().length > 100){
-                errors.push("Step description can't be longer than 100 characters.");
+            if(step.content?.trim().length > 1000){
+                errors.push("Step description can't be longer than 1000 characters.");
                 break;
             }
 
@@ -50,8 +50,8 @@ module.exports.createOne = async (recipeData, userId) => {
         errors.push("Recipe name can't be longer than 100 characters.");
     }
 
-    if(recipeData.description?.trim().length > 300){
-        errors.push("Recipe description can't be longer than 300 characters.");
+    if(recipeData.description?.trim().length > 1000){
+        errors.push("Recipe description can't be longer than 1000 characters.");
     }
 
 

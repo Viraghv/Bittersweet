@@ -34,8 +34,8 @@
 						</ul>
 					</div>
 				</div>
-				<textarea class="description-input" placeholder="Description (max. 300 characters)" maxlength="300" v-model="recipe.description"/>
-				<span class="description-character-counter">{{recipe.description.length}}/300</span>
+				<textarea class="description-input" placeholder="Description (max. 1000 characters)" maxlength="1000" v-model="recipe.description"/>
+				<span class="description-character-counter">{{recipe.description.length}}/1000</span>
 
 				<h3 class="ingredients-header">Ingredients</h3>
 				<ul class="ingredient-list">
@@ -161,11 +161,13 @@
 </template>
 
 <script>
-import Multiselect from '@vueform/multiselect'
+import Multiselect from '@vueform/multiselect';
 import Loader from "@/components/Loader.vue";
+import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
 
 export default {
 	name: "UploadRecipe",
+	beforeRouteEnter,
 	components: {
 		Loader,
 		Multiselect,
@@ -217,16 +219,16 @@ export default {
 		},
 
 		pickFile () {
-			let input = this.$refs.fileInput
-			let file = input.files
-			if((file[0].type === "image/jpeg" || file[0].type === "image/png") && file[0].size <= 512000){
+			let input = this.$refs.fileInput;
+			let file = input.files;
+			if((file[0].type === "image/jpeg" || file[0].type === "image/png") && file[0].size <= 1024000){
 				if (file && file[0]) {
-					let reader = new FileReader
+					let reader = new FileReader;
 					reader.onload = e => {
-						this.previewImage = e.target.result
+						this.previewImage = e.target.result;
 					}
-					reader.readAsDataURL(file[0])
-					this.$emit('input', file[0])
+					reader.readAsDataURL(file[0]);
+					this.$emit('input', file[0]);
 				}
 			}
 		},
@@ -242,8 +244,8 @@ export default {
 				this.imageErrors.push("Incorrect file type.")
 			}
 
-			if(event.target.files[0].size > 512000){
-				this.imageErrors.push("File can't be bigger than 500KB")
+			if(event.target.files[0].size > 1024000){
+				this.imageErrors.push("File can't be bigger than 1MB")
 			}
 
 			if(this.imageErrors.length > 0){
@@ -363,6 +365,14 @@ export default {
 					this.recipe.allergens[i] = Number(this.recipe.allergens[i]);
 				}
 
+				for (let i = 0; i < this.recipe.ingredients; i++) {
+					this.recipe.ingredients[i].name = this.recipe.ingredients[i].name.trim();
+				}
+
+				for (let i = 0; i < this.recipe.steps; i++) {
+					this.recipe.steps[i].content = this.recipe.steps[i].content.trim();
+				}
+
 				this.showLoader = true;
 				const formData = new FormData();
 				formData.append('image', this.recipe.image);
@@ -381,8 +391,8 @@ export default {
 
 				try {
 					const response = await this.axios.post("/recipe/create", {
-						name: this.recipe.name,
-						description: this.recipe.description,
+						name: this.recipe.name.trim(),
+						description: this.recipe.description.trim(),
 						ingredients: this.recipe.ingredients,
 						steps: this.recipe.steps,
 						timeHour: this.recipe.timeHour,
@@ -473,8 +483,8 @@ export default {
 				errors.push("Recipe name can't be longer than 100 characters.");
 			}
 
-			if(this.recipe.description.trim().length > 300){
-				errors.push("Recipe description can't be longer than 300 characters.");
+			if(this.recipe.description.trim().length > 1000){
+				errors.push("Recipe description can't be longer than 1000 characters.");
 			}
 
 			for(const ingredient of this.recipe.ingredients){
@@ -485,8 +495,8 @@ export default {
 			}
 
 			for(const step of this.recipe.steps){
-				if(step.content.trim().length > 100){
-					errors.push("Step description can't be longer than 100 characters.");
+				if(step.content.trim().length > 1000){
+					errors.push("Step description can't be longer than 1000 characters.");
 					break;
 				}
 			}

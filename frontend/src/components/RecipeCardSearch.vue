@@ -1,7 +1,7 @@
 <template>
 	<div class="recipe-card-search" @click="navigateToRecipePage">
 		<div class="image-container">
-			<img class="recipe-image" :src="'data:image/' + imageExt + ';base64,'+ image" alt="recipe-image" v-if="imageUrl && imageUrl !== 'default'" />
+			<img class="recipe-image" :src="'data:image/' + imageExt + ';base64,'+ image" alt="recipe-image" v-if="image" />
 			<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
 		</div>
 		<div class="type-container" v-if="type">

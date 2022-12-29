@@ -26,7 +26,7 @@ module.exports.deleteById = async (req, res) => {
     try {
         let userGroups = await userService.getAllGroupsOfUserById(userId);
 
-        await userService.deleteRecipeFromGroup(req.body.recipeId, userGroups);
+        await userService.deleteRecipeFromGroups(Number(req.params.id), userGroups);
         res.json( await favouriteService.deleteById(Number(req.params.id), userId));
     } catch (exception) {
         if (exception instanceof HttpException){
@@ -43,6 +43,36 @@ module.exports.getallUserFavourites = async (req, res) => {
 
     try {
         res.json( await favouriteService.getallUserFavourites(userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllUserFavouriteCards = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await favouriteService.getAllUserFavouriteCards(Number(req.params.page), req.params.sortBy, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllUserFavouriteCount = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await favouriteService.getAllUserFavouriteCount(userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
