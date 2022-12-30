@@ -21,6 +21,7 @@ model User {
   lastname String? @db.VarChar(100)
   admin Boolean @default(false)
   profilepicture String? @db.VarChar(200)
+  joined DateTime @default(now())
   difficultyPref Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull) 
   difficultyId Int?
   costPref Cost? @relation(fields: [costId], references: [id], onDelete: SetNull)

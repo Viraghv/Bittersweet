@@ -153,6 +153,87 @@ module.exports.getCurrentUserAllRecipeIds = async (req, res) => {
     }
 }
 
+module.exports.getCurrentUserAllRecipeCards = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await userService.getUsersAllRecipeCards(userId, req.params.sortBy, Number(req.params.page)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.changePasswordOfCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await userService.changePasswordOfCurrentUser(req.body, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editProfileOfCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await userService.editProfileOfUser(req.body, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.uploadImageForCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        if(req.fileValidationErrors.length > 0){
+            throw new BadRequest(req.fileValidationErrors);
+        }
+
+        res.json(await userService.uploadImage(req.file, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+
+}
+
+module.exports.editPreferencesCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json(await userService.editPreferencesOfUser(req.body, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+
 module.exports.getAllGroupsOfCurrentUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;

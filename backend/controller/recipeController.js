@@ -25,7 +25,11 @@ module.exports.createOne = async (req, res) => {
 
 module.exports.uploadImage = async (req, res) => {
     try {
-        res.json(await recipeService.uploadImage(req.file, req.params.id, req.fileValidationErrors));
+        if(req.fileValidationErrors.length > 0){
+            throw new BadRequest(req.fileValidationErrors);
+        }
+
+        res.json(await recipeService.uploadImage(req.file, req.params.id));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -34,6 +38,36 @@ module.exports.uploadImage = async (req, res) => {
         sendServerErrorResponse(res, exception.message);
     }
 
+}
+
+module.exports.editRecipeOfCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await recipeService.editRecipeOfUser(Number(req.params.id), req.body, userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.deleteRecipeOfCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await recipeService.deleteRecipeOfUser(Number(req.params.id), userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
 }
 
 module.exports.getAllRecipeCount = async (req, res) => {

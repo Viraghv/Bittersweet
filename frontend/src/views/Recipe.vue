@@ -120,7 +120,7 @@
 					<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<div class="user">
-					<span class="username">{{user.username.length < 15 ? user.username : user.username.substring(0, 15) + '...' }}</span><br>
+					<span class="username">{{user.username.length < 10 ? user.username : user.username.substring(0, 10) + '...' }}</span><br>
 					<div class="recipe-count">{{ "Recipes: " + user.recipeCount }}</div>
 				</div>
 			</div>
@@ -1061,6 +1061,7 @@ export default {
 				align-items: center;
 				background-color: var(--darkgreen);
 				padding: 5% 3%;
+				width: 30%;
 
 				.pfp-container {
 					width: 150px;
@@ -1092,6 +1093,7 @@ export default {
 
 					.recipe-count {
 						font-size: 0.9rem;
+						white-space: nowrap;
 					}
 				}
 
@@ -1100,7 +1102,7 @@ export default {
 			.description-container {
 				background-color: var(--lightgreen);
 				padding: 5% 3%;
-				width: 100%;
+				width: 70%;
 
 				.description-title {
 					margin-bottom: 30px;

@@ -100,6 +100,14 @@ module.exports.getUserById = async (userId) => {
         throw exception
     }
 
+    let userAllergies = [];
+
+    for (let i = 0; i < user.allergies.length; i++) {
+        userAllergies.push(user.allergies[i].allergen)
+    }
+
+    user.allergies = userAllergies;
+
     return user;
 }
 
@@ -139,6 +147,102 @@ module.exports.getUsersAllRecipeIds = async (userId) => {
     }
 
     return recipeIdsArray;
+}
+
+module.exports.getUsersAllRecipeCards = async (userId, sortBy, page) => {
+    let recipeCards;
+
+    try {
+        recipeCards = await userRepository.getUsersAllRecipeCards(userId, sortBy, page);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return recipeCards;
+}
+
+module.exports.changePasswordOfCurrentUser = async (passwordData, userId) => {
+    const errors = []
+
+    if(!passwordData.currentPassword?.trim() || !passwordData.newPassword?.trim()){
+       errors.push("Please fill in all fields.");
+    }
+
+    if(passwordData.newPassword?.trim().length < 6){
+        errors.push("Password must be at least 6 characters long.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        let password = await userRepository.getUserPasswordById(userId);
+        if(await bcrypt.compare(passwordData.currentPassword, password)){
+            return await userRepository.changePassword(passwordData.newPassword, userId)
+        }
+        throw new NotFound(["Invalid current password."])
+    } catch (exception){
+        throw exception
+    }
+}
+
+module.exports.editProfileOfUser = async (userData, userId) => {
+    const errors = []
+
+    if(!userData.username?.trim() || !userData.email?.trim()){
+        errors.push("Please fill in the username and email fields.");
+    }
+
+    if(userData.username?.trim().length > 100) {
+        errors.push("Username can't be longer than 100 characters");
+    }
+
+    if(userData.email?.trim().length > 100) {
+        errors.push("Email can't be longer than 100 characters");
+    }
+
+    if(userData.email?.trim() &&
+        !userData.email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+        errors.push("Invalid email");
+    }
+
+    if(userData.firstname?.trim().length > 100){
+        errors.push("First name can't be longer than 100 characters");
+    }
+
+    if(userData.lastname?.trim().length > 100){
+        errors.push("Last name can't be longer than 100 characters");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return userRepository.editProfileOfUser(userData, userId)
+    } catch (exception){
+        throw exception
+    }
+}
+
+module.exports.uploadImage = async (image, userId) => {
+    try {
+        return userRepository.uploadImage(image, userId);
+    } catch (exception){
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.editPreferencesOfUser = async (prefData, userId) => {
+    try {
+        await userRepository.editPreferencesOfUser(prefData, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 }
 
 module.exports.getAllGroupsOfUserById = async (userId) => {

@@ -4,6 +4,7 @@ const InternalServerError = require("../exceptions/InternalServerError");
 const NotFound = require("../exceptions/NotFound");
 const {NotFoundError} = require("@prisma/client/runtime");
 const BadRequest = require("../exceptions/BadRequest");
+const fs = require("fs");
 
 
 const prisma = new PrismaClient();
@@ -97,8 +98,41 @@ module.exports.getUserById = async (userId) => {
                 emailValidated: true,
                 difficultyPref: true,
                 costPref: true,
+                joined: true,
+                allergies: {
+                    include: {
+                        allergen: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        }
+                    }
+                }
             }
         })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getUserPasswordById = async (userId) => {
+    let user;
+
+    try {
+        user = await prisma.User.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                password: true,
+            }
+        })
+
+        return user.password;
     } catch (error) {
         console.log(error);
         throw error;
@@ -135,6 +169,167 @@ module.exports.getUsersAllRecipeIds = async (userId) => {
                 id: true,
             }
         })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getUsersAllRecipeCards = async (userId, sortBy, page) => {
+    let orderBy = {};
+
+    if(sortBy === "nameAsc"){
+        orderBy = {
+            name: "asc"
+        }
+    } else if (sortBy === "nameDesc"){
+        orderBy = {
+            name: "desc"
+        }
+    } else if (sortBy === "uploadedAsc"){
+        orderBy = {
+            uploaded: "asc"
+        }
+    } else if (sortBy === "uploadedDesc") {
+        orderBy = {
+            uploaded: "desc"
+        }
+    }
+
+    try {
+        return await prisma.Recipe.findMany({
+            skip: (page - 1) * 10,
+            take: 10,
+            where: {
+                userId: userId,
+            },
+            select: {
+                id: true,
+                name: true,
+                uploaded: true,
+                photo: true,
+            },
+            orderBy: orderBy
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.changePassword = async (newPassword, userId) => {
+    const salt = await bcrypt.genSalt(10);
+    newPassword = await bcrypt.hash(newPassword, salt);
+
+    try {
+        let updatedCount = await prisma.User.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                password: newPassword,
+            }
+        });
+
+        if(updatedCount.count === 0){
+            throw new BadRequest(["Changing password failed."])
+        }
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.editProfileOfUser = async (userData, userId) => {
+    try {
+        await prisma.User.update({
+            where: {
+                id: userId
+            },
+            data: {
+                username: userData.username,
+                email: userData.email,
+                firstname: userData.firstname ? userData.firstname : null,
+                lastname: userData.lastname ? userData.lastname : null,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        switch (error.meta.target){
+            case "User_username_key": throw new InternalServerError(["The username is already taken."]);
+            case "User_email_key": throw new InternalServerError(["The email is already in use."]);
+        }
+        throw new InternalServerError("Something went wrong during profile editing.");
+    }
+}
+
+module.exports.uploadImage = async (image, userId) => {
+    try{
+        await prisma.User.update({
+            where: {
+                id: userId
+            },
+            data: {
+                profilepicture: image.filename
+            }
+        })
+
+    } catch (error) {
+        console.log(error);
+
+        const directory = "./uploads/pfps/"
+        fs.readdir(directory, (err, files) => {
+            files.forEach(file => {
+                if(file.split('.')[0] === String(userId)){
+                    fs.unlinkSync(directory + file);
+                }
+            });
+        });
+
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.editPreferencesOfUser = async (prefData, userId) => {
+    let userAllergies = [];
+
+    for (let i = 0; i < prefData.allergies.length; i++) {
+        userAllergies.push({
+           userId: userId,
+           allergenId: prefData.allergies[i],
+        });
+    }
+
+    try {
+        await prisma.UserAllergy.deleteMany({
+            where: {
+                userId: userId,
+            }
+        });
+
+        await prisma.UserAllergy.createMany({
+            data: userAllergies,
+        });
+
+         await prisma.User.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                difficultyId: prefData.difficultyId ? Number(prefData.difficultyId) : null,
+                costId: prefData.costId ? Number(prefData.costId) : null,
+            }
+        });
+
+
     } catch (error) {
         console.log(error);
         throw error;

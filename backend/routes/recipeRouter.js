@@ -4,6 +4,7 @@ const authMiddleware = require('../middlewares/auth');
 const recipeController = require('../controller/recipeController');
 const multer = require('multer');
 const BadRequest = require("../exceptions/BadRequest");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -34,6 +35,16 @@ const fileFilter = function (req, file, cb) {
         return cb(null, false);
     }
 
+    const directory = "./uploads/recipe_images/"
+
+    fs.readdir(directory, (err, files) => {
+        files.forEach(file => {
+            if(file.split('.')[0] === String(req.params.id)){
+                fs.unlinkSync(directory + file);
+            }
+        });
+    });
+
     cb(null, true);
 }
 
@@ -44,6 +55,8 @@ const upload = multer({
 
 router.post('/create', authMiddleware, recipeController.createOne);
 router.post('/uploadImage/:id', authMiddleware, upload.single('image'), recipeController.uploadImage);
+router.post('/edit/:id', authMiddleware, recipeController.editRecipeOfCurrentUser)
+router.get('/delete/:id', authMiddleware, recipeController.deleteRecipeOfCurrentUser);
 
 router.get('/recipeById/:id', recipeController.getRecipeById);
 router.get('/recipeImage/:filename', recipeController.getRecipeImage);

@@ -98,10 +98,28 @@ module.exports.createOne = async (recipeData, userId) => {
 
 }
 
-module.exports.uploadImage = async (image, recipeId, errors) => {
+module.exports.uploadImage = async (image, recipeId) => {
     try {
-        return recipeRepository.uploadImage(image, Number(recipeId), errors);
+        return recipeRepository.uploadImage(image, Number(recipeId));
     } catch (exception){
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
+    try {
+        return await recipeRepository.editRecipeOfUser(recipeId, recipeData, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteRecipeOfUser = async (recipeId, userId) => {
+    try {
+        return await recipeRepository.deleteRecipeOfUser(recipeId, userId);
+    } catch (exception) {
         console.log(exception);
         throw exception
     }

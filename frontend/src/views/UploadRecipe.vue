@@ -164,6 +164,7 @@
 import Multiselect from '@vueform/multiselect';
 import Loader from "@/components/Loader.vue";
 import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
+import recipe from "@/views/Recipe.vue";
 
 export default {
 	name: "UploadRecipe",
@@ -419,7 +420,8 @@ export default {
 					)
 
 					this.showLoader = false;
-					await this.$router.replace({name: 'Home'});
+					window.scrollTo(0,0);
+					await this.$router.replace({path: `/recipe/${recipeId}`});
 				} catch (err) {
 					this.errors.push(...err.response.data.errorMessage);
 					this.showLoader = false;
