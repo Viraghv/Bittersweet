@@ -50,10 +50,10 @@
 						<img class="shoppingListIcon" src="@/assets/icons/shopping-list.png" alt="shoppinglist">
 						Shopping list
 					</a></li>
-					<li><a class="dropdown-item" href="#">
+					<li><router-link class="dropdown-item" :to="{name: 'Profile'}">
 						<img class="profileIcon" src="@/assets/icons/profile.png" alt="profile">
 						Profile
-					</a></li>
+					</router-link></li>
 					<li><hr class="dropdown-divider mx-auto"></li>
 					<li><a class="dropdown-item" href="#" @click="logout">
 						<img class="logoutIcon" src="@/assets/icons/logout.png" alt="logout">
@@ -101,8 +101,6 @@
 						<button class="login-button" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#login-modal">Log in here</button>
 					</div>
 				</div>
-
-
 			</div>
 		</div>
 	</div>
@@ -272,28 +270,28 @@ export default {
 
 			if(this.signupData.username.trim() === "" || this.signupData.email.trim() === "" ||
 			   this.signupData.password.trim() === "" || this.signupData.passwordAgain.trim() === ""){
-				errors.push("Please fill in all fields");
+				errors.push("Please fill in all fields.");
 			}
 
 			if(this.signupData.username.trim().length > 100) {
-				errors.push("Username can't be longer than 100 characters");
+				errors.push("Username can't be longer than 100 characters.");
 			}
 
 			if(this.signupData.email.trim().length > 100) {
-				errors.push("Email can't be longer than 100 characters");
+				errors.push("Email can't be longer than 100 characters.");
 			}
 
 			if(this.signupData.email.trim() !== "" &&
 			   !this.signupData.email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
-				errors.push("Invalid email");
+				errors.push("Invalid email.");
 			}
 
 			if(this.signupData.password.trim() !== "" && this.signupData.password.trim().length < 6){
-				errors.push("Password must be at least 6 characters long")
+				errors.push("Password must be at least 6 characters long.")
 			}
 
 			if(this.signupData.password !== this.signupData.passwordAgain){
-				errors.push("Passwords do not match");
+				errors.push("Passwords do not match.");
 			}
 
 			return errors;
@@ -303,7 +301,7 @@ export default {
 			let errors = [];
 
 			if(this.loginData.username.trim() === "" || this.loginData.password.trim() === ""){
-				errors.push("Please fill in all fields");
+				errors.push("Please fill in all fields.");
 			}
 			return errors;
 		},
@@ -382,24 +380,26 @@ export default {
 		}
 	}
 
+
+
 	.pfp-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
 		width: 40px;
 		height: 40px;
+
 		background-color: var(--lightgreen);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-
 		border-radius: 30px;
-		border: solid 2px var(--lightgreen);
-
-		overflow: hidden;
-
 
 		.pfp {
-			max-width: 40px;
-			max-height: 40px;
+			width: 40px;
+			height: 40px;
+
+			object-fit: cover;
+			border-radius: 30px;
+			border: solid 2px var(--lightgreen);
 		}
 
 		&:hover {
@@ -490,10 +490,10 @@ export default {
 			}
 		}
 
-    .login-alert, .signup-alert{
-      padding-bottom: 5px;
-      padding-top: 20px;
-    }
+		.login-alert, .signup-alert{
+		  padding-bottom: 5px;
+		  padding-top: 20px;
+		}
 
 		.login-button-container, .signup-button-container{
 			width: 100%;

@@ -121,7 +121,7 @@
 				</div>
 				<div class="user">
 					<span class="username">{{user.username.length < 10 ? user.username : user.username.substring(0, 10) + '...' }}</span><br>
-					<div class="recipe-count">{{ "Recipes: " + user.recipeCount }}</div>
+					<div class="recipe-count" v-show="user.recipeCount">Recipes: {{ user.recipeCount }}</div>
 				</div>
 			</div>
 			<div class="description-container">
@@ -662,13 +662,6 @@ export default {
 			}
 		},
 
-		setModalHandlers() {
-			const favouriteModal = document.getElementById('favourite-modal');
-			favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
-
-			const commentModal = document.getElementById('comment-modal');
-			commentModal.addEventListener("hidden.bs.modal", () => this.clearCommentModal());
-		},
 
 		async initPage(){
 			await this.initRecipe();
@@ -742,7 +735,15 @@ export default {
 			this.newComment.rating = null;
 			this.newComment.content = "";
 			this.ratingErrors = [];
-		}
+		},
+
+		setModalHandlers() {
+			const favouriteModal = document.getElementById('favourite-modal');
+			favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
+
+			const commentModal = document.getElementById('comment-modal');
+			commentModal.addEventListener("hidden.bs.modal", () => this.clearCommentModal());
+		},
 	},
 
 	computed: {
@@ -1061,26 +1062,26 @@ export default {
 				align-items: center;
 				background-color: var(--darkgreen);
 				padding: 5% 3%;
-				width: 30%;
+				flex-grow: 1;
 
 				.pfp-container {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+
 					width: 150px;
 					height: 150px;
+
 					background-color: white;
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-					justify-content: center;
-
 					border-radius: 100px;
-					border: solid 5px white;
-
-					overflow: hidden;
-
 
 					.pfp {
-						max-width: 150px;
-						max-height: 150px;
+						width: 150px;
+						height: 150px;
+
+						object-fit: cover;
+						border-radius: 100px;
+						border: solid 5px white;
 					}
 				}
 
@@ -1102,7 +1103,7 @@ export default {
 			.description-container {
 				background-color: var(--lightgreen);
 				padding: 5% 3%;
-				width: 70%;
+				flex-grow: 4;
 
 				.description-title {
 					margin-bottom: 30px;
