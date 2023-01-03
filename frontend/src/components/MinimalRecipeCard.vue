@@ -19,6 +19,9 @@
 			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'allFavourites'">
 
 			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'groups'">
+
+			<img class="edit-icon" src="@/assets/icons/edit_grey.png" alt="edit" @click="emitEdit" v-if="page === 'profile'">
+			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'profile'">
 		</div>
 	</div>
 </template>
@@ -38,11 +41,16 @@ export default {
 
 	methods: {
 		navigateToRecipePage() {
+			window.scrollTo(0,0);
 			this.$router.replace({path: `/recipe/${this.id}`});
 		},
 
 		emitAdd(){
 			this.$emit('add', this.id);
+		},
+
+		emitEdit(){
+			this.$emit('edit', this.id);
 		},
 
 		emitDelete(){
@@ -79,7 +87,7 @@ export default {
 				padding-right: 25px;
 				gap: 15px;
 
-				.add-icon, .delete-icon {
+				.add-icon, .delete-icon, .edit-icon {
 					width: 20px;
 					display: block;
 
@@ -124,7 +132,7 @@ export default {
 			}
 		}
 
-		.add-icon, .delete-icon {
+		.add-icon, .delete-icon, .edit-icon {
 			display: none;
 		}
 

@@ -196,24 +196,24 @@ module.exports.editProfileOfUser = async (userData, userId) => {
     }
 
     if(userData.username?.trim().length > 100) {
-        errors.push("Username can't be longer than 100 characters");
+        errors.push("Username can't be longer than 100 characters.");
     }
 
     if(userData.email?.trim().length > 100) {
-        errors.push("Email can't be longer than 100 characters");
+        errors.push("Email can't be longer than 100 characters.");
     }
 
     if(userData.email?.trim() &&
         !userData.email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
-        errors.push("Invalid email");
+        errors.push("Invalid email.");
     }
 
     if(userData.firstname?.trim().length > 100){
-        errors.push("First name can't be longer than 100 characters");
+        errors.push("First name can't be longer than 100 characters.");
     }
 
     if(userData.lastname?.trim().length > 100){
-        errors.push("Last name can't be longer than 100 characters");
+        errors.push("Last name can't be longer than 100 characters.");
     }
 
     if(errors.length > 0){

@@ -44,7 +44,7 @@ export default {
 		onClickHandler(page) {
 			this.$emit('changePage', page);
 		},
-	}
+	},
 
 }
 </script>

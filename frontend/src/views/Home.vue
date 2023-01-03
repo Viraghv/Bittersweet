@@ -16,7 +16,7 @@
 			                  :image-ext="recipe.photoExt"/>
 		</div>
 		<div class="pagination-container">
-			<Pagination :total-items="allRecipesCount" :items-per-page="12" @change-page="initRecipes"/>
+			<Pagination :total-items="allRecipesCount" :items-per-page="12" @change-page="initRecipes" v-show="allRecipesCount"/>
 		</div>
 	</div>
 </template>

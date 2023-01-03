@@ -46,6 +46,7 @@ export default {
 	},
 	methods: {
 		navigateToRecipePage() {
+			window.scroll(0, 0);
 			this.$router.replace({path: `/recipe/${this.id}`});
 		},
 	},

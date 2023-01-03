@@ -1,6 +1,7 @@
 const recipeRepository = require('../repositories/recipeRepository');
 const BadRequest = require("../exceptions/BadRequest");
 const {compareSync} = require("bcrypt");
+const fs = require("fs");
 
 
 module.exports.createOne = async (recipeData, userId) => {
@@ -118,6 +119,16 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
 
 module.exports.deleteRecipeOfUser = async (recipeId, userId) => {
     try {
+        const directory = "./uploads/recipe_images/"
+
+        fs.readdir(directory, (err, files) => {
+            files.forEach(file => {
+                if(file.split('.')[0] === String(recipeId)){
+                    fs.unlinkSync(directory + file);
+                }
+            });
+        });
+
         return await recipeRepository.deleteRecipeOfUser(recipeId, userId);
     } catch (exception) {
         console.log(exception);

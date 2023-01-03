@@ -211,15 +211,6 @@
 
 				<div class="remove-favourite" v-if="modalMode === 'remove'">
 					<span>Are you sure you want to delete this recipe from your favourites?</span><br>
-<!--					<div class="warning">-->
-<!--						<div class="warning-icon-container">-->
-<!--							<img class="warning-icon" src="@/assets/icons/warning.png" alt="warning">-->
-<!--						</div>-->
-<!--						<div class="warning-text-container">-->
-<!--							<span class="warning-text">Warning!</span><br>-->
-<!--							<span class=""> It will be also removed from any groups it is in.</span>-->
-<!--						</div>-->
-<!--					</div>-->
 					<button class="delete-btn" @click="removeFromFavourites">Delete</button>
 					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
 				</div>
@@ -1334,29 +1325,6 @@ export default {
 		.cancel-btn {
 			background-color: var(--lightgreen);
 		}
-
-		//.warning {
-		//	font-size: 14px;
-		//	text-align: left;
-		//	display: flex;
-		//	justify-content: center;
-		//	align-items: center;
-		//	gap: 15px;
-		//	margin-top: 20px;
-		//}
-		//
-		//.warning-text {
-		//	color: var(--warning);
-		//	text-align: left;
-		//	font-weight: bold;
-		//
-		//}
-		//
-		//.warning-icon {
-		//	height: 40px;
-		//}
-
-
 	}
 
 

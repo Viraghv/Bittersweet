@@ -10,7 +10,7 @@
 						</div>
 						<div class="user">
 							<span class="username" v-show="userStore.user?.username">{{userStore.user?.username.length < 10 ? userStore.user?.username : userStore.user?.username.substring(0, 10) + '...' }}</span><br>
-							<div class="recipe-count" v-show="recipeCount !== null"> Recipes: {{recipeCount}}</div>
+							<div class="recipe-count"> Recipes: {{recipeCount}}</div>
 						</div>
 					</div>
 				</div>
@@ -40,7 +40,11 @@
 						data-bs-toggle="modal"
 						data-bs-target="#change-password-modal">
 					Change password</button>
-				<button class="edit-profile-btn" type="button">Edit profile</button>
+				<button class="edit-profile-btn" type="button"
+						@click="initEditProfileModal"
+						data-bs-toggle="modal"
+						data-bs-target="#edit-profile-modal">
+					Edit profile</button>
 			</div>
 			<hr class="profile-divider"/>
 			<div class="preferences-container">
@@ -54,15 +58,45 @@
 						</div>
 					</div>
 					<span>Max. recipe difficulty:
-						<b>{{userStore.user?.difficultyPref.name ? userStore.user?.difficultyPref.name : "-"}}</b>
+						<b>{{userStore.user?.difficultyPref?.name ? userStore.user?.difficultyPref?.name : "-"}}</b>
 					</span>
 					<span>Max. recipe cost:
-						<b>{{userStore.user?.costPref.name ? userStore.user?.costPref.name : "-"}}</b>
+						<b>{{userStore.user?.costPref?.name ? userStore.user?.costPref?.name : "-"}}</b>
 					</span>
 					<div class="buttons-container">
-						<button class="edit-pref-btn" type="button">Edit preferences</button>
+						<button class="edit-pref-btn" type="button"
+								@click="initEditPreferencesModal"
+								data-bs-toggle="modal"
+								data-bs-target="#edit-preferences-modal"
+						>Edit preferences</button>
 					</div>
 				</div>
+			</div>
+		</div>
+
+		<h1 class="my-recipes-title">My recipes</h1>
+		<div class="my-recipes-container">
+			<div class="sort-container">
+				<label class="sort-label" for="sort-input">Sort by:</label>
+				<Multiselect class="sort-input" name="sort-input" v-model="selectedSortType" :options="sortTypes" :searchable="false" :can-clear="false" :can-deselect="false"/>
+			</div>
+			<div class="my-recipecards-container">
+				<div class="my-recipecard-container" v-for="(recipe, index) in myRecipes" :key="index">
+					<MinimalRecipeCard
+						:id="recipe.id"
+						:name="recipe.name"
+						:uploaded="recipe.uploaded"
+						:photo="recipe.photoImage"
+						:photo-ext="recipe.photoExt"
+						page="profile"
+						@edit=""
+						@delete="openDeleteRecipeModal"
+					/>
+				</div>
+				<span class="no-recipe-text" v-show="recipeCount === 0">There are no recipes uploaded.</span>
+			</div>
+			<div class="pagination-container">
+				<Pagination :total-items="recipeCount" :items-per-page="10" :white="true" @change-page="initMyRecipes"/>
 			</div>
 		</div>
 	</div>
@@ -98,6 +132,128 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade" id="edit-profile-modal" ref="edit-profile-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="edit-profile-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="modal-body edit-profile-modal-body">
+					<form class="edit-profile-inputs">
+						<label for="username">Username:</label><br/>
+						<input class="input-field" type="text" id="username" v-model="editProfileInputs.username"><br>
+						<label for="email">Email:</label><br/>
+						<input class="input-field" type="email" id="email" v-model="editProfileInputs.email"><br>
+						<label for="firstname">First name:</label><br/>
+						<input class="input-field" type="text" id="firstname" v-model="editProfileInputs.firstname"><br>
+						<label for="lastname">Last name:</label><br/>
+						<input class="input-field" type="text" id="lastname" v-model="editProfileInputs.lastname"><br>
+						<label for="pfp-input">Profile picture:</label><br>
+						<div class="pfp-upload-container">
+							<label class="upload-btn" for="pfp-input">Upload</label>
+							<input type="file"
+								   id="pfp-input"
+								   name="pfp-input"
+								   ref="pfpInput"
+								   accept="image/png, image/jpeg"
+								   @change="showPfpPreview($event)">
+							<div class="pfp-preview-container">
+								<img id="pfp-preview-img" alt="pfp-preview"/>
+								<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="editProfileInputs.pfp === null && userStore.user && userStore.user.profilepicture" />
+								<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else-if="editProfileInputs.pfp === null">
+							</div>
+						</div>
+					</form>
+					<div class="edit-profile-alert alert alert-danger" v-if="allEditProfileErrors.length !== 0">
+						<strong v-show="editProfileErrors.length !== 0">Editing failed!</strong>
+						<strong v-show="uploadPfpErrors.length !== 0">Error!</strong><br>
+						<ul>
+							<li class="edit-profile-error-items" v-for="(error, index) in allEditProfileErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+					<div class="edit-profile-button-container">
+						<button class="edit-profile-button" @click="editProfile">Edit profile</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="edit-preferences-modal" ref="edit-preferences-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="edit-preferences-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="modal-body edit-preferences-modal-body">
+					<form class="edit-preferences-inputs">
+						<div class="allergens-container">
+							<label for="allergens">Allergens:</label>
+							<Multiselect
+								class="allergens-input"
+								name="allergens"
+								v-model="editPreferencesInputs.allergens"
+								:options="allergenOptions"
+								mode="tags"
+								:close-on-select="false"
+								:searchable="true"
+							/>
+						</div>
+						<div class="difficulty-container">
+							<label for="difficulty">Max. recipe difficulty:</label>
+							<Multiselect name="difficulty" class="difficulty-input"
+										 v-model="editPreferencesInputs.difficultyId"
+										 :options="difficultyOptions"
+										 :searchable="true"
+										 :can-clear="true"/>
+						</div>
+						<div class="cost-container">
+							<label for="cost">Max. recipe cost:</label>
+							<Multiselect name="cost" class="cost-input"
+										 v-model="editPreferencesInputs.costId"
+										 :options="costOptions"
+										 :searchable="true"
+										 :can-clear="true"/>
+						</div>
+					</form>
+					<div class="warning">
+						<div class="warning-icon-container">
+							<img class="warning-icon" src="@/assets/icons/warning.png" alt="warning">
+						</div>
+						<div class="warning-text-container">
+							<span> <span class="warning-text">Warning!</span> If you save your preferences, your current weekly menu recommendations will be changed!</span>
+						</div>
+					</div>
+					<div class="edit-preferences-button-container">
+						<button class="edit-preferences-button" @click="editPreferences">Save preferences</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="delete-recipe-modal" ref="delete-recipe-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="delete-recipe-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="delete-recipe">
+					<span>Are you sure you want to delete this recipe?</span><br>
+					<button class="delete-btn" @click="deleteRecipe">Delete</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -105,14 +261,24 @@ import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
 import {useUserStore} from "@/stores/userStore.js";
 import {mapStores} from "pinia";
 import axios from "axios";
+import Multiselect from '@vueform/multiselect';
+import MinimalRecipeCard from "@/components/MinimalRecipeCard.vue";
+import Pagination from "@/components/Pagination.vue";
+import {Modal} from "bootstrap";
 
 export default {
 	name: "Profile",
 	beforeRouteEnter,
 
+	components: {
+		Pagination,
+		MinimalRecipeCard,
+		Multiselect,
+	},
+
 	data(){
 		return {
-			recipeCount: null,
+			recipeCount: 0,
 
 			changePasswordInput: {
 				currentPassword: "",
@@ -121,10 +287,79 @@ export default {
 			},
 
 			changePasswordErrors: [],
+
+			editProfileInputs: {
+				username: "",
+				email: "",
+				firstname: "",
+				lastname: "",
+				pfp: null,
+			},
+
+			editProfileErrors: [],
+			uploadPfpErrors: [],
+
+			editPreferencesInputs: {
+				allergens: [],
+				difficultyId: null,
+				costId: null,
+			},
+
+			allergenOptions: {},
+			difficultyOptions: {},
+			costOptions: {},
+
+			selectedSortType: "uploadedDesc",
+			sortTypes: {
+				nameAsc: "Name 🡩",
+				nameDesc: "Name 🡫",
+				uploadedAsc: "Uploaded 🡩",
+				uploadedDesc: "Uploaded 🡫",
+			},
+
+			myRecipes: [],
+			myRecipesCurrentPage: 1,
+
+			deleteRecipeId: null,
 		}
 	},
 
 	methods: {
+		showPfpPreview(event){
+			this.uploadPfpErrors = [];
+
+			if(event.target.files.length === 0){
+				return;
+			}
+
+			if(event.target.files[0].type !== "image/jpeg" && event.target.files[0].type !== "image/png"){
+				this.uploadPfpErrors.push("Incorrect file type.")
+			}
+
+			if(event.target.files[0].size > 1024000){
+				this.uploadPfpErrors.push("File can't be bigger than 1MB.")
+			}
+
+			if(this.uploadPfpErrors.length > 0){
+				return;
+			}
+
+			this.editProfileInputs.pfp = event.target.files[0];
+			let src = URL.createObjectURL(event.target.files[0]);
+			let preview = document.getElementById("pfp-preview-img");
+			preview.src = src;
+			preview.style.display = "block";
+		},
+
+		clearFileInput(input) {
+			try {
+				input.value = null;
+			} catch(ex) { }
+			if (input.value) {
+				input.parentNode.replaceChild(input.cloneNode(true), input);
+			}
+		},
+
 		async initRecipeCount(){
 			try {
 				const response = await axios.get(`/user/uploadedRecipeCount/${this.userStore.user.id}`);
@@ -132,6 +367,97 @@ export default {
 			} catch (error) {
 				console.log(error.response.data);
 			}
+		},
+
+		async initUser(){
+			try {
+				const userResponse = await this.axios.get(`/user/getCurrentUser`);
+				let user = userResponse.data;
+
+				if(user.profilepicture){
+					const pfpResponse = await this.axios.get(`/user/pfp/${user.profilepicture}`);
+
+					user.pfp = pfpResponse.data;
+					user.pfpExt = user.profilepicture.split(".")[1];
+				}
+
+				this.userStore.setUser(user);
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async initDifficulties(){
+			try {
+				const response = await this.axios.get('/recipe/difficulties');
+				for(const difficulty of response.data){
+					this.difficultyOptions[difficulty.id] = difficulty.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
+		async initCosts(){
+			try {
+				const response = await this.axios.get('/recipe/costs');
+				for(const cost of response.data){
+					this.costOptions[cost.id] = cost.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
+		async initAllergens(){
+			try {
+				const response = await this.axios.get('/recipe/allergens');
+				for(const allergen of response.data){
+					this.allergenOptions[allergen.id] = allergen.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
+		async initMyRecipes(page){
+			try {
+				const response = await this.axios.get(`/user/currentUserAllRecipeCards/${this.selectedSortType}/${page}`)
+				this.myRecipes = response.data;
+				this.myRecipesCurrentPage = page;
+
+				for (let i = 0; i < this.myRecipes.length; i++) {
+					if(this.myRecipes[i].photo && this.myRecipes[i].photo !== "default"){
+						try {
+							const response = await this.axios.get(`/recipe/recipeImage/${this.myRecipes[i].photo}`);
+							this.myRecipes[i].photoImage = response.data;
+							this.myRecipes[i].photoExt = this.myRecipes[i].photo.split(".")[1];
+						} catch (error) {
+							console.log(error.response.data);
+						}
+					}
+				}
+
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		initEditProfileModal(){
+			this.editProfileInputs.username = this.userStore.user?.username;
+			this.editProfileInputs.email = this.userStore.user?.email;
+			this.editProfileInputs.firstname = this.userStore.user?.firstname;
+			this.editProfileInputs.lastname = this.userStore.user?.lastname;
+		},
+
+		initEditPreferencesModal(){
+			this.editPreferencesInputs.allergens = [];
+			for (let i = 0; i < this.userStore.user?.allergies?.length; i++) {
+				this.editPreferencesInputs.allergens.push(this.userStore.user?.allergies[i].id);
+			}
+
+			this.editPreferencesInputs.difficultyId = this.userStore.user?.difficultyPref?.id;
+			this.editPreferencesInputs.costId = this.userStore.user?.costPref?.id;
 		},
 
 		async changePassword(){
@@ -154,6 +480,99 @@ export default {
 
 		},
 
+		async editProfile(){
+			this.editProfileErrors = this.checkEditProfileInput;
+			this.uploadPfpErrors = [];
+
+			if(this.editProfileErrors.length === 0){
+				try {
+					await this.axios.post("/user/edit/profile", {
+						username: this.editProfileInputs.username.trim(),
+						email: this.editProfileInputs.email.trim(),
+						firstname: this.editProfileInputs.firstname?.trim(),
+						lastname: this.editProfileInputs.lastname?.trim(),
+					});
+
+					if(this.editProfileInputs.pfp){
+						const formData = new FormData();
+						formData.append('image', this.editProfileInputs.pfp);
+
+						await this.axios.post(
+							`/user/edit/uploadImage`,
+							formData,
+							{
+								headers: {
+									'Content-Type': 'multipart/form-data'
+								}
+							}
+						)
+					}
+
+					await this.initUser();
+
+					document.getElementById("edit-profile-close-button").click();
+
+				} catch (error) {
+					this.editProfileErrors.push(...error.response.data.errorMessage);
+					console.log(error.response.data);
+				}
+			}
+
+		},
+
+		async editPreferences(){
+			try {
+				for (let i = 0; i < this.editPreferencesInputs.allergens.length; i++) {
+					this.editPreferencesInputs.allergens[i] = Number(this.editPreferencesInputs.allergens[i]);
+				}
+
+				await this.axios.post("/user/edit/preferences", {
+					difficultyId: Number(this.editPreferencesInputs.difficultyId),
+					costId: Number(this.editPreferencesInputs.costId),
+					allergies: this.editPreferencesInputs.allergens,
+				});
+
+				await this.initUser();
+
+				document.getElementById("edit-preferences-close-button").click();
+
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async deleteRecipe(){
+			try {
+				await this.axios.get(`/recipe/delete/${this.deleteRecipeId}`);
+				document.getElementById("delete-recipe-close-button").click();
+				await this.initRecipeCount();
+
+				if(!this.currentPageExists){
+					this.myRecipesCurrentPage--;
+
+					let paginateButtons = document.getElementsByClassName("paginate-buttons");
+
+					for (let i = 0; i < paginateButtons.length; i++) {
+						if(paginateButtons[i].innerHTML === String(this.myRecipesCurrentPage)){
+							paginateButtons[i].click();
+						}
+					}
+				}
+
+				await this.initMyRecipes(this.myRecipesCurrentPage);
+				this.deleteRecipeId = null;
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		openDeleteRecipeModal(recipeId){
+			let deleteRecipeModal = new Modal(document.getElementById("delete-recipe-modal"), {});
+			deleteRecipeModal.show();
+
+			this.deleteRecipeId = recipeId;
+		},
+
 		clearChangePasswordFields(){
 			this.changePasswordInput.currentPassword = "";
 			this.changePasswordInput.newPassword = "";
@@ -161,9 +580,29 @@ export default {
 			this.changePasswordErrors = [];
 		},
 
+		clearEditProfileFields(){
+			this.editProfileInputs.username = "";
+			this.editProfileInputs.email = "";
+			this.editProfileInputs.firstname = "";
+			this.editProfileInputs.lastname = "";
+			this.editProfileInputs.pfp = null;
+			this.editProfileErrors = [];
+			this.uploadPfpErrors = [];
+
+			let preview = document.getElementById("pfp-preview-img");
+			preview.src = null;
+			preview.style.display = "none";
+
+			let fileInput = document.getElementById("pfp-input");
+			this.clearFileInput(fileInput);
+		},
+
 		setModalHandlers(){
 			const changePasswordModal = document.getElementById('change-password-modal');
 			changePasswordModal.addEventListener("hidden.bs.modal", () => this.clearChangePasswordFields());
+
+			const editProfileModal = document.getElementById('edit-profile-modal');
+			editProfileModal.addEventListener("hidden.bs.modal", () => this.clearEditProfileFields());
 		},
 	},
 
@@ -192,6 +631,50 @@ export default {
 			return errors;
 		},
 
+		checkEditProfileInput(){
+			let errors = [];
+
+			if(!this.editProfileInputs.username.trim() || !this.editProfileInputs.email.trim()){
+				errors.push("Please fill in the username and email fields.");
+			}
+
+			if(this.editProfileInputs.username.trim().length > 100) {
+				errors.push("Username can't be longer than 100 characters.");
+			}
+
+			if(this.editProfileInputs.email.trim().length > 100) {
+				errors.push("Email can't be longer than 100 characters.");
+			}
+
+			if(this.editProfileInputs.email.trim() &&
+				!this.editProfileInputs.email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+				errors.push("Invalid email.");
+			}
+
+			if(this.editProfileInputs.firstname?.trim().length > 100){
+				errors.push("First name can't be longer than 100 characters.");
+			}
+
+			if(this.editProfileInputs.lastname?.trim().length > 100){
+				errors.push("Last name can't be longer than 100 characters.");
+			}
+
+			return errors;
+		},
+
+		allEditProfileErrors(){
+			let allErrors = [];
+			allErrors.push(...this.editProfileErrors);
+			allErrors.push(...this.uploadPfpErrors);
+			return allErrors;
+		},
+
+		currentPageExists(){
+			let lastPage = Math.ceil(this.recipeCount / 10)
+
+			return this.myRecipesCurrentPage <= lastPage;
+		},
+
 		...mapStores(useUserStore),
 	},
 
@@ -201,7 +684,12 @@ export default {
 				this.initRecipeCount();
 			}
 		},
-	},
+
+		'selectedSortType'() {
+			this.initMyRecipes(this.myRecipesCurrentPage);
+		},
+
+		},
 
 	mounted() {
 		this.setModalHandlers();
@@ -209,6 +697,12 @@ export default {
 		if(this.userStore.user){
 			this.initRecipeCount();
 		}
+
+		this.initMyRecipes(1);
+
+		this.initAllergens();
+		this.initDifficulties();
+		this.initCosts();
 	}
 }
 </script>
@@ -223,6 +717,7 @@ export default {
 			background-color: var(--lightgreen);
 			border-radius: 20px;
 			padding: 5% 10%;
+			margin-bottom: 80px;
 
 			.user-info {
 				display: flex;
@@ -397,6 +892,52 @@ export default {
 				}
 			}
 		}
+
+		.my-recipes-title {
+			font-size: 2rem;
+			margin-bottom: 20px;
+		}
+
+		.my-recipes-container {
+			background-color: var(--lightgreen);
+			border-radius: 20px;
+			padding: 30px 5% 40px;
+
+			.sort-container {
+				display: flex;
+				align-items: center;
+				justify-content: right;
+				margin-bottom: 40px;
+
+				.sort-input {
+					width: 270px;
+					margin: 0 0 0 15px;
+				}
+			}
+
+			.my-recipecards-container {
+
+				.my-recipecard-container {
+					margin-bottom: 15px;
+				}
+
+				.no-recipe-text {
+					display: block;
+					text-align: center;
+					color: var(--mediumgrey);
+				}
+			}
+
+			.pagination-container {
+				display: flex;
+				justify-content: center;
+				margin-top: 70px;
+
+				ul {
+					margin-top: 0;
+				}
+			}
+		}
 	}
 
 	.modal {
@@ -405,6 +946,13 @@ export default {
 
 		.modal-header {
 			border-bottom: none;
+
+			.warning-icon {
+				height: 40px;
+				margin-top: -50px;
+				margin-left: -27px;
+				z-index: 1100;
+			}
 		}
 
 		.modal-body {
@@ -449,6 +997,194 @@ export default {
 					}
 				}
 			}
+
+			.edit-profile-inputs {
+				.input-field {
+					width: 100%;
+					margin-top: 1%;
+					margin-bottom: 4%;
+					border-radius: 10px;
+					border-width: 1px;
+					border-color: var(--lightgrey);
+					padding: 5px 10px;
+
+					&:focus {
+						outline: var(--darkestgreen) solid 3px;
+					}
+				}
+
+				#pfp-input {
+					display: none;
+				}
+
+				.pfp-upload-container {
+					display: flex;
+					align-items: center;
+					justify-content: space-evenly;
+					margin-top: -10px;
+					margin-bottom: 15px;
+
+					.pfp-preview-container {
+						display: flex;
+						justify-content: center;
+						align-items: center;
+
+						width: 90px;
+						height: 90px;
+
+						background-color: white;
+						border-radius: 100px;
+
+						.pfp, #pfp-preview-img {
+							width: 90px;
+							height: 90px;
+
+							object-fit: cover;
+							border-radius: 100px;
+							border: solid 3px white;
+						}
+
+						#pfp-preview-img {
+							display: none;
+						}
+					}
+
+					.upload-btn {
+						display: block;
+						background-color: var(--lightgreen);
+						width: 50%;
+						text-align: center;
+						border-radius: 15px;
+						border: solid 1px var(--lightgrey);
+
+						&:hover {
+							cursor: pointer;
+							opacity: 0.7;
+						}
+					}
+				}
+			}
+
+			.edit-profile-alert{
+				padding-bottom: 5px;
+				padding-top: 20px;
+			}
+
+			.edit-profile-button-container {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				margin-top: 5%;
+
+				.edit-profile-button {
+					border: 1px solid var(--lightgrey);
+					border-radius: 20px;
+					background-color: var(--yellow);
+					padding: 5px 30px;
+
+					&:hover {
+						opacity: 0.8;
+					}
+				}
+			}
+
+			.edit-preferences-inputs {
+				display: flex;
+				flex-direction: column;
+
+				.allergens-input, .difficulty-input, .cost-input {
+					margin-top: 1%;
+					margin-bottom: 4%;
+					border-radius: 10px;
+
+					&:focus {
+						outline: var(--darkestgreen) solid 3px;
+					}
+				}
+
+				.difficulty-container, .cost-container {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					white-space: nowrap;
+
+					label {
+						margin-top: -10px;
+						display: block;
+					}
+
+					.difficulty-input, .cost-input {
+						width: 50%;
+						margin-left: 0;
+						margin-right: 0;
+					}
+				}
+			}
+
+			.warning {
+				font-size: 13px;
+				text-align: left;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 15px;
+				margin-top: 20px;
+				font-weight: bold;
+			}
+
+			.warning-text {
+				color: var(--warning);
+				text-align: left;
+			}
+
+			.warning-icon {
+				height: 40px;
+			}
+
+			.edit-preferences-button-container {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				margin-top: 5%;
+
+				.edit-preferences-button {
+					border: 1px solid var(--lightgrey);
+					border-radius: 20px;
+					background-color: var(--yellow);
+					padding: 5px 30px;
+
+					&:hover {
+						opacity: 0.8;
+					}
+				}
+			}
+		}
+	}
+
+	.delete-recipe {
+		margin: 0 10% 30px 10%;
+		text-align: center;
+
+		.delete-btn, .cancel-btn {
+			border: 1px solid var(--lightgrey);
+			border-radius: 20px;
+			padding: 5px 30px;
+			margin-top: 15px;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+
+		.delete-btn {
+			background-color: var(--yellow);
+			margin-right: 40px;
+		}
+
+		.cancel-btn {
+			background-color: var(--lightgreen);
 		}
 	}
 
@@ -476,6 +1212,21 @@ export default {
 		.buttons-container {
 			width: 100% !important;
 			justify-content: center !important;
+		}
+	}
+
+	@media screen and (max-width: 500px){
+		.difficulty-container, .cost-container {
+			flex-direction: column;
+			align-items: flex-start !important;
+
+			label {
+				margin-top: 0 !important;
+			}
+
+			.difficulty-input, .cost-input {
+				width: 100% !important;
+			}
 		}
 	}
 

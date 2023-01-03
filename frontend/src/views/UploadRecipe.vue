@@ -215,11 +215,11 @@ export default {
 		};
 	},
 	methods: {
-		selectImage () {
+		selectImage() {
 			this.$refs.fileInput.click()
 		},
 
-		pickFile () {
+		pickFile() {
 			let input = this.$refs.fileInput;
 			let file = input.files;
 			if((file[0].type === "image/jpeg" || file[0].type === "image/png") && file[0].size <= 1024000){
@@ -246,7 +246,7 @@ export default {
 			}
 
 			if(event.target.files[0].size > 1024000){
-				this.imageErrors.push("File can't be bigger than 1MB")
+				this.imageErrors.push("File can't be bigger than 1MB.")
 			}
 
 			if(this.imageErrors.length > 0){
@@ -903,6 +903,21 @@ export default {
 					}
 
 				}
+			}
+		}
+	}
+
+	@media screen and (max-width: 1500px){
+		.column-container {
+			flex-direction: column;
+
+			.column-left {
+				width: 100%;
+			}
+
+			.column-right {
+				width: 100%;
+				padding: 0 5%;
 			}
 		}
 	}

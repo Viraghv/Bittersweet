@@ -260,10 +260,12 @@ export default {
 		},
 		selectAllPage(){
 			this.allPageSelected = true;
+			this.initAllFavourites(1);
 		},
 
 		selectGroupsPage(){
 			this.allPageSelected = false;
+			this.initGroupRecipes(1);
 		},
 
 		async initFavouriteCount(){
@@ -394,8 +396,19 @@ export default {
 				await this.initAllFavourites(this.allCurrentPage);
 				this.allFavouritesDeleteId = null;
 
+				if(!this.currentAllPageExists){
+					this.allCurrentPage--;
+
+					let paginateButtons = document.getElementsByClassName("paginate-buttons");
+
+					for (let i = 0; i < paginateButtons.length; i++) {
+						if(paginateButtons[i].innerHTML === String(this.allCurrentPage)){
+							paginateButtons[i].click();
+						}
+					}
+				}
+
 				await this.initGroupRecipeCount()
-				await this.initGroupRecipes(this.groupCurrentPage);
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -408,6 +421,19 @@ export default {
 					recipeId: this.groupDeleteRecipeId,
 				});
 				document.getElementById("remove-recipe-from-group-close-button").click();
+
+				if(!this.currentGroupPageExists){
+					this.groupCurrentPage--;
+
+					let paginateButtons = document.getElementsByClassName("paginate-buttons");
+
+					for (let i = 0; i < paginateButtons.length; i++) {
+						if(paginateButtons[i].innerHTML === String(this.groupCurrentPage)){
+							paginateButtons[i].click();
+						}
+					}
+				}
+
 				await this.initGroupRecipeCount()
 				await this.initGroupRecipes(this.groupCurrentPage);
 				this.groupDeleteRecipeId = null;
@@ -512,6 +538,20 @@ export default {
 
 			const addToGroupModal = document.getElementById('add-to-group-modal');
 			addToGroupModal.addEventListener("hidden.bs.modal", () => this.clearAddToGroupModal());
+		},
+	},
+
+	computed: {
+		currentAllPageExists(){
+			let lastPage = Math.ceil(this.allCurrentPage / 10)
+
+			return this.allCurrentPage <= lastPage;
+		},
+
+		currentGroupPageExists(){
+			let lastPage = Math.ceil(this.groupCurrentPage / 10)
+
+			return this.groupCurrentPage <= lastPage;
 		},
 	},
 
