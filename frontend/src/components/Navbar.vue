@@ -46,10 +46,10 @@
 						<img class="heartIcon" src="@/assets/icons/heart.png" alt="heart">
 						Favourite
 					</router-link></li>
-					<li><a class="dropdown-item" href="#">
+					<li><router-link class="dropdown-item" :to="{name: 'ShoppingList'}" >
 						<img class="shoppingListIcon" src="@/assets/icons/shopping-list.png" alt="shoppinglist">
 						Shopping list
-					</a></li>
+					</router-link></li>
 					<li><router-link class="dropdown-item" :to="{name: 'Profile'}">
 						<img class="profileIcon" src="@/assets/icons/profile.png" alt="profile">
 						Profile
@@ -202,9 +202,12 @@ export default {
 					await this.initUser();
 
 					document.getElementById("login-close-button").click();
-				} catch (err) {
-					this.loginErrorMsgs.push(...err.response.data.errorMessage);
-					console.log(err)
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.loginErrorMsgs.push(...error.response.data.errorMessage);
+					} else {
+						this.loginErrorMsgs.push(error.response.data.errorMessage);
+					}
 				}
 			}
 		},
@@ -216,7 +219,7 @@ export default {
 				this.$cookies.remove("tokenExpiration");
 				this.axios.defaults.headers.common["Authorization"] = "";
 				this.userStore.logout();
-				this.$router.replace({name: 'Home'});
+				this.$router.push({name: 'Home'});
 			} catch (error) {
 				console.log(error);
 			}
@@ -238,8 +241,12 @@ export default {
 					await this.login();
 
 					document.getElementById("signup-close-button").click();
-				} catch (err) {
-					this.signupErrorMsgs.push(...err.response.data.errorMessage);
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.signupErrorMsgs.push(...error.response.data.errorMessage);
+					} else {
+						this.signupErrorMsgs.push(error.response.data.errorMessage);
+					}
 				}
 			}
 		},
@@ -551,7 +558,7 @@ export default {
 			margin-right: 10%;
 			margin-bottom: 5%;
 
-			.signup-error-items {
+			.signup-error-items, .login-error-items {
 				font-size: 0.8rem;
 			}
 

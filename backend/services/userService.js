@@ -82,6 +82,10 @@ module.exports.createGroupForCurrentUser = async (name, userId) => {
         throw new BadRequest(["Please provide a name for the group."]);
     }
 
+    if(name.trim().length > 100){
+        throw new BadRequest(["Group name can't be longer than 100 characters."]);
+    }
+
     try {
         return await userRepository.createGroupForCurrentUser(name, userId);
     } catch (exception) {
@@ -285,6 +289,14 @@ module.exports.addRecipeToGroup = async (data) => {
 }
 
 module.exports.editNameOfGroup = async (groupId, newName, userId) => {
+    if(newName.trim() === ""){
+        throw new BadRequest(["Please provide a name for the group."]);
+    }
+
+    if(newName.trim().length > 100){
+        throw new BadRequest(["Group name can't be longer than 100 characters."]);
+    }
+
     try {
         await userRepository.editNameOfGroup(groupId, newName, userId);
     } catch (exception) {

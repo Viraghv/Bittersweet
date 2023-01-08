@@ -7,7 +7,7 @@
 			</div>
 			<div class="info-container">
 				<div class="name">
-					<span>{{name}}</span>
+					<span>{{name.length <= 50 ? name : name.substring(0,50) + '...'}}</span>
 				</div>
 				<div class="uploaded">
 					<span>Uploaded: {{formattedUploaded}}</span>
@@ -42,7 +42,7 @@ export default {
 	methods: {
 		navigateToRecipePage() {
 			window.scrollTo(0,0);
-			this.$router.replace({path: `/recipe/${this.id}`});
+			this.$router.push({path: `/recipe/${this.id}`});
 		},
 
 		emitAdd(){
@@ -93,6 +93,7 @@ export default {
 
 					&:hover {
 						cursor: pointer;
+						opacity: 0.8;
 					}
 				}
 			}

@@ -35,6 +35,30 @@ const fileFilter = function (req, file, cb) {
         return cb(null, false);
     }
 
+    cb(null, true);
+}
+
+const multerUpload = multer({
+    storage: storage,
+    fileFilter,
+})
+
+const uploadFile = function (req, res, next) {
+    const upload = multerUpload.single('image');
+
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            console.log("MulterError occured: ");
+            console.log(err);
+        } else if (err) {
+            console.log("Unknown error occured: ");
+            console.log(err);
+        }
+        next()
+    })
+}
+
+const deleteImage = function (req, res, next){
     const directory = "./uploads/recipe_images/"
 
     fs.readdir(directory, (err, files) => {
@@ -45,16 +69,11 @@ const fileFilter = function (req, file, cb) {
         });
     });
 
-    cb(null, true);
+    next();
 }
 
-const upload = multer({
-    storage: storage,
-    fileFilter,
-})
-
 router.post('/create', authMiddleware, recipeController.createOne);
-router.post('/uploadImage/:id', authMiddleware, upload.single('image'), recipeController.uploadImage);
+router.post('/uploadImage/:id', authMiddleware, deleteImage, uploadFile, recipeController.uploadImage);
 router.post('/edit/:id', authMiddleware, recipeController.editRecipeOfCurrentUser)
 router.get('/delete/:id', authMiddleware, recipeController.deleteRecipeOfCurrentUser);
 

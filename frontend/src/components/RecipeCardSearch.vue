@@ -8,7 +8,7 @@
 			<p class="type-name">{{ type }}</p>
 		</div>
 		<div class="recipe-title-container">
-			<p class="recipe-title">{{title}}</p>
+			<p class="recipe-title">{{title.length <= 30 ? title : title.substring(0,30) + '...'}}</p>
 		</div>
 		<div class="recipe-info-container">
 			<div class="difficulty-info-container">
@@ -46,8 +46,8 @@ export default {
 	},
 	methods: {
 		navigateToRecipePage() {
-			window.scroll(0, 0);
-			this.$router.replace({path: `/recipe/${this.id}`});
+			window.scrollTo(0, 0);
+			this.$router.push({path: `/recipe/${this.id}`});
 		},
 	},
 

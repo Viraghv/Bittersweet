@@ -160,7 +160,10 @@ module.exports.getRecipeById = async (recipeId) => {
 
 
         for (let i = 0; i < recipe.recipeCategories.length; i++) {
-            recipe.categories.push(recipe.recipeCategories[i].recipeCategory.name);
+            recipe.categories.push({
+                name: recipe.recipeCategories[i].recipeCategory.name,
+                primary: recipe.recipeCategories[i].primary,
+            });
         }
         delete recipe.recipeCategories;
 

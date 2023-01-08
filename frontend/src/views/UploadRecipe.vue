@@ -1,5 +1,6 @@
 <template>
-	<h1 class="title">Upload recipe</h1>
+	<h1 class="title" v-if="!recipeID">Upload recipe</h1>
+	<h1 class="title" v-else>Edit recipe</h1>
 	<form class="content col-xxl-8 col-xl-9 col-lg-8 col-md-10 col-sm-11">
 		<div class="column-container">
 			<div class="column-left">
@@ -10,7 +11,9 @@
 						:style="{ 'background-image': `url(${previewImage})` }"
 						@click="selectImage">
 
-						<div class="upload-image-noimage" v-show='previewImage === ""'>
+						<img class="edit-preview-image" :src="'data:image/' + editPreviewImage.imageExt + ';base64,'+ editPreviewImage.image" alt="recipe-image" v-show="recipeID && editPreviewImage.image && !previewImage" />
+
+						<div class="upload-image-noimage" v-show='!editPreviewImage.image && previewImage === ""'>
 							<img src="@/assets/icons/add_icon_black.png" alt="">
 							<span>Upload image</span>
 						</div>
@@ -152,8 +155,11 @@
 			</div>
 		</div>
 		<div class="submit-button-container">
-			<button type="button" class="submit-button" @click="submitRecipe">
+			<button type="button" class="submit-button" @click="submitRecipe" v-if="!recipeID">
 				Submit recipe
+			</button>
+			<button type="button" class="edit-button" @click="editRecipe" v-else>
+				Edit recipe
 			</button>
 			<Loader class="loader" v-if="showLoader"/>
 		</div>
@@ -172,6 +178,10 @@ export default {
 	components: {
 		Loader,
 		Multiselect,
+	},
+
+	props: {
+		recipeID: Number | String,
 	},
 
 	data() {
@@ -200,6 +210,11 @@ export default {
 				primaryCategory: null,
 				categories: [],
 				allergens: [],
+			},
+
+			editPreviewImage: {
+				image: "",
+				imageExt: "",
 			},
 
 			units: {},
@@ -342,6 +357,88 @@ export default {
 			}
 		},
 
+		async initRecipe(){
+			if(this.recipeID){
+				try {
+					const response = await this.axios.get(`/recipe/recipeById/${this.recipeID}`);
+					this.recipe.name = response.data.name;
+					this.recipe.description = response.data.description;
+
+					this.recipe.ingredients = [];
+					for (let i = 0; i < response.data.ingredients.length; i++) {
+						this.recipe.ingredients.push({
+							name: response.data.ingredients[i].name,
+							amount: response.data.ingredients[i].amount,
+							unit: response.data.ingredients[i].unitId,
+						});
+					}
+
+					this.recipe.steps = [];
+					for (let i = 0; i < response.data.steps.length; i++) {
+						this.recipe.steps.push({
+							number: response.data.steps[i].number,
+							content: response.data.steps[i].content,
+						});
+					}
+					this.sortSteps();
+
+					this.recipe.timeHour = response.data.hour;
+					this.recipe.timeMinute = response.data.minute;
+
+					if(response.data.difficulty){
+						for (let difficultyId in this.difficultyOptions) {
+							if(this.difficultyOptions[difficultyId] === response.data.difficulty){
+								this.recipe.difficulty = difficultyId;
+							}
+						}
+					}
+
+					if(response.data.cost){
+						for (let costId in this.costOptions) {
+							if(this.costOptions[costId] === response.data.cost){
+								this.recipe.cost = costId;
+							}
+						}
+					}
+
+					this.recipe.portions = response.data.portions;
+					this.recipe.calories = response.data.calories;
+
+					for (let i = 0; i < response.data.categories.length; i++) {
+						if(response.data.categories[i].primary === true){
+							for (let categoryId in this.categoryOptions) {
+								if(this.categoryOptions[categoryId] === response.data.categories[i].name){
+									this.recipe.primaryCategory = categoryId;
+								}
+							}
+						} else {
+							for (let categoryId in this.categoryOptions) {
+								if(this.categoryOptions[categoryId] === response.data.categories[i].name){
+									this.recipe.categories.push(categoryId);
+								}
+							}
+						}
+					}
+
+					for (let i = 0; i < response.data.allergens.length; i++) {
+						for (let allergenId in this.allergenOptions) {
+							if(this.allergenOptions[allergenId] === response.data.allergens[i]){
+								this.recipe.allergens.push(allergenId);
+							}
+						}
+					}
+
+					if(response.data.photo && response.data.photo !== "default") {
+						const imageResponse = await this.axios.get(`/recipe/recipeImage/${response.data.photo}`);
+						this.editPreviewImage.image = imageResponse.data;
+						this.editPreviewImage.imageExt = response.data.photo.split(".")[1];
+					}
+				} catch (error) {
+					console.log(error.response.data);
+				}
+			}
+		},
+
 		async submitRecipe(){
 			this.errors = this.inputsValid;
 
@@ -366,11 +463,11 @@ export default {
 					this.recipe.allergens[i] = Number(this.recipe.allergens[i]);
 				}
 
-				for (let i = 0; i < this.recipe.ingredients; i++) {
+				for (let i = 0; i < this.recipe.ingredients.length; i++) {
 					this.recipe.ingredients[i].name = this.recipe.ingredients[i].name.trim();
 				}
 
-				for (let i = 0; i < this.recipe.steps; i++) {
+				for (let i = 0; i < this.recipe.steps.length; i++) {
 					this.recipe.steps[i].content = this.recipe.steps[i].content.trim();
 				}
 
@@ -421,13 +518,156 @@ export default {
 
 					this.showLoader = false;
 					window.scrollTo(0,0);
-					await this.$router.replace({path: `/recipe/${recipeId}`});
-				} catch (err) {
-					this.errors.push(...err.response.data.errorMessage);
+					await this.$router.push({path: `/recipe/${recipeId}`});
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.errors.push(...error.response.data.errorMessage);
+					} else {
+						this.errors.push(error.response.data.errorMessage);
+					}
 					this.showLoader = false;
 				}
 			}
-		}
+		},
+
+		async editRecipe(){
+			this.errors = this.inputsValid;
+
+			if(this.errors.length === 0 && this.imageErrors.length === 0){
+				let categories = [];
+
+				if(this.recipe.primaryCategory){
+					categories.push({
+						primary: true,
+						category: Number(this.recipe.primaryCategory),
+					})
+				}
+
+				for(const category of this.recipe.categories){
+					categories.push({
+						primary: false,
+						category: Number(category),
+					})
+				}
+
+				for (let i = 0; i < this.recipe.allergens.length; i++) {
+					this.recipe.allergens[i] = Number(this.recipe.allergens[i]);
+				}
+
+				for (let i = 0; i < this.recipe.ingredients.length; i++) {
+					this.recipe.ingredients[i].name = this.recipe.ingredients[i].name.trim();
+					this.recipe.ingredients[i].unit = Number(this.recipe.ingredients[i].unit);
+				}
+
+				for (let i = 0; i < this.recipe.steps.length; i++) {
+					this.recipe.steps[i].content = this.recipe.steps[i].content.trim();
+					this.recipe.steps[i].number = Number(this.recipe.steps[i].number);
+				}
+
+				this.showLoader = true;
+				const formData = new FormData();
+				formData.append('image', this.recipe.image);
+
+				try {
+					const response = await this.axios.post(`/recipe/edit/${this.recipeID}`, {
+						name: this.recipe.name.trim(),
+						description: this.recipe.description.trim(),
+						ingredients: this.recipe.ingredients,
+						steps: this.recipe.steps,
+						timeHour: Number(this.recipe.timeHour),
+						timeMinute: Number(this.recipe.timeMinute),
+						difficulty: Number(this.recipe.difficulty),
+						cost: Number(this.recipe.cost),
+						portions: Number(this.recipe.portions),
+						calories: Number(this.recipe.calories),
+						categories: categories,
+						allergens: this.recipe.allergens,
+					})
+
+					if(this.recipe.image){
+						await this.axios.post(
+							`/recipe/uploadImage/${this.recipeID}`,
+							formData,
+							{
+								headers: {
+									'Content-Type': 'multipart/form-data'
+								}
+							}
+						)
+					}
+
+					this.showLoader = false;
+					window.scrollTo(0,0);
+					await this.$router.push({path: `/recipe/${this.recipeID}`});
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.errors.push(...error.response.data.errorMessage);
+					} else {
+						this.errors.push(error.response.data.errorMessage);
+					}
+					this.showLoader = false;
+				}
+			}
+		},
+
+		sortSteps(){
+			this.recipe.steps.sort((a, b) => a.number - b.number);
+		},
+
+		clearPage(){
+			this.recipe = {
+				name: "",
+				image: null,
+				description: "",
+				ingredients: [{
+					name: "",
+					amount: null,
+					unit: null,
+				}],
+				steps: [{
+					number: 1,
+					content: "",
+				}],
+				timeHour: null,
+				timeMinute: null,
+				difficulty: null,
+				cost: null,
+				portions: null,
+				calories: null,
+				primaryCategory: null,
+				categories: [],
+				allergens: [],
+			}
+
+			this.previewImage = "";
+			this.editPreviewImage = {
+				image: "",
+				imageExt: "",
+			};
+			this.units = {};
+			this.difficultyOptions = {};
+			this.costOptions = {};
+			this.categoryOptions = {};
+			this.allergenOptions = {};
+
+
+			this.errors = [];
+			this.imageErrors = [];
+
+			this.showLoader = false;
+		},
+
+		initPage(){
+			this.clearPage();
+
+			this.initUnits();
+			this.initDifficulties();
+			this.initCosts();
+			this.initCategories();
+			this.initAllergens();
+
+			this.initRecipe();
+		},
 	},
 	computed: {
 		categoriesWithoutPrimary(){
@@ -455,7 +695,7 @@ export default {
 				errors.push("Please provide a recipe name and description.");
 			}
 
-			if(!this.recipe.image){
+			if(!this.recipe.image && !this.editPreviewImage.image){
 				errors.push("Please upload a valid image (jpg, png, gif).");
 			}
 
@@ -515,12 +755,14 @@ export default {
 		}
 	},
 
+	watch: {
+		"recipeID"(){
+			this.initPage();
+		},
+	},
+
 	mounted() {
-		this.initUnits();
-		this.initDifficulties();
-		this.initCosts();
-		this.initCategories();
-		this.initAllergens();
+		this.initPage();
 	}
 
 }
@@ -551,7 +793,7 @@ export default {
 			align-items: center;
 			padding: 0 5% 3% 5%;
 
-			.submit-button {
+			.submit-button, .edit-button {
 				border: 1px solid var(--lightgrey);
 				border-radius: 20px;
 				background-color: var(--yellow);
@@ -619,6 +861,14 @@ export default {
 				&:hover {
 					opacity: 0.8;
 					transition: 0.3s ease;
+				}
+
+				.edit-preview-image {
+					width: 100%;
+					max-width: 600px;
+					height: 400px;
+					border-radius: 20px;
+					object-fit: cover
 				}
 
 				.upload-image-noimage{
@@ -904,6 +1154,18 @@ export default {
 
 				}
 			}
+		}
+	}
+
+	.alert {
+		width: 100%;
+
+		.image-error-items, .submit-error-items {
+			font-size: 1rem;
+		}
+
+		&.image-alert, &.submit-alert {
+			padding-bottom: 5px;
 		}
 	}
 

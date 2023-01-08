@@ -89,7 +89,7 @@
 						:photo="recipe.photoImage"
 						:photo-ext="recipe.photoExt"
 						page="profile"
-						@edit=""
+						@edit="navigateToEditRecipe"
 						@delete="openDeleteRecipeModal"
 					/>
 				</div>
@@ -473,8 +473,11 @@ export default {
 					document.getElementById("change-password-close-button").click();
 
 				} catch (error) {
-					this.changePasswordErrors.push(...error.response.data.errorMessage);
-					console.log(error.response.data);
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.changePasswordErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.changePasswordErrors.push(error.response.data.errorMessage);
+					}
 				}
 			}
 
@@ -513,8 +516,11 @@ export default {
 					document.getElementById("edit-profile-close-button").click();
 
 				} catch (error) {
-					this.editProfileErrors.push(...error.response.data.errorMessage);
-					console.log(error.response.data);
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.editProfileErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.editProfileErrors.push(error.response.data.errorMessage);
+					}
 				}
 			}
 
@@ -546,6 +552,7 @@ export default {
 				await this.axios.get(`/recipe/delete/${this.deleteRecipeId}`);
 				document.getElementById("delete-recipe-close-button").click();
 				await this.initRecipeCount();
+				await this.initMyRecipes(this.myRecipesCurrentPage);
 
 				if(!this.currentPageExists){
 					this.myRecipesCurrentPage--;
@@ -559,11 +566,15 @@ export default {
 					}
 				}
 
-				await this.initMyRecipes(this.myRecipesCurrentPage);
 				this.deleteRecipeId = null;
 			} catch (error) {
 				console.log(error.response.data);
 			}
+		},
+
+		navigateToEditRecipe(recipeId){
+			window.scrollTo(0, 0);
+			this.$router.push({path: `/upload_recipe/${recipeId}`});
 		},
 
 		openDeleteRecipeModal(recipeId){
@@ -974,10 +985,10 @@ export default {
 				}
 			}
 
-			.change-password-alert {
-				padding-bottom: 5px;
-				padding-top: 20px;
-			}
+			//.change-password-alert {
+			//	padding-bottom: 5px;
+			//	padding-top: 20px;
+			//}
 
 			.change-password-button-container {
 				width: 100%;
@@ -1065,10 +1076,10 @@ export default {
 				}
 			}
 
-			.edit-profile-alert{
-				padding-bottom: 5px;
-				padding-top: 20px;
-			}
+			//.edit-profile-alert{
+			//	padding-bottom: 5px;
+			//	padding-top: 20px;
+			//}
 
 			.edit-profile-button-container {
 				width: 100%;
@@ -1161,7 +1172,21 @@ export default {
 				}
 			}
 		}
+
+		.alert {
+			width: 100%;
+
+			.edit-profile-error-items, .change-password-error-items {
+				font-size: 0.8rem;
+			}
+
+			&.edit-profile-alert, &.change-password-alert {
+				padding-bottom: 5px;
+			}
+		}
 	}
+
+
 
 	.delete-recipe {
 		margin: 0 10% 30px 10%;

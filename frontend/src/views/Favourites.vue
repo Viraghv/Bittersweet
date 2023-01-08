@@ -38,9 +38,11 @@
 				<div class="groups-header-left">
 					<Multiselect class="group-select-input" ref="group-select-input" v-model="selectedUserGroup" :options="userGroups" :searchable="false" :can-clear="false" :can-deselect="false"/>
 					<img class="edit-group-icon" src="@/assets/icons/edit_grey.png" alt="edit" @click="setNewGroupNameToCurrentName"
+						 v-show="selectedUserGroup"
 						 data-bs-toggle="modal"
 						 data-bs-target="#edit-group-modal">
 					<img class="delete-group-icon" src="@/assets/icons/bin_grey.png" alt="delete"
+						 v-show="selectedUserGroup"
 						 data-bs-toggle="modal"
 						 data-bs-target="#delete-group-modal">
 				</div>
@@ -49,7 +51,7 @@
 						<label class="group-sort-label" for="group-sort-input">Sort by:</label>
 						<Multiselect class="group-sort-input" name="group-sort-input" v-model="selectedSortTypeGroups" :options="sortTypesGroups" :searchable="false" :can-clear="false" :can-deselect="false"/>
 					</div>
-					<button class="create-group-button" type="button" @click="createGroup"
+					<button class="create-group-button" type="button"
 							data-bs-toggle="modal"
 							data-bs-target="#create-group-modal">
 						Create group
@@ -68,7 +70,8 @@
 						@delete="openDeleteRecipeFromGroupModal"
 					/>
 				</div>
-				<span class="no-recipe-text" v-show="groupRecipeCount === 0">There are no recipes in this group.</span>
+				<span class="no-groups-text" v-if="Object.keys(userGroups).length === 0">You have no groups created yet.</span>
+				<span class="no-recipe-text" v-else-if="groupRecipeCount === 0">There are no recipes in this group.</span>
 			</div>
 			<div class="group-pagination-container">
 				<Pagination :total-items="groupRecipeCount" :items-per-page="10" :white="true" @change-page="initGroupRecipes"/>
@@ -142,6 +145,14 @@
 					<label class="create-group-label" for="create-group">Group name:</label>
 					<form class="create-group-form">
 						<input class="create-group-input" name="create-group" v-model="newGroupName"/>
+
+						<div class="create-group-alert alert alert-danger" v-if="newGroupErrors.length !== 0">
+							<strong>Upload failed!</strong><br>
+							<ul>
+								<li class="create-group-error-items" v-for="(error, index) in newGroupErrors" :key="index">{{error}}</li>
+							</ul>
+						</div>
+
 						<button class="create-group-button" type="button" @click="createGroup">Create group</button><br>
 					</form>
 				</div>
@@ -161,6 +172,14 @@
 					<label class="edit-group-label" for="edit-group">Group name:</label>
 					<form class="edit-group-form">
 						<input class="edit-group-input" name="edit-group" v-model="newGroupName"/>
+
+						<div class="edit-group-alert alert alert-danger" v-if="newGroupErrors.length !== 0">
+							<strong>Edit failed!</strong><br>
+							<ul>
+								<li class="edit-group-error-items" v-for="(error, index) in newGroupErrors" :key="index">{{error}}</li>
+							</ul>
+						</div>
+
 						<button class="edit-group-button" type="button" @click="editGroup">Rename group</button><br>
 					</form>
 				</div>
@@ -242,6 +261,7 @@ export default {
 			groupRecipeCount: 0,
 
 			newGroupName: "",
+			newGroupErrors: [],
 
 			groupDeleteRecipeId: null,
 
@@ -329,7 +349,7 @@ export default {
 				for(const group of response.data){
 					this.userGroups[group.id] = group.name;
 				}
-				if(selectFirstGroup){
+				if(selectFirstGroup && Object.keys(this.userGroups).length > 0){
 					this.selectedUserGroup = response.data[0].id;
 				}
 			} catch (error) {
@@ -443,41 +463,57 @@ export default {
 		},
 
 		async createGroup(){
-			try {
-				const response = await this.axios.post(`/user/groups/createForCurrentUser`, {
-					name: this.newGroupName,
-				});
+			this.newGroupErrors = this.groupInputsValid;
 
-				document.getElementById("create-group-close-button").click();
+			if(this.newGroupErrors.length === 0){
+				try {
+					const response = await this.axios.post(`/user/groups/createForCurrentUser`, {
+						name: this.newGroupName,
+					});
 
-				await this.initUserGroups();
-				this.$refs["group-select-input"].select(response.data.id);
+					document.getElementById("create-group-close-button").click();
 
-				await this.initGroupRecipeCount();
-				await this.initGroupRecipes(1);
-			} catch (error) {
-				console.log(error.response.data);
+					await this.initUserGroups();
+					this.$refs["group-select-input"].select(response.data.id);
+
+					await this.initGroupRecipeCount();
+					await this.initGroupRecipes(1);
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.newGroupErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.newGroupErrors.push(error.response.data.errorMessage);
+					}
+				}
 			}
 		},
 
 		async editGroup(){
-			try {
-				await this.axios.post(`/user/groups/edit`, {
-					groupId: this.selectedUserGroup,
-					newName: this.newGroupName,
-				});
+			this.newGroupErrors = this.groupInputsValid;
 
-				document.getElementById("edit-group-close-button").click();
+			if(this.newGroupErrors.length === 0){
+				try {
+					await this.axios.post(`/user/groups/edit`, {
+						groupId: this.selectedUserGroup,
+						newName: this.newGroupName,
+					});
 
-				let prevSelectedUserGroup = this.selectedUserGroup;
-				await this.initUserGroups(false);
-				this.$refs["group-select-input"].select(prevSelectedUserGroup);
+					document.getElementById("edit-group-close-button").click();
 
-				await this.initGroupRecipeCount();
-				await this.initGroupRecipes(this.groupCurrentPage);
-				this.newGroupName = "";
-			} catch (error) {
-				console.log(error.response.data);
+					let prevSelectedUserGroup = this.selectedUserGroup;
+					await this.initUserGroups(false);
+					this.$refs["group-select-input"].select(prevSelectedUserGroup);
+
+					await this.initGroupRecipeCount();
+					await this.initGroupRecipes(this.groupCurrentPage);
+					this.newGroupName = "";
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.newGroupErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.newGroupErrors.push(error.response.data.errorMessage);
+					}
+				}
 			}
 		},
 
@@ -488,8 +524,15 @@ export default {
 				document.getElementById("delete-group-close-button").click();
 
 				await this.initUserGroups();
-				await this.initGroupRecipeCount();
-				await this.initGroupRecipes(1);
+
+				if(Object.keys(this.userGroups).length === 0){
+					this.selectedUserGroup = null;
+				}
+
+				if(this.selectedUserGroup){
+					await this.initGroupRecipeCount();
+					await this.initGroupRecipes(1);
+				}
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -552,6 +595,21 @@ export default {
 			let lastPage = Math.ceil(this.groupCurrentPage / 10)
 
 			return this.groupCurrentPage <= lastPage;
+		},
+
+		groupInputsValid(){
+			let errors = [];
+
+			if(this.newGroupName.trim() === ""){
+				errors.push("Please provide a name for the group.");
+
+			}
+
+			if(this.newGroupName.trim().length > 100){
+				errors.push("Group name can't be longer than 100 characters.");
+			}
+
+			return errors;
 		},
 	},
 
@@ -645,7 +703,7 @@ export default {
 					margin-bottom: 15px;
 				}
 
-				.no-recipe-text {
+				.no-recipe-text, .no-groups-text {
 					display: block;
 					text-align: center;
 					color: var(--mediumgrey);
@@ -848,6 +906,17 @@ export default {
 				opacity: 0.8;
 			}
 		}
+	}
 
+	.alert {
+		width: 100%;
+
+		.create-group-error-items, .edit-group-error-items {
+			font-size: 0.8rem;
+		}
+
+		&.create-group-alert, &.edit-group-alert {
+			padding-bottom: 5px;
+		}
 	}
 </style>

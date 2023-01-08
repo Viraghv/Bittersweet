@@ -144,6 +144,7 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
                 costId: recipeData.cost ? recipeData.cost : null,
                 calories: recipeData.calories ? recipeData.calories : null,
                 portions: recipeData.portions ? recipeData.portions : null,
+                lastModified: new Date(Date.now()),
             }
         });
 

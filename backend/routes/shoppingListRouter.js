@@ -3,7 +3,16 @@ const router = express.Router();
 const shoppingListController = require('../controller/shoppingListController');
 const authMiddleware = require('../middlewares/auth');
 
-router.post('/addCategoryAndItems', authMiddleware, shoppingListController.addCategoryAndItems);
-router.post('/addCategory', authMiddleware, shoppingListController.addCategory);
+router.get('/currentUserList', authMiddleware, shoppingListController.getCurrentUserList);
+
+router.post('/add/category', authMiddleware, shoppingListController.addCategory);
+router.post('/add/categoryAndItems', authMiddleware, shoppingListController.addCategoryAndItems);
+router.post('/add/items/:id', authMiddleware, shoppingListController.addItemsToCategoryById);
+
+router.post('/edit/category/:id', authMiddleware, shoppingListController.editCategoryById);
+router.post('/edit/item/setDone/:id', authMiddleware, shoppingListController.setItemDoneById)
+
+router.get('/delete/category/:id', authMiddleware, shoppingListController.deleteCategoryById);
+router.get('/delete/items/allDone', authMiddleware, shoppingListController.deleteAllDoneItemsOfUser);
 
 module.exports = router;

@@ -1,17 +1,4 @@
 import {createRouter, createWebHistory} from "vue-router";
-import {useUserStore} from "@/stores/userStore.js";
-
-
-const loggedInNavigationGuard = (to, from, next) => {
-    if (!useUserStore().loggedIn){
-        next({
-            name: 'Home',
-            replace: true
-        })
-    } else {
-        next()
-    }
-}
 
 const routes = [
     {
@@ -23,6 +10,12 @@ const routes = [
         name: "Favourites",
         path: "/favourites",
         component: () => import('@/views/Favourites.vue'),
+        //userLoggedInNavGuard
+    },
+    {
+        name: "ShoppingList",
+        path: "/shopping-list",
+        component: () => import('@/views/ShoppingList.vue'),
         //userLoggedInNavGuard
     },
     {
@@ -39,7 +32,8 @@ const routes = [
     },
     {
         name: "UploadRecipe",
-        path: "/upload_recipe",
+        path: "/upload_recipe/:recipeID?",
+        props: true,
         component: () => import('@/views/UploadRecipe.vue'),
         //userLoggedInNavGuard
     },

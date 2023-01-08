@@ -378,7 +378,13 @@ export default {
 		},
 
 		joinCategoriesToString(){
-			this.categoriesStr = this.recipe.categories.join(" - ");
+			let categoryNames = [];
+
+			for (let i = 0; i < this.recipe.categories.length; i++) {
+				categoryNames.push(this.recipe.categories[i].name);
+			}
+
+			this.categoriesStr = categoryNames.join(" - ");
 		},
 
 		changeAll(){
@@ -603,7 +609,7 @@ export default {
 				}
 
 				try {
-					await this.axios.post("/shoppingList/addCategoryAndItems", {
+					await this.axios.post("/shoppingList/add/categoryAndItems", {
 						categoryName: this.recipe.name,
 						items: selectedIngredientsCopy,
 					});
@@ -638,8 +644,11 @@ export default {
 					await this.initRatingCount()
 
 				} catch (error) {
-					this.ratingErrors.push(...error.response.data.errorMessage);
-					console.log(error.response.data);
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.ratingErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.ratingErrors.push(error.response.data.errorMessage);
+					}
 				}
 			}
 		},
@@ -689,8 +698,11 @@ export default {
 					await this.initRating();
 
 				} catch (error) {
-					this.ratingErrors.push(...error.response.data.errorMessage);
-					console.log(error.response.data);
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.ratingErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.ratingErrors.push(error.response.data.errorMessage);
+					}
 				}
 			}
 		},
@@ -775,7 +787,7 @@ export default {
 
 	mounted() {
 		this.setModalHandlers();
-		this.initPage();
+		//this.initPage();
 	}
 }
 </script>
@@ -793,6 +805,7 @@ export default {
 
 			.recipe-title {
 				margin-bottom: 0;
+				max-width: 70%;
 			}
 
 			.rating {
@@ -1410,11 +1423,6 @@ export default {
 			}
 		}
 
-		.comment-alert {
-			padding-bottom: 5px;
-			padding-top: 20px;
-		}
-
 		.submit-rating-btn-container {
 			display: flex;
 			justify-content: center;
@@ -1429,6 +1437,18 @@ export default {
 					opacity: 0.8;
 				}
 			}
+		}
+	}
+
+	.alert {
+		width: 100%;
+
+		.comment-error-items {
+			font-size: 0.8rem;
+		}
+
+		&.comment-alert {
+			padding-bottom: 5px;
 		}
 	}
 
