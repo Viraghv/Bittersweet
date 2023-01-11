@@ -89,7 +89,14 @@ module.exports.createOne = async (recipeData, userId) => {
         throw new BadRequest(errors);
     }
 
-    //console.log(recipeData);
+
+    if(recipeData.timeHour){
+        if(!recipeData.timeMinute) {
+            recipeData.timeMinute = 0;
+        }
+
+        recipeData.timeMinute += recipeData.timeHour * 60
+    }
 
     try {
         return recipeRepository.createOneRecipe(recipeData, userId);
@@ -110,6 +117,15 @@ module.exports.uploadImage = async (image, recipeId) => {
 
 module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
     try {
+
+        if(recipeData.timeHour){
+            if(!recipeData.timeMinute) {
+                recipeData.timeMinute = 0;
+            }
+
+            recipeData.timeMinute += recipeData.timeHour * 60
+        }
+
         return await recipeRepository.editRecipeOfUser(recipeId, recipeData, userId);
     } catch (exception) {
         console.log(exception);
@@ -158,6 +174,8 @@ module.exports.getRecipeById = async (recipeId) => {
         recipe.difficulty = recipe.difficulty ? recipe.difficulty.name : null;
         recipe.cost = recipe.cost ? recipe.cost.name : null;
 
+        recipe.hour = Math.floor(recipe.minute / 60);
+        recipe.minute = recipe.minute % 60;
 
         for (let i = 0; i < recipe.recipeCategories.length; i++) {
             recipe.categories.push({
@@ -196,6 +214,9 @@ module.exports.getAllRecpieCardsWithPagination = async (page) => {
     }
 
     for (let i = 0; i < recipes.length; i++) {
+        recipes[i].hour = Math.floor(recipes[i].minute / 60);
+        recipes[i].minute = recipes[i].minute % 60;
+
         if(recipes[i].difficulty) {
             recipes[i].difficulty = recipes[i].difficulty.name;
         }
@@ -207,6 +228,49 @@ module.exports.getAllRecpieCardsWithPagination = async (page) => {
     }
 
     return recipes;
+}
+
+module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
+    let response = {};
+
+    if(searchData.filters.timeFrom.hour){
+        if(!searchData.filters.timeFrom.minute) {
+            searchData.filters.timeFrom.minute = 0;
+        }
+
+        searchData.filters.timeFrom.minute += searchData.filters.timeFrom.hour * 60
+    }
+
+    if(searchData.filters.timeTo.hour){
+        if(!searchData.filters.timeTo.minute) {
+            searchData.filters.timeTo.minute = 0;
+        }
+
+        searchData.filters.timeTo.minute += searchData.filters.timeTo.hour * 60
+    }
+
+    try {
+        response = await recipeRepository.getFilteredRecipeCards(sortBy, page, searchData);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    for (let i = 0; i < response.recipes.length; i++) {
+        response.recipes[i].hour = Math.floor(response.recipes[i].minute / 60);
+        response.recipes[i].minute = response.recipes[i].minute % 60;
+
+        if(response.recipes[i].difficulty) {
+            response.recipes[i].difficulty = response.recipes[i].difficulty.name;
+        }
+
+        if(response.recipes[i].recipeCategories[0]){
+            response.recipes[i].type = response.recipes[i].recipeCategories[0].recipeCategory.name;
+            delete response.recipes[i].recipeCategories;
+        }
+    }
+
+    return response;
 }
 
 module.exports.getCommentsByRecipeId = async (recipeId, page) => {

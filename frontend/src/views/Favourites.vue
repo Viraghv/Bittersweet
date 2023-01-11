@@ -231,6 +231,7 @@ export default {
 			favouritesCount: 0,
 
 			selectedSortTypeAll: "addedToFavouritesDesc",
+			//TODO arrows dont show on Linux
 			sortTypesAll: {
 				addedToFavouritesAsc: "Added to favourites 🡩",
 				addedToFavouritesDesc: "Added to favourites 🡫",
@@ -241,6 +242,7 @@ export default {
 			},
 
 			selectedSortTypeGroups: "addedToGroupDesc",
+			//TODO arrows dont show on Linux
 			sortTypesGroups: {
 				addedToGroupAsc: "Added to group 🡩",
 				addedToGroupDesc: "Added to group 🡫",

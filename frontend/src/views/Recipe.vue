@@ -116,7 +116,7 @@
 		<div class="user-description-container">
 			<div class="user-info">
 				<div class="pfp-container">
-					<img class="pfp" :src="'data:image/' + user.pfpExt + ';base64,'+ user.pfp" alt="pfp" v-if="user.pfpUrl" />
+					<img class="pfp" :src="'data:image/' + user.pfpExt + ';base64,'+ user.pfp" alt="pfp" v-if="user.pfp" />
 					<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<div class="user">
@@ -674,13 +674,13 @@ export default {
 
 			if(this.userStore.loggedIn){
 				await this.initFavourite();
+				await this.initHasCommented();
 			}
 
 			await this.initRating();
 			await this.initRatingCount();
 			await this.initUserRecipeCount();
 			await this.initComments(1);
-			await this.initHasCommented();
 		},
 
 		async editRating(){
@@ -992,6 +992,10 @@ export default {
 								width: 25px;
 								height: 25px;
 								accent-color: var(--yellow);
+
+								 &:hover {
+									 cursor: pointer;
+								 }
 							}
 
 						}
@@ -1009,6 +1013,10 @@ export default {
 								width: 25px;
 								height: 25px;
 								accent-color: var(--yellow);
+
+								&:hover {
+									cursor: pointer;
+								}
 							}
 						}
 					}

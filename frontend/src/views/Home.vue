@@ -36,7 +36,6 @@ export default {
 	data(){
 		return {
 			recipes: [],
-
 			allRecipesCount: 0,
 		}
 	},

@@ -96,8 +96,8 @@ module.exports.getRecipeById = async (req, res) => {
 
 module.exports.getRecipeImage = async (req, res) => {
     try {
-        let dir = __dirname.substring(0, __dirname.lastIndexOf("\\"));
-        let img = dir + `\\uploads\\recipe_images\\${req.params.filename}`;
+        let dir = __dirname.substring(0, __dirname.lastIndexOf("\\")); //TODO make compatible with Linux
+        let img = dir + `/uploads/recipe_images/${req.params.filename}`;
 
         fs.readFile(img, function (err, content) {
             if (err) {
@@ -120,6 +120,18 @@ module.exports.getRecipeImage = async (req, res) => {
 module.exports.getAllRecpieCardsWithPagination = async (req, res) => {
     try {
         res.json( await recipeService.getAllRecpieCardsWithPagination(Number(req.params.page)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getFilteredRecipeCards = async (req, res) => {
+    try {
+        res.json( await recipeService.getFilteredRecipeCards(req.params.sortBy, Number(req.params.page), req.body));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

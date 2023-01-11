@@ -7,6 +7,12 @@ const routes = [
         component: () => import('@/views/Home'),
     },
     {
+        name: "SearchRecipe",
+        path: "/search/:searchTerm?",
+        component: () => import('@/views/SearchRecipe'),
+        props: true,
+    },
+    {
         name: "Favourites",
         path: "/favourites",
         component: () => import('@/views/Favourites.vue'),

@@ -10,12 +10,12 @@ const prisma = new PrismaClient();
 
 module.exports.createOneRecipe = async (recipeData, userId) => {
     let newRecipe;
+
     try {
         newRecipe = await prisma.Recipe.create({
             data: {
                 name: recipeData.name,
                 description: recipeData.description,
-                hour: recipeData.timeHour ? recipeData.timeHour : null,
                 minute: recipeData.timeMinute ? recipeData.timeMinute : null,
                 difficultyId: recipeData.difficulty ? recipeData.difficulty : null,
                 costId: recipeData.cost ? recipeData.cost : null,
@@ -128,6 +128,7 @@ module.exports.uploadImage = async (image, recipeId) => {
 
 module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
     let updatedCount;
+
     try {
         updatedCount = await prisma.Recipe.updateMany({
             where: {
@@ -138,7 +139,6 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
             data: {
                 name: recipeData.name,
                 description: recipeData.description,
-                hour: recipeData.timeHour ? recipeData.timeHour : null,
                 minute: recipeData.timeMinute ? recipeData.timeMinute : null,
                 difficultyId: recipeData.difficulty ? recipeData.difficulty : null,
                 costId: recipeData.cost ? recipeData.cost : null,
@@ -292,7 +292,6 @@ module.exports.getRecipeById = async (recipeId) => {
             select: {
                 name: true,
                 description: true,
-                hour: true,
                 minute: true,
                 recipeCategories: {
                   include: {
@@ -373,7 +372,6 @@ module.exports.getAllRecpieCardsWithPagination = async (page) => {
             select: {
                 id: true,
                 name: true,
-                hour: true,
                 minute: true,
                 difficulty: {
                     select: {
@@ -406,6 +404,154 @@ module.exports.getAllRecpieCardsWithPagination = async (page) => {
     }
 
     return recipes;
+}
+
+module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
+    let orderBy = {};
+
+    switch (sortBy) {
+        case "nameAsc":  orderBy = {name: "asc"}; break;
+        case "nameDesc":  orderBy = {name: "desc"}; break;
+        case "uploadedAsc":  orderBy = {uploaded: "asc"}; break;
+        case "uploadedDesc":  orderBy = {uploaded: "desc"}; break;
+        case "timeAsc":  orderBy = {minute: "asc"}; break;
+        case "timeDesc":  orderBy = {minute: "desc"}; break;
+        case "caloriesAsc":  orderBy = {calories: "asc"}; break;
+        case "caloriesDesc":  orderBy = {calories: "desc"}; break;
+        case "portionsAsc":  orderBy = {portions: "asc"}; break;
+        case "portionsDesc":  orderBy = {portions: "desc"}; break;
+        case "difficultyAsc": orderBy = {
+            difficulty: {
+                level: "asc"
+            }
+        }; break;
+        case "difficultyDesc": orderBy = {
+            difficulty: {
+                level: "desc"
+            }
+        }; break;
+        case "costAsc": orderBy = {
+            cost: {
+                level: "asc"
+            }
+        }; break;
+        case "costDesc": orderBy = {
+            cost: {
+                level: "desc"
+            }
+        }; break;
+    }
+
+    let filters = {};
+
+    filters.name = {
+        contains: searchData.search,
+    }
+
+    if(searchData.filters.timeFrom.minute || searchData.filters.timeTo.minute){
+        filters.minute = {};
+    }
+
+    if(searchData.filters.timeFrom.minute){
+        filters.minute.gte = searchData.filters.timeFrom.minute
+    }
+
+    if(searchData.filters.timeTo.minute){
+        filters.minute.lte = searchData.filters.timeTo.minute
+    }
+
+    if(searchData.filters.excludeAllergens.length > 0){
+        filters.allergens = {
+            every: {
+                allergenId: {
+                    notIn: searchData.filters.excludeAllergens,
+                }
+            }
+        }
+    }
+
+    if(searchData.filters.difficulties.length > 0) {
+        filters.difficultyId = {
+            in: searchData.filters.difficulties,
+        }
+    }
+
+    if(searchData.filters.costs.length > 0) {
+        filters.costId = {
+            in: searchData.filters.costs,
+        }
+    }
+
+    if(searchData.filters.caloriesFrom || searchData.filters.caloriesTo) {
+        filters.calories = {};
+    }
+
+    if(searchData.filters.caloriesFrom){
+        filters.calories.gte = searchData.filters.caloriesFrom
+    }
+
+    if(searchData.filters.caloriesTo){
+        filters.calories.lte = searchData.filters.caloriesTo
+    }
+
+    if(searchData.filters.portions){
+        filters.portions = {
+            equals: searchData.filters.portions,
+        }
+    }
+
+    let recipes = [];
+    let recipeCount = null;
+
+    try {
+        recipes = await prisma.Recipe.findMany({
+            skip: (page - 1) * 12,
+            take: 12,
+
+            where: filters,
+
+            select: {
+                id: true,
+                name: true,
+                minute: true,
+                difficulty: {
+                    select: {
+                        name: true,
+                    }
+                },
+                recipeCategories: {
+                    where: {
+                        primary: true,
+                    },
+                    include: {
+                        recipeCategory: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                    }
+                },
+                photo: true,
+            },
+            orderBy: orderBy
+        });
+
+        recipeCount = await prisma.Recipe.count({
+           where: filters,
+        });
+
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    let response = {};
+    response.recipes = recipes;
+    response.recipeCount = recipeCount;
+
+    return response;
 }
 
 module.exports.getCommentsByRecipeId = async (recipeId, page) => {

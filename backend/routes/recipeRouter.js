@@ -81,6 +81,7 @@ router.get('/recipeById/:id', recipeController.getRecipeById);
 router.get('/recipeImage/:filename', recipeController.getRecipeImage);
 router.get('/allRecipeCount', recipeController.getAllRecipeCount);
 router.get('/getAllCardsWithPagination/:page', recipeController.getAllRecpieCardsWithPagination)
+router.post('/getFilteredCards/:sortBy/:page', recipeController.getFilteredRecipeCards)
 
 router.get('/commentsByRecipeId/:id/:page', recipeController.getCommentsByRecipeId);
 router.get('/commentCount/:id', recipeController.getCommentCountById);

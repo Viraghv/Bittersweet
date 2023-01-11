@@ -39,7 +39,6 @@ model Recipe {
   id Int @id @default(autoincrement())
   name String @db.VarChar(100)
   description String @db.VarChar(1000)
-  hour Int?
   minute Int?
   difficulty Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
   difficultyId Int? 
@@ -91,6 +90,7 @@ model Unit {
 model Difficulty {
   id Int @id @default(autoincrement())
   name String @unique @db.VarChar(15)
+  level Int? @unique
   users User[]
   recipes Recipe[]
 }
@@ -98,6 +98,7 @@ model Difficulty {
 model Cost {
   id Int @id @default(autoincrement())
   name String @unique @db.VarChar(15)
+  level Int? @unique
   users User[]
   recipes Recipe[]
 }

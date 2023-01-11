@@ -72,8 +72,8 @@ module.exports.getUploadedRecipeCountById = async (req, res) => {
 
 module.exports.getPfp = async (req, res) => {
     try {
-        let dir = __dirname.substring(0, __dirname.lastIndexOf("\\"));
-        let img = dir + `\\uploads\\pfps\\${req.params.filename}`;
+        let dir = __dirname.substring(0, __dirname.lastIndexOf("\\")); //TODO make compatible with Linux
+        let img = dir + `/uploads/pfps/${req.params.filename}`;
 
         fs.readFile(img, function (err, content) {
             if (err) {
