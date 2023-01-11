@@ -311,10 +311,10 @@ export default {
 
 			selectedSortType: "uploadedDesc",
 			sortTypes: {
-				nameAsc: "Name 🡩",
-				nameDesc: "Name 🡫",
-				uploadedAsc: "Uploaded 🡩",
-				uploadedDesc: "Uploaded 🡫",
+				nameAsc: "Name &#8593",
+				nameDesc: "Name &#8595",
+				uploadedAsc: "Uploaded &#8593",
+				uploadedDesc: "Uploaded &#8595",
 			},
 
 			myRecipes: [],

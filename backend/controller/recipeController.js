@@ -6,6 +6,7 @@ const {session} = require("../session/sessionStorage");
 const fs = require("fs");
 const userService = require("../services/userService");
 const BadRequest = require("../exceptions/BadRequest");
+const path = require("path");
 
 
 module.exports.createOne = async (req, res) => {
@@ -96,7 +97,7 @@ module.exports.getRecipeById = async (req, res) => {
 
 module.exports.getRecipeImage = async (req, res) => {
     try {
-        let dir = __dirname.substring(0, __dirname.lastIndexOf("\\")); //TODO make compatible with Linux
+        let dir = __dirname.substring(0, __dirname.lastIndexOf(path.sep));
         let img = dir + `/uploads/recipe_images/${req.params.filename}`;
 
         fs.readFile(img, function (err, content) {

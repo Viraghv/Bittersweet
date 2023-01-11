@@ -231,25 +231,24 @@ export default {
 			favouritesCount: 0,
 
 			selectedSortTypeAll: "addedToFavouritesDesc",
-			//TODO arrows dont show on Linux
 			sortTypesAll: {
-				addedToFavouritesAsc: "Added to favourites 🡩",
-				addedToFavouritesDesc: "Added to favourites 🡫",
-				nameAsc: "Name 🡩",
-				nameDesc: "Name 🡫",
-				uploadedAsc: "Uploaded 🡩",
-				uploadedDesc: "Uploaded 🡫",
+				addedToFavouritesAsc: "Added to favourites &#8593",
+				addedToFavouritesDesc: "Added to favourites &#8595",
+				nameAsc: "Name &#8593",
+				nameDesc: "Name &#8595",
+				uploadedAsc: "Uploaded &#8593",
+				uploadedDesc: "Uploaded &#8595",
 			},
 
 			selectedSortTypeGroups: "addedToGroupDesc",
 			//TODO arrows dont show on Linux
 			sortTypesGroups: {
-				addedToGroupAsc: "Added to group 🡩",
-				addedToGroupDesc: "Added to group 🡫",
-				nameAsc: "Name 🡩",
-				nameDesc: "Name 🡫",
-				uploadedAsc: "Uploaded 🡩",
-				uploadedDesc: "Uploaded 🡫",
+				addedToGroupAsc: "Added to group &#8593",
+				addedToGroupDesc: "Added to group &#8595",
+				nameAsc: "Name &#8593",
+				nameDesc: "Name &#8595",
+				uploadedAsc: "Uploaded &#8593",
+				uploadedDesc: "Uploaded &#8595",
 			},
 
 			allFavourites: [],
