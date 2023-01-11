@@ -418,7 +418,7 @@ export default {
 		background-color: var(--lightgreen);
 		padding: 20px;
 		width: 250px;
-		border-radius: 15px;
+		border-radius: 20px;
 		border-color: transparent;
 		box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
 		-webkit-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);

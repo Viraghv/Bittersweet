@@ -241,7 +241,6 @@ export default {
 			},
 
 			selectedSortTypeGroups: "addedToGroupDesc",
-			//TODO arrows dont show on Linux
 			sortTypesGroups: {
 				addedToGroupAsc: "Added to group &#8593",
 				addedToGroupDesc: "Added to group &#8595",

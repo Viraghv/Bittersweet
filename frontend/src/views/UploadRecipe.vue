@@ -46,10 +46,6 @@
 						<div class="ingredient-list-item">
 							<input class="ingredient-amount-input" type="number" placeholder="Amount" v-model="ingredient.amount" >
 							<Multiselect class="ingredient-unit-input" v-model="ingredient.unit" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
-							<!--							<select class="ingredient-unit-input" v-model="ingredient.unit">-->
-							<!--								<option value="" disabled selected hidden>Unit</option>-->
-							<!--								<option v-for="(unit, index) in units" :key="index" :value="unit">{{unit}}</option>-->
-							<!--							</select>-->
 							<input class="ingredient-name-input" type="text" placeholder="Ingredient name" v-model="ingredient.name">
 							<img class="delete-ingredient-button" src="@/assets/icons/close_grey.png" alt="" @click="deleteIngredient(index)">
 						</div>
@@ -91,10 +87,6 @@
 						<div class="difficulty">
 							<label for="difficulty">Difficulty:</label>
 							<Multiselect name="difficulty" class="difficulty-input" v-model="recipe.difficulty" :options="difficultyOptions" :searchable="true" :can-clear="false"/>
-<!--							<select class="difficulty-input" name="difficulty" v-model="recipe.difficulty">-->
-<!--								<option :value="null" selected></option>-->
-<!--								<option v-for="(difficulty, index) in difficultyOptions" :key="index" :value="difficulty">{{difficulty}}</option>-->
-<!--							</select>-->
 						</div>
 						<div class="cost">
 							<label for="cost">Cost:</label>
@@ -113,10 +105,6 @@
 						<div class="primary-category">
 							<label for="primary-category">Primary category:</label>
 							<Multiselect class="primary-category-input" v-model="recipe.primaryCategory" :options="categoriesWithoutOther" :searchable="true" :can-clear="false"/>
-<!--							<select class="primary-category-input" name="primary-category" v-model="recipe.primaryCategory">-->
-<!--								<option :value="null" selected></option>-->
-<!--								<option v-for="(category, index) in categoriesWithoutOther" :key="index" :value="category">{{category}}</option>-->
-<!--							</select>-->
 						</div>
 						<div class="categories">
 							<label for="categories">Other categories:</label>

@@ -26,8 +26,10 @@ export default {
 
 	methods: {
 		navigateToSearchPage(){
-			window.scrollTo(0, 0);
-			this.$router.push({path: `/search/${this.searchTerm}`});
+			if(this.searchTerm){
+				window.scrollTo(0, 0);
+				this.$router.push({path: `/search/${this.searchTerm}`});
+			}
 		},
 	},
 
@@ -85,6 +87,10 @@ export default {
 				display: flex;
 				align-items: center;
 				justify-content: center;
+
+				&:hover {
+					opacity: 0.8;
+				}
 
 				.search-icon{
 					width: 20px;

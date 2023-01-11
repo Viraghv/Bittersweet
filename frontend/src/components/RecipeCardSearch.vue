@@ -51,6 +51,17 @@ export default {
 		},
 	},
 
+	watch: {
+		'id'(){
+			if(!this.type){
+				document.getElementsByClassName("recipe-title-container").item(this.index).style.marginTop = "15px";
+			} else {
+				document.getElementsByClassName("recipe-title-container").item(this.index).style.marginTop = "0";
+
+			}
+		},
+	},
+
 	mounted() {
 		if(!this.type){
 			document.getElementsByClassName("recipe-title-container").item(this.index).style.marginTop = "15px";
