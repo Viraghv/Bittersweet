@@ -57,6 +57,9 @@
 							<span>{{allergen.name}}</span>
 						</div>
 					</div>
+					<span>Diet:
+						<b>{{userStore.user?.diet?.name ? userStore.user?.diet?.name : "-"}}</b>
+					</span>
 					<span>Max. recipe difficulty:
 						<b>{{userStore.user?.difficultyPref?.name ? userStore.user?.difficultyPref?.name : "-"}}</b>
 					</span>
@@ -204,8 +207,16 @@
 								:searchable="true"
 							/>
 						</div>
+						<div class="diet-container">
+							<label for="diet">Diet:</label>
+							<Multiselect name="diet" class="diet-input"
+										 v-model="editPreferencesInputs.dietId"
+										 :options="dietOptions"
+										 :searchable="true"
+										 :can-clear="true"/>
+						</div>
 						<div class="difficulty-container">
-							<label for="difficulty">Max. recipe difficulty:</label>
+							<label for="difficulty">Difficulty:</label>
 							<Multiselect name="difficulty" class="difficulty-input"
 										 v-model="editPreferencesInputs.difficultyId"
 										 :options="difficultyOptions"
@@ -213,7 +224,7 @@
 										 :can-clear="true"/>
 						</div>
 						<div class="cost-container">
-							<label for="cost">Max. recipe cost:</label>
+							<label for="cost">Cost:</label>
 							<Multiselect name="cost" class="cost-input"
 										 v-model="editPreferencesInputs.costId"
 										 :options="costOptions"
@@ -301,11 +312,13 @@ export default {
 
 			editPreferencesInputs: {
 				allergens: [],
+				dietId: null,
 				difficultyId: null,
 				costId: null,
 			},
 
 			allergenOptions: {},
+			dietOptions: {},
 			difficultyOptions: {},
 			costOptions: {},
 
@@ -420,6 +433,17 @@ export default {
 			}
 		},
 
+		async initDiets(){
+			try {
+				const response = await this.axios.get('/recipe/diets');
+				for(const diet of response.data){
+					this.dietOptions[diet.id] = diet.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
 		async initMyRecipes(page){
 			try {
 				const response = await this.axios.get(`/user/currentUserAllRecipeCards/${this.selectedSortType}/${page}`)
@@ -456,6 +480,7 @@ export default {
 				this.editPreferencesInputs.allergens.push(this.userStore.user?.allergies[i].id);
 			}
 
+			this.editPreferencesInputs.dietId = this.userStore.user?.diet?.id;
 			this.editPreferencesInputs.difficultyId = this.userStore.user?.difficultyPref?.id;
 			this.editPreferencesInputs.costId = this.userStore.user?.costPref?.id;
 		},
@@ -535,6 +560,7 @@ export default {
 				await this.axios.post("/user/edit/preferences", {
 					difficultyId: Number(this.editPreferencesInputs.difficultyId),
 					costId: Number(this.editPreferencesInputs.costId),
+					dietId: Number(this.editPreferencesInputs.dietId),
 					allergies: this.editPreferencesInputs.allergens,
 				});
 
@@ -712,6 +738,7 @@ export default {
 		this.initMyRecipes(1);
 
 		this.initAllergens();
+		this.initDiets();
 		this.initDifficulties();
 		this.initCosts();
 	}
@@ -1104,7 +1131,7 @@ export default {
 				display: flex;
 				flex-direction: column;
 
-				.allergens-input, .difficulty-input, .cost-input {
+				.allergens-input, .difficulty-input, .cost-input, .diet-input {
 					margin-top: 1%;
 					margin-bottom: 4%;
 					border-radius: 10px;
@@ -1114,7 +1141,7 @@ export default {
 					}
 				}
 
-				.difficulty-container, .cost-container {
+				.difficulty-container, .cost-container, .diet-container {
 					display: flex;
 					align-items: center;
 					justify-content: space-between;
@@ -1125,8 +1152,8 @@ export default {
 						display: block;
 					}
 
-					.difficulty-input, .cost-input {
-						width: 50%;
+					.difficulty-input, .cost-input, .diet-input {
+						width: 70%;
 						margin-left: 0;
 						margin-right: 0;
 					}
@@ -1241,7 +1268,7 @@ export default {
 	}
 
 	@media screen and (max-width: 500px){
-		.difficulty-container, .cost-container {
+		.difficulty-container, .cost-container, .diet-container {
 			flex-direction: column;
 			align-items: flex-start !important;
 
@@ -1249,7 +1276,7 @@ export default {
 				margin-top: 0 !important;
 			}
 
-			.difficulty-input, .cost-input {
+			.difficulty-input, .cost-input, .diet-input {
 				width: 100% !important;
 			}
 		}

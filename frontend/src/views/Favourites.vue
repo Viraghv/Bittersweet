@@ -442,6 +442,7 @@ export default {
 				});
 				document.getElementById("remove-recipe-from-group-close-button").click();
 
+				await this.initGroupRecipeCount()
 				if(!this.currentGroupPageExists){
 					this.groupCurrentPage--;
 
@@ -454,8 +455,7 @@ export default {
 					}
 				}
 
-				await this.initGroupRecipeCount()
-				await this.initGroupRecipes(this.groupCurrentPage);
+				await this.initGroupRecipes(Math.max(this.groupCurrentPage, 1));
 				this.groupDeleteRecipeId = null;
 			} catch (error) {
 				console.log(error.response.data);
@@ -586,13 +586,13 @@ export default {
 
 	computed: {
 		currentAllPageExists(){
-			let lastPage = Math.ceil(this.allCurrentPage / 10)
+			let lastPage = Math.ceil(this.favouritesCount / 10)
 
 			return this.allCurrentPage <= lastPage;
 		},
 
 		currentGroupPageExists(){
-			let lastPage = Math.ceil(this.groupCurrentPage / 10)
+			let lastPage = Math.ceil(this.groupRecipeCount / 10)
 
 			return this.groupCurrentPage <= lastPage;
 		},

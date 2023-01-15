@@ -66,17 +66,10 @@ module.exports.createOne = async (recipeData, userId) => {
 
     if(recipeData.difficulty){
         recipeData.difficulty = Number(recipeData.difficulty);
-        if (!Number.isInteger(recipeData.difficulty) || recipeData.difficulty <= 0){
-            errors.push("Difficulty must be a valid number.");
-        }
     }
 
     if(recipeData.cost){
         recipeData.cost = Number(recipeData.cost);
-
-        if (!Number.isInteger(recipeData.cost) || recipeData.cost <= 0){
-            errors.push("Cost must be a valid number.");
-        }
     }
 
     if(recipeData.ingredients && recipeData.ingredients?.length !== 0){
@@ -184,6 +177,10 @@ module.exports.getRecipeById = async (recipeId) => {
             });
         }
         delete recipe.recipeCategories;
+
+        for (let i = 0; i < recipe.diets.length; i++) {
+            recipe.diets[i] = recipe.diets[i].diet.name;
+        }
 
         for (let i = 0; i < recipe.allergens.length; i++) {
             recipe.allergens[i] = recipe.allergens[i].allergen.name;
@@ -398,6 +395,13 @@ module.exports.getAllCategories = async () => {
     categories = await recipeRepository.getAllCategories();
 
     return categories;
+}
+
+module.exports.getAllDiets = async () => {
+    let diets = [];
+    diets = await recipeRepository.getAllDiets();
+
+    return diets;
 }
 
 module.exports.getAllAllergens = async () => {

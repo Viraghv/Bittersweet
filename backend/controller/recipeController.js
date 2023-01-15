@@ -233,12 +233,74 @@ module.exports.getCommentOfCurrentUserByRecipeId = async (req, res) => {
     }
 }
 
-module.exports.getAllUnits = async (req, res) => res.json(await recipeService.getAllUnits());
+module.exports.getAllUnits = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllUnits());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
 
-module.exports.getAllDifficulties = async (req, res) => res.json(await recipeService.getAllDifficulties());
+module.exports.getAllDifficulties = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllDifficulties());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
 
-module.exports.getAllCategories = async (req, res) => res.json(await recipeService.getAllCategories());
+module.exports.getAllCategories = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllCategories());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
 
-module.exports.getAllAllergens = async (req, res) => res.json(await  recipeService.getAllAllergens());
+module.exports.getAllDiets = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllDiets());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
 
-module.exports.getAllCosts = async (req, res) => res.json(await recipeService.getAllCosts());
+module.exports.getAllAllergens = async (req, res) => {
+    try {
+        res.json(await  recipeService.getAllAllergens());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllCosts = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllCosts());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}

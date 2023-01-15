@@ -3,8 +3,8 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/auth');
 const recipeController = require('../controller/recipeController');
 const multer = require('multer');
-const BadRequest = require("../exceptions/BadRequest");
 const fs = require("fs");
+const {promises:fsPromise} = require('fs');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -58,16 +58,16 @@ const uploadFile = function (req, res, next) {
     })
 }
 
-const deleteImage = function (req, res, next){
+const deleteImage = async function (req, res, next){
     const directory = "./uploads/recipe_images/"
+    const files =  await fsPromise.readdir(directory);
 
-    fs.readdir(directory, (err, files) => {
-        files.forEach(file => {
-            if(file.split('.')[0] === String(req.params.id)){
-                fs.unlinkSync(directory + file);
-            }
-        });
-    });
+    for(const file of files){
+        if(file.split('.')[0] === String(req.params.id)){
+            await fs.unlinkSync(directory + file);
+            break;
+        }
+    }
 
     next();
 }
@@ -91,10 +91,11 @@ router.post('/addComment', authMiddleware, recipeController.addComment);
 router.post('/editComment', authMiddleware, recipeController.editComment);
 router.get('/getCommentOfCurrentUserByRecipeId/:id', authMiddleware, recipeController.getCommentOfCurrentUserByRecipeId);
 
-router.get('/units', authMiddleware, recipeController.getAllUnits);
-router.get('/difficulties', authMiddleware, recipeController.getAllDifficulties);
-router.get('/categories', authMiddleware, recipeController.getAllCategories);
-router.get('/allergens', authMiddleware, recipeController.getAllAllergens);
-router.get('/costs', authMiddleware, recipeController.getAllCosts);
+router.get('/units', recipeController.getAllUnits);
+router.get('/difficulties', recipeController.getAllDifficulties);
+router.get('/categories', recipeController.getAllCategories);
+router.get('/diets', recipeController.getAllDiets);
+router.get('/allergens', recipeController.getAllAllergens);
+router.get('/costs', recipeController.getAllCosts);
 
 module.exports = router;

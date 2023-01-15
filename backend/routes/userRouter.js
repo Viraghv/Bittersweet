@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/auth');
 const multer = require("multer");
 const {session} = require("../session/sessionStorage");
 const fs = require("fs");
+const {promises: fsPromise} = require("fs");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -23,9 +24,6 @@ const fileFilter = function (req, file, cb) {
     const allowedTypes = ["image/jpeg", "image/png"];
     const fileSize = parseInt(req.headers["content-length"])
 
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
     req.fileValidationErrors = [];
 
     if(!allowedTypes.includes(file.mimetype)){
@@ -40,23 +38,45 @@ const fileFilter = function (req, file, cb) {
         return cb(null, false);
     }
 
-    const directory = "./uploads/pfps/"
-
-    fs.readdir(directory, (err, files) => {
-        files.forEach(file => {
-            if(file.split('.')[0] === String(userId)){
-                fs.unlinkSync(directory + file);
-            }
-        });
-    });
-
     cb(null, true);
 }
 
-const upload = multer({
+const multerUpload = multer({
     storage: storage,
     fileFilter,
-})
+});
+
+const uploadFile = function (req, res, next) {
+    const upload = multerUpload.single('image');
+
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            console.log("MulterError occured: ");
+            console.log(err);
+        } else if (err) {
+            console.log("Unknown error occured: ");
+            console.log(err);
+        }
+        next()
+    })
+}
+
+const deleteImage = async function (req, res, next){
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    const directory = "./uploads/pfps/"
+    const files =  await fsPromise.readdir(directory);
+
+    for(const file of files){
+        if(file.split('.')[0] === String(userId)){
+            await fs.unlinkSync(directory + file);
+            break;
+        }
+    }
+
+    next();
+}
 
 
 router.post('/register', userController.register);
@@ -72,7 +92,7 @@ router.get('/currentUserAllRecipeCards/:sortBy/:page', authMiddleware, userContr
 
 router.post('/edit/password', authMiddleware, userController.changePasswordOfCurrentUser)
 router.post('/edit/profile', authMiddleware, userController.editProfileOfCurrentUser)
-router.post('/edit/uploadImage', authMiddleware, upload.single('image'), userController.uploadImageForCurrentUser)
+router.post('/edit/uploadImage', authMiddleware, deleteImage, uploadFile, userController.uploadImageForCurrentUser)
 router.post('/edit/preferences', authMiddleware, userController.editPreferencesCurrentUser)
 
 router.post('/groups/createForCurrentUser', authMiddleware, userController.createGroupForCurrentUser)

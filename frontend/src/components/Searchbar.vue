@@ -26,10 +26,8 @@ export default {
 
 	methods: {
 		navigateToSearchPage(){
-			if(this.searchTerm){
-				window.scrollTo(0, 0);
-				this.$router.push({path: `/search/${this.searchTerm}`});
-			}
+			window.scrollTo(0, 0);
+			this.$router.push({path: `/search/${this.searchTerm ? this.searchTerm : ""}`});
 		},
 	},
 

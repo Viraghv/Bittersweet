@@ -59,6 +59,17 @@ module.exports.createOneRecipe = async (recipeData, userId) => {
             }
         }
 
+        if(Array.isArray(recipeData.diets)){
+            for (let i = 0; i < recipeData.diets.length; i++) {
+                await prisma.RecipeInDiet.create({
+                    data: {
+                        dietId: recipeData.diets[i],
+                        recipeId: newRecipe.id,
+                    }
+                })
+            }
+        }
+
         if(Array.isArray(recipeData.allergens)){
             for (let i = 0; i < recipeData.allergens.length; i++) {
                 await prisma.AllergenInRecipe.create({
@@ -213,6 +224,27 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
             })
         }
 
+        await prisma.RecipeInDiet.deleteMany({
+            where: {
+                recipeId: recipeId,
+            }
+        });
+
+        if(Array.isArray(recipeData.diets)){
+            let dietsArray = [];
+
+            for (let i = 0; i < recipeData.diets.length; i++) {
+                dietsArray.push({
+                    dietId: recipeData.diets[i],
+                    recipeId: recipeId,
+                });
+            }
+
+            await prisma.RecipeInDiet.createMany({
+                data: dietsArray,
+            })
+        }
+
         await prisma.AllergenInRecipe.deleteMany({
             where: {
                 recipeId: recipeId,
@@ -333,6 +365,15 @@ module.exports.getRecipeById = async (recipeId) => {
                                 name: true
                             }
                         }
+                    }
+                },
+                diets: {
+                    include: {
+                        diet: {
+                            select: {
+                                name: true,
+                            }
+                        },
                     }
                 },
                 allergens: {
@@ -479,6 +520,26 @@ module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
     if(searchData.filters.costs.length > 0) {
         filters.costId = {
             in: searchData.filters.costs,
+        }
+    }
+
+    if(searchData.filters.categories.length > 0){
+        filters.recipeCategories = {
+            some: {
+                categoryId: {
+                    in: searchData.filters.categories,
+                }
+            }
+        }
+    }
+
+    if(searchData.filters.diets.length > 0){
+        filters.diets = {
+            some: {
+                dietId: {
+                    in: searchData.filters.diets,
+                }
+            }
         }
     }
 
@@ -749,6 +810,25 @@ module.exports.getAllCategories = async () => {
     }
 
     return categories;
+}
+
+module.exports.getAllDiets = async () => {
+    let diets = [];
+    try {
+        diets = await prisma.Diet.findMany({
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return diets;
 }
 
 module.exports.getAllAllergens = async () => {

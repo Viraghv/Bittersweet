@@ -98,6 +98,7 @@ module.exports.getUserById = async (userId) => {
                 emailValidated: true,
                 difficultyPref: true,
                 costPref: true,
+                diet: true,
                 joined: true,
                 allergies: {
                     include: {
@@ -326,6 +327,7 @@ module.exports.editPreferencesOfUser = async (prefData, userId) => {
             data: {
                 difficultyId: prefData.difficultyId ? Number(prefData.difficultyId) : null,
                 costId: prefData.costId ? Number(prefData.costId) : null,
+                dietId: prefData.dietId ? Number(prefData.dietId) : null,
             }
         });
 

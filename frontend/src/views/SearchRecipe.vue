@@ -13,6 +13,70 @@
 				</button>
 				<div class="dropdown-menu dropdown-menu-end filter-dropdown" aria-labelledby="filter-btn">
 					<div class="line-one">
+						<div class="categories-container">
+							<div class="categories-header header">
+								<span class="categories-text text">Categories</span>
+							</div>
+							<div class="categories-input-container">
+								<Multiselect
+									class="categories-input"
+									v-model="filters.categories"
+									:options="categoryOptions"
+									mode="tags"
+									:close-on-select="false"
+									:searchable="true"
+									ref="categoriesInput"
+								/>
+							</div>
+						</div>
+						<div class="diets-container">
+							<div class="diets-header header">
+								<span class="diets-text text">Diets</span>
+							</div>
+							<div class="diets-input-container">
+								<Multiselect
+									class="diets-input"
+									v-model="filters.diets"
+									:options="dietOptions"
+									mode="tags"
+									:close-on-select="false"
+									:searchable="true"
+									ref="dietsInput"
+								/>
+							</div>
+						</div>
+					</div>
+					<div class="line-two">
+						<div class="allergens-container">
+							<div class="allergens-header header">
+								<span class="allergens-text text">Exclude allergens</span>
+							</div>
+							<div class="allergens-input-container">
+								<Multiselect
+									class="allergens-input"
+									name="allergens"
+									v-model="filters.excludeAllergens"
+									:options="allergenOptions"
+									mode="tags"
+									:close-on-select="false"
+									:searchable="true"
+									ref="allergensInput"
+								/>
+							</div>
+						</div>
+						<div class="portions-container">
+							<div class="portions-header header">
+								<span class="portions-text text">Portions</span>
+							</div>
+							<div class="portions-inputs-container">
+								<div class="portions-inputs">
+									<input class="portions-input" type="number" v-model="filters.portions">
+									<label for="portions-input">portion(s)</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="line-three">
 						<div class="time-container">
 							<div class="time-header header">
 								<span class="time-text text">Time</span>
@@ -34,25 +98,27 @@
 								</div>
 							</div>
 						</div>
-						<div class="allergens-container">
-							<div class="allergens-header header">
-								<span class="allergens-text text">Exclude allergens</span>
+						<div class="calories-container">
+							<div class="calories-header header">
+								<span class="calories-text text">Calories</span>
 							</div>
-							<div class="allergens-input-container">
-								<label for="allergens">Allergens:</label>
-								<Multiselect
-									class="allergens-input"
-									name="allergens"
-									v-model="filters.excludeAllergens"
-									:options="allergenOptions"
-									mode="tags"
-									:close-on-select="false"
-									:searchable="true"
-								/>
+							<div class="calories-from-container">
+								<label for="calories-from-inputs">From:</label>
+								<div class="calories-from-inputs">
+									<input class="calories-from-input" type="number" v-model="filters.caloriesFrom">
+									<span class="kcal-text">kcal</span>
+								</div>
+							</div>
+							<div class="calories-to-container">
+								<label for="calories-to-inputs">To:</label>
+								<div class="calories-to-inputs">
+									<input class="calories-to-input" type="number" v-model="filters.caloriesTo">
+									<span class="kcal-text">kcal</span>
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="line-two">
+					<div class="line-four">
 						<div class="difficulty-container">
 							<div class="difficulty-header header">
 								<span class="difficulty-text text">Difficulty</span>
@@ -76,40 +142,8 @@
 							</div>
 						</div>
 					</div>
-					<div class="line-three">
-						<div class="calories-container">
-							<div class="calories-header header">
-								<span class="calories-text text">Calories</span>
-							</div>
-							<div class="calories-from-container">
-								<label for="calories-from-inputs">From:</label>
-								<div class="calories-from-inputs">
-									<input class="calories-from-input" type="number" v-model="filters.caloriesFrom">
-									<span class="kcal-text">kcal</span>
-								</div>
-							</div>
-							<div class="calories-to-container">
-								<label for="calories-to-inputs">To:</label>
-								<div class="calories-to-inputs">
-									<input class="calories-to-input" type="number" v-model="filters.caloriesTo">
-									<span class="kcal-text">kcal</span>
-								</div>
-							</div>
-						</div>
-						<div class="portions-container">
-							<div class="portions-header header">
-								<span class="portions-text text">Portions</span>
-							</div>
-							<div class="portions-inputs-container">
-								<div class="portions-inputs">
-									<input class="portions-input" type="number" v-model="filters.portions">
-									<label for="portions-input">portion(s)</label>
-								</div>
-							</div>
-						</div>
-					</div>
 					<div class="apply-filters-btn-container">
-						<button class="apply-filters-btn" type="submit" @click="getSearchResults(1, true)">Apply filters</button>
+						<button class="apply-filters-btn" type="submit" @click="getSearchResults(1, true, true)">Apply filters</button>
 					</div>
 				</div>
 			</div>
@@ -191,6 +225,8 @@ export default {
 				excludeAllergens: [],
 				difficulties: [],
 				costs: [],
+				categories: [],
+				diets: [],
 				caloriesFrom: null,
 				caloriesTo: null,
 				portions: null
@@ -199,39 +235,61 @@ export default {
 			allergenOptions: {},
 			difficultyOptions: [],
 			costOptions: [],
+			categoryOptions: {},
+			dietOptions: {},
 		}
 	},
 
 	methods: {
-		async getSearchResults(page, closeFilters=false){
+		async getSearchResults(page, closeFilters=false, goToFirstPage=false){
 			try {
-				this.filters.timeFrom.hour = this.filters.timeFrom.hour !== null ? Number(this.filters.timeFrom.hour) : null;
-				this.filters.timeFrom.minute = this.filters.timeFrom.minute !== null ? Number(this.filters.timeFrom.minute) : null;
-				this.filters.timeTo.hour = this.filters.timeTo.hour !== null ? Number(this.filters.timeTo.hour) : null;
-				this.filters.timeTo.minute = this.filters.timeTo.minute !== null ? Number(this.filters.timeTo.minute) : null;
+				window.scroll(0,0);
 
-				for (let i = 0; i < this.filters.excludeAllergens.length; i++) {
-					this.filters.excludeAllergens[i] = Number(this.filters.excludeAllergens[i]);
+				const expirationDate = new Date(Date.now() + 24*60*60*1000);
+				this.$cookies.set("searchFilters", this.filters, expirationDate);
+
+				let convertedFilters = JSON.parse(JSON.stringify(this.filters));
+
+				convertedFilters.timeFrom.hour = !([null, ""].includes(convertedFilters.timeFrom.hour)) ? Number(convertedFilters.timeFrom.hour) : null;
+				convertedFilters.timeFrom.minute = !([null, ""].includes(convertedFilters.timeFrom.minute)) ? Number(convertedFilters.timeFrom.minute) : null;
+				convertedFilters.timeTo.hour = !([null, ""].includes(convertedFilters.timeTo.hour)) ? Number(convertedFilters.timeTo.hour) : null;
+				convertedFilters.timeTo.minute = !([null, ""].includes(convertedFilters.timeTo.minute)) ? Number(convertedFilters.timeTo.minute) : null;
+
+				for (let i = 0; i < convertedFilters.excludeAllergens.length; i++) {
+					convertedFilters.excludeAllergens[i] = Number(convertedFilters.excludeAllergens[i]);
 				}
 
-				for (let i = 0; i < this.filters.difficulties.length; i++) {
-					this.filters.difficulties[i] = Number(this.filters.difficulties[i]);
+				for (let i = 0; i < convertedFilters.categories.length; i++) {
+					convertedFilters.categories[i] = Number(convertedFilters.categories[i]);
 				}
 
-				for (let i = 0; i < this.filters.costs.length; i++) {
-					this.filters.costs[i] = Number(this.filters.costs[i]);
+				for (let i = 0; i < convertedFilters.diets.length; i++) {
+					convertedFilters.diets[i] = Number(convertedFilters.diets[i]);
 				}
 
-				this.filters.caloriesFrom = this.filters.caloriesFrom !== null ? Number(this.filters.caloriesFrom) : null;
-				this.filters.caloriesTo = this.filters.caloriesTo !== null ? Number(this.filters.caloriesTo) : null;
-				this.filters.portions = this.filters.portions !== null ? Number(this.filters.portions) : null;
+				for (let i = 0; i < convertedFilters.difficulties.length; i++) {
+					convertedFilters.difficulties[i] = Number(convertedFilters.difficulties[i]);
+				}
+
+				for (let i = 0; i < convertedFilters.costs.length; i++) {
+					convertedFilters.costs[i] = Number(convertedFilters.costs[i]);
+				}
+
+				convertedFilters.caloriesFrom = !([null, ""].includes(convertedFilters.caloriesFrom)) ? Number(convertedFilters.caloriesFrom) : null;
+				convertedFilters.caloriesTo = !([null, ""].includes(convertedFilters.caloriesTo)) ? Number(convertedFilters.caloriesTo) : null;
+				convertedFilters.portions = !([null, ""].includes(convertedFilters.portions)) ? Number(convertedFilters.portions) : null;
+
 
 				const response = await this.axios.post(`/recipe/getFilteredCards/${this.selectedSortType}/${page}`, {
 					search: this.searchTerm,
-					filters: this.filters,
+					filters: convertedFilters,
 				});
 
 				this.searchResults = response.data;
+
+				if(closeFilters){
+					document.getElementById("filter-btn").click();
+				}
 
 				for (let i = 0; i < this.searchResults.recipes.length; i++) {
 					if(this.searchResults.recipes[i].photo && this.searchResults.recipes[i].photo !== "default"){
@@ -245,20 +303,18 @@ export default {
 					}
 				}
 
-				if(closeFilters){
-					document.getElementById("filter-btn").click();
-				}
 
-				let paginateButtons = document.getElementsByClassName("paginate-buttons");
+				if(goToFirstPage){
+					let paginateButtons = document.getElementsByClassName("paginate-buttons");
 
-				for (let i = 0; i < paginateButtons.length; i++) {
-					if(paginateButtons[i].innerHTML === "1"){
-						paginateButtons[i].click();
+					for (let i = 0; i < paginateButtons.length; i++) {
+						if(paginateButtons[i].innerHTML === "1"){
+							paginateButtons[i].click();
+						}
 					}
 				}
-
 			} catch (error) {
-				console.log(error.response.data);
+				console.log(error);
 
 			}
 		},
@@ -268,6 +324,28 @@ export default {
 				const response = await this.axios.get('/recipe/allergens');
 				for(const allergen of response.data){
 					this.allergenOptions[allergen.id] = allergen.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
+		async initCategories(){
+			try {
+				const response = await this.axios.get('/recipe/categories');
+				for(const category of response.data){
+					this.categoryOptions[category.id] = category.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
+		async initDiets(){
+			try {
+				const response = await this.axios.get('/recipe/diets');
+				for(const diet of response.data){
+					this.dietOptions[diet.id] = diet.name;
 				}
 			} catch (err) {
 				console.log(err.response.data);
@@ -315,23 +393,52 @@ export default {
 				this.filters.timeTo.minute = Math.floor(this.filters.timeTo.minute / 10) ;
 			}
 		},
+
+		setFilters(){
+			if(this.$cookies.get("searchFilters") !== null){
+				this.filters = this.$cookies.get("searchFilters");
+			} else {
+				this.filters = {
+					timeFrom: {
+						hour: null,
+						minute: null
+					},
+					timeTo: {
+						hour: null,
+						minute: null
+					},
+					excludeAllergens: [],
+					difficulties: [],
+					costs: [],
+					categories: [],
+					diets: [],
+					caloriesFrom: null,
+					caloriesTo: null,
+					portions: null
+				};
+			}
+		}
 	},
 
 	watch: {
 		'searchTerm'(){
-			this.getSearchResults(1);
+			this.getSearchResults(1, true, true);
 		},
 
 		'selectedSortType'(){
-			this.getSearchResults(1);
+			this.getSearchResults(1, true, true);
 		},
 	},
 
-	mounted() {
+	async mounted() {
+		await this.initAllergens();
+		await this.initCategories();
+		await this.initDiets()
+		await this.initDifficulties();
+		await this.initCosts();
+
+		this.setFilters();
 		this.getSearchResults(1);
-		this.initAllergens();
-		this.initDifficulties();
-		this.initCosts();
 	}
 }
 </script>
@@ -393,7 +500,7 @@ export default {
 					max-height: 55vh;
 					overflow-y: scroll;
 
-					.line-one, .line-two, .line-three {
+					.line-one, .line-two, .line-three, .line-four {
 						display: flex;
 						gap: 45px;
 						justify-content: center;
@@ -410,42 +517,27 @@ export default {
 						}
 
 						.time-container, .allergens-container, .difficulty-container, .cost-container, .calories-container,
-						.portions-container {
+						.portions-container, .categories-container, .diets-container {
 							display: flex;
 							flex-direction: column;
 							align-items: center;
 							width: 250px;
 
 							.time-from-container, .time-to-container, .allergens-input-container, .difficulty-inputs,
-							.cost-inputs, .calories-from-container, .calories-to-container, .portions-inputs-container {
+							.cost-inputs, .calories-from-container, .calories-to-container, .portions-inputs-container,
+							.categories-input-container, .diets-input-container{
 								width: 210px;
 								margin-top: 15px;
 
 								.time-from-inputs, .time-to-inputs, .calories-from-inputs, .calories-to-inputs, .portions-inputs {
 									display: flex;
 									align-items: center;
-								}
 
-								.time-from-hour-input, .time-from-min-input, .time-to-hour-input, .time-to-min-input,
-								.calories-from-input, .calories-to-input {
-									border-radius: 10px;
-									border: 1px solid var(--lightgrey);
-									padding: 3px 10px;
-									width: 70px;
-									text-align: center;
-
-									&:focus {
-										outline: var(--darkgreen) solid 3px;
-									}
-
-									&::-webkit-outer-spin-button,
-									&::-webkit-inner-spin-button {
-										-webkit-appearance: none;
-										margin: 0;
-									}
 								}
 
 								.portions-inputs {
+									margin-top: 5px;
+
 									.portions-input {
 										border-radius: 10px;
 										border: 1px solid var(--lightgrey);
@@ -506,14 +598,14 @@ export default {
 						}
 					}
 
-					.line-two, .line-three {
+					.line-two, .line-three, .line-four {
 						margin-top: 30px;
 					}
 
 					.apply-filters-btn-container {
 						display: flex;
 						justify-content: center;
-						margin-top: 20px;
+						margin-top: 40px;
 
 						.apply-filters-btn {
 							background-color: var(--yellow);
@@ -552,6 +644,25 @@ export default {
 		}
 	}
 
+	.time-from-hour-input, .time-from-min-input, .time-to-hour-input, .time-to-min-input,
+	.calories-from-input, .calories-to-input {
+		border-radius: 10px;
+		border: 1px solid var(--lightgrey);
+		padding: 3px 10px;
+		width: 70px;
+		text-align: center;
+
+		&:focus {
+			outline: var(--darkgreen) solid 3px;
+		}
+
+		&::-webkit-outer-spin-button,
+		&::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+	}
+
 	@media screen and (max-width: 883px){
 
 		.recipes-found-header {
@@ -574,7 +685,7 @@ export default {
 	}
 
 	@media screen and (max-width: 608px){
-		.line-one, .line-two, .line-three {
+		.line-one, .line-two, .line-three, .line-four {
 			flex-direction: column;
 		}
 

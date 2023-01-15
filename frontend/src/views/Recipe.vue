@@ -316,6 +316,7 @@ export default {
 				lastModified: "",
 				steps: [],
 				ingredients: [],
+				diets: [],
 				allergens: [],
 			},
 
@@ -384,6 +385,10 @@ export default {
 				categoryNames.push(this.recipe.categories[i].name);
 			}
 
+			for (let i = 0; i < this.recipe.diets.length; i++) {
+				categoryNames.push(this.recipe.diets[i]);
+			}
+
 			this.categoriesStr = categoryNames.join(" - ");
 		},
 
@@ -420,6 +425,7 @@ export default {
 				this.recipe.lastModified = response.data.lastModified;
 				this.recipe.steps = response.data.steps;
 				this.recipe.ingredients = response.data.ingredients;
+				this.recipe.diets = response.data.diets;
 				this.recipe.allergens = response.data.allergens;
 
 				this.user.id = response.data.user.id;
@@ -1009,10 +1015,17 @@ export default {
 							justify-content: space-between;
 							margin-bottom: 20px;
 
+							label {
+
+							}
+
 							.checkbox-input {
 								width: 25px;
 								height: 25px;
+								min-width: 25px;
+								min-height: 25px;
 								accent-color: var(--yellow);
+								margin-left: 10px;
 
 								&:hover {
 									cursor: pointer;

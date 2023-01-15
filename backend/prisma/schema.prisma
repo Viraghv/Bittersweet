@@ -26,6 +26,8 @@ model User {
   difficultyId Int?
   costPref Cost? @relation(fields: [costId], references: [id], onDelete: SetNull)
   costId Int?
+  diet Diet? @relation(fields: [dietId], references: [id], onDelete: SetNull)
+  dietId Int?
   recipes Recipe[]
   comments Comment[]
   recipeGroups RecipeGroup[]
@@ -55,6 +57,7 @@ model Recipe {
   steps Step[]
   recipeCategories RecipeInCategory[]
   allergens AllergenInRecipe[]
+  diets RecipeInDiet[]
   comments Comment[]
   recipeGroups RecipeInGroup[]
   usersFavourite Favourite[]
@@ -157,6 +160,7 @@ model Allergen {
   users UserAllergy[]
 }
 
+
 model AllergenInRecipe {
   allergen Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
   allergenId Int
@@ -173,6 +177,22 @@ model UserAllergy {
   allergenId Int
 
   @@id([userId, allergenId])
+}
+
+model Diet {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(50)
+  recipes RecipeInDiet[]
+  users User[]
+}
+
+model RecipeInDiet {
+  diet Diet @relation(fields: [dietId], references: [id], onDelete: Cascade)
+  dietId Int
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId Int
+
+  @@id([dietId, recipeId])
 }
 
 model ShoppingListItem {

@@ -100,7 +100,7 @@
 						<div class="calories">
 							<label for="calories">Calories:</label>
 							<input class="calories-input" type="number" name="calories" v-model="recipe.calories">
-							<span>kcal</span>
+							<span>kcal/portion</span>
 						</div>
 						<div class="primary-category">
 							<label for="primary-category">Primary category:</label>
@@ -113,6 +113,18 @@
 								name="categories"
 								v-model="recipe.categories"
 								:options="categoriesWithoutPrimary"
+								mode="tags"
+								:close-on-select="false"
+								:searchable="true"
+							/>
+						</div>
+						<div class="diets">
+							<label for="diets">Diets:</label>
+							<Multiselect
+								class="diets-input"
+								name="diets"
+								v-model="recipe.diets"
+								:options="dietOptions"
 								mode="tags"
 								:close-on-select="false"
 								:searchable="true"
@@ -197,6 +209,7 @@ export default {
 				calories: null,
 				primaryCategory: null,
 				categories: [],
+				diets: [],
 				allergens: [],
 			},
 
@@ -209,6 +222,7 @@ export default {
 			difficultyOptions: {},
 			costOptions: {},
 			categoryOptions: {},
+			dietOptions: {},
 			allergenOptions: {},
 
 			errors: [],
@@ -334,6 +348,17 @@ export default {
 			}
 		},
 
+		async initDiets(){
+			try {
+				const response = await this.axios.get('/recipe/diets');
+				for(const diet of response.data){
+					this.dietOptions[diet.id] = diet.name;
+				}
+			} catch (err) {
+				console.log(err.response.data);
+			}
+		},
+
 		async initAllergens(){
 			try {
 				const response = await this.axios.get('/recipe/allergens');
@@ -408,6 +433,14 @@ export default {
 						}
 					}
 
+					for (let i = 0; i < response.data.diets.length; i++) {
+						for (let dietId in this.dietOptions) {
+							if(this.dietOptions[dietId] === response.data.diets[i]){
+								this.recipe.diets.push(dietId);
+							}
+						}
+					}
+
 					for (let i = 0; i < response.data.allergens.length; i++) {
 						for (let allergenId in this.allergenOptions) {
 							if(this.allergenOptions[allergenId] === response.data.allergens[i]){
@@ -445,6 +478,10 @@ export default {
 						primary: false,
 						category: Number(category),
 					})
+				}
+
+				for (let i = 0; i < this.recipe.diets.length; i++) {
+					this.recipe.diets[i] = Number(this.recipe.diets[i]);
 				}
 
 				for (let i = 0; i < this.recipe.allergens.length; i++) {
@@ -488,6 +525,7 @@ export default {
 						portions: this.recipe.portions,
 						calories: this.recipe.calories,
 						categories: categories,
+						diets: this.recipe.diets,
 						allergens: this.recipe.allergens,
 					})
 
@@ -538,6 +576,10 @@ export default {
 					})
 				}
 
+				for (let i = 0; i < this.recipe.diets.length; i++) {
+					this.recipe.diets[i] = Number(this.recipe.diets[i]);
+				}
+
 				for (let i = 0; i < this.recipe.allergens.length; i++) {
 					this.recipe.allergens[i] = Number(this.recipe.allergens[i]);
 				}
@@ -569,6 +611,7 @@ export default {
 						portions: Number(this.recipe.portions),
 						calories: Number(this.recipe.calories),
 						categories: categories,
+						diets: this.recipe.diets,
 						allergens: this.recipe.allergens,
 					})
 
@@ -624,6 +667,7 @@ export default {
 				calories: null,
 				primaryCategory: null,
 				categories: [],
+				diets: [],
 				allergens: [],
 			}
 
@@ -636,6 +680,7 @@ export default {
 			this.difficultyOptions = {};
 			this.costOptions = {};
 			this.categoryOptions = {};
+			this.dietOptions = {};
 			this.allergenOptions = {};
 
 
@@ -652,6 +697,7 @@ export default {
 			this.initDifficulties();
 			this.initCosts();
 			this.initCategories();
+			this.initDiets();
 			this.initAllergens();
 
 			this.initRecipe();
@@ -1059,7 +1105,7 @@ export default {
 					}
 
 					.time-required-hour-input, .time-required-min-input, .difficulty-input, .cost-input, .portions-input,
-					.calories-input, .primary-category-input, .categories-input, .allergens-input {
+					.calories-input, .primary-category-input, .categories-input, .allergens-input, .diets-input {
 						border-radius: 10px;
 						border-color: transparent;
 						margin-bottom: 15px;

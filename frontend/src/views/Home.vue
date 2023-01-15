@@ -42,6 +42,8 @@ export default {
 
 	methods: {
 		async initRecipes(page){
+			window.scroll(0,0);
+
 			try {
 				const response = await this.axios.get(`/recipe/getAllCardsWithPagination/${page}`)
 				this.recipes = response.data;
