@@ -277,7 +277,7 @@ module.exports.getCommentsByRecipeId = async (recipeId, page) => {
         comments = await recipeRepository.getCommentsByRecipeId(recipeId, page);
     } catch (exception) {
         console.log(exception);
-        throw exception
+        throw exception;
     }
 
     return comments;
@@ -290,7 +290,7 @@ module.exports.getCommentCountById = async (recipeId) => {
         commentCount = await recipeRepository.getCommentCountById(recipeId);
     } catch (exception) {
         console.log(exception);
-        throw exception
+        throw exception;
     }
 
     return commentCount;
@@ -303,7 +303,7 @@ module.exports.getAverageRatingById = async (recipeId) => {
         averageRating = await recipeRepository.getAverageRatingById(recipeId);
     } catch (exception) {
         console.log(exception);
-        throw exception
+        throw exception;
     }
 
     return averageRating;

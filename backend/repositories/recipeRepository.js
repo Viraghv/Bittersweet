@@ -615,6 +615,107 @@ module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
     return response;
 }
 
+module.exports.getRecipeIdsByUserPreference = async (user) => {
+    let recipeIds = {};
+    let preferences = {};
+
+    if(user.allergies.length > 0){
+        preferences.allergens = {
+            every: {
+                allergenId: {
+                    notIn: user.allergies,
+                }
+            }
+        }
+    }
+
+    if(user.diet){
+        preferences.diets = {
+            some: {
+                dietId: user.diet.id,
+            }
+        }
+    }
+
+    if(user.difficultyPref){
+        preferences.difficulty = {
+            level: {
+                lte: user.difficultyPref.level,
+            }
+        }
+    }
+
+    if(user.costPref){
+        preferences.cost = {
+            level: {
+                lte: user.costPref.level,
+            }
+        }
+    }
+
+    try {
+        preferences.recipeCategories = {
+            some: {
+                categoryId: 1, //breakfast
+            }
+        }
+
+        recipeIds.breakfast = await prisma.Recipe.findMany({
+            where: preferences,
+            select: {
+                id: true,
+            }
+        });
+
+        preferences.recipeCategories = {
+            some: {
+                categoryId: 2, //lunch
+            }
+        }
+
+        recipeIds.lunch = await prisma.Recipe.findMany({
+            where: preferences,
+            select: {
+                id: true,
+            }
+        });
+
+        preferences.recipeCategories = {
+            some: {
+                categoryId: 3, //dinner
+            }
+        }
+
+        recipeIds.dinner = await prisma.Recipe.findMany({
+            where: preferences,
+            select: {
+                id: true,
+            }
+        });
+
+        preferences.recipeCategories = {
+            some: {
+                categoryId: 4, //dessert
+            }
+        }
+
+        recipeIds.dessert = await prisma.Recipe.findMany({
+            where: preferences,
+            select: {
+                id: true,
+            }
+        });
+
+
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return recipeIds;
+}
+
 module.exports.getCommentsByRecipeId = async (recipeId, page) => {
     let comments = [];
     try {

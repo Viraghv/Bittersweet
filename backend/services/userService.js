@@ -2,9 +2,10 @@ const BadRequest = require("../exceptions/BadRequest");
 const userRepository = require("../repositories/userRepository");
 const bcrypt = require('bcrypt');
 const NotFound = require("../exceptions/NotFound");
+const weeklyMenuService = require("./weeklyMenuService");
 
 
-module.exports.register = (userData) => {
+module.exports.register = async (userData) => {
     const errors = [];
 
     if(!userData.username?.trim() || !userData.email?.trim() ||
@@ -40,7 +41,12 @@ module.exports.register = (userData) => {
     delete userData.passwordAgain;
 
     try {
-        return userRepository.createUser(userData);
+        let userId = await userRepository.createUser(userData);
+
+        await weeklyMenuService.generateWeekForUser(userId, 0);
+        await weeklyMenuService.generateWeekForUser(userId, 1);
+
+        return userId;
     } catch (exception){
         throw exception
     }
@@ -106,11 +112,13 @@ module.exports.getUserById = async (userId) => {
 
     let userAllergies = [];
 
-    for (let i = 0; i < user.allergies.length; i++) {
+    for (let i = 0; i < user?.allergies.length; i++) {
         userAllergies.push(user.allergies[i].allergen)
     }
 
-    user.allergies = userAllergies;
+    if(user){
+        user.allergies = userAllergies;
+    }
 
     return user;
 }
@@ -243,6 +251,9 @@ module.exports.uploadImage = async (image, userId) => {
 module.exports.editPreferencesOfUser = async (prefData, userId) => {
     try {
         await userRepository.editPreferencesOfUser(prefData, userId);
+
+        await weeklyMenuService.generateWeekForUser(userId, 0);
+        await weeklyMenuService.generateWeekForUser(userId, 1);
     } catch (exception) {
         console.log(exception);
         throw exception
@@ -366,4 +377,22 @@ module.exports.getRecipeCountOfGroup = async (groupId, userId) => {
     }
 
     return recipeCount;
+}
+
+module.exports.getAllUserIds = async () => {
+    let userIds;
+
+    try {
+        userIds = await userRepository.getAllUserIds();
+
+        for (let i = 0; i < userIds.length; i++) {
+            userIds[i] = userIds[i].id;
+        }
+
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return userIds;
 }

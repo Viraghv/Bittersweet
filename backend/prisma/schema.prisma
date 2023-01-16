@@ -35,6 +35,7 @@ model User {
   shoppingListCategories ShoppingListCategory[]
   favouriteRecipes Favourite[]
   weeklyMenuItems WeeklyMenuItem[]
+  dontRecommendRecipes DontRecommend[]
 }
 
 model Recipe {
@@ -62,6 +63,7 @@ model Recipe {
   recipeGroups RecipeInGroup[]
   usersFavourite Favourite[]
   weeklyMenuItems WeeklyMenuItem[]
+  dontRecommendUsers DontRecommend[]
 }
 
 model Ingredient {
@@ -230,7 +232,18 @@ model WeeklyMenuItem {
   recipeId Int?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
-  day DateTime
-  week Int
-  dessert Boolean @default(false)
+  day Int? @db.TinyInt // 0 - 6, starting from Monday
+  meal Int @db.TinyInt // 0 => dessert, 1 => breakfast, 2 => lunch, 3 => dinner
+  nextWeek Boolean
+
+  @@unique([userId, day, meal, nextWeek])
+}
+
+model DontRecommend {
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId Int
+
+  @@id([recipeId, userId])
 }

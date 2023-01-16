@@ -14,12 +14,12 @@ module.exports.createUser = async (userData) => {
     userData.password = await bcrypt.hash(userData.password, salt);
 
     try {
-        await prisma.User.create({
+        let user = await prisma.User.create({
             data: {
                 ...userData
             }
         });
-        return {message: "Successful registration!"};
+        return user.id;
     } catch (exception) {
         console.log(exception);
         switch (exception.meta.target){
@@ -570,4 +570,19 @@ module.exports.getRecipeCountOfGroup = async (groupId, userId) => {
     }
 
     return recipeCount;
+}
+
+module.exports.getAllUserIds = async () => {
+    try {
+        return  await prisma.User.findMany({
+            select: {
+                id: true,
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 }
