@@ -87,7 +87,7 @@ export default {
 				justify-content: center;
 
 				&:hover {
-					opacity: 0.8;
+					box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
 				}
 
 				.search-icon{

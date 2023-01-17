@@ -287,7 +287,7 @@ export default {
 
 				this.searchResults = response.data;
 
-				if(closeFilters){
+				if(closeFilters && document.getElementById("filter-btn").getAttribute("aria-expanded") === true){
 					document.getElementById("filter-btn").click();
 				}
 
@@ -707,9 +707,4 @@ export default {
 			}
 		}
 	}
-
-	@media screen and (max-width: 575px){
-
-	}
-
 </style>

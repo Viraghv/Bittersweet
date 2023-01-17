@@ -1,0 +1,232 @@
+<template>
+	<div class="mycontainer" :class="item?.meal === 0 ? 'dessert' : ''">
+		<div class="no-recipe" v-if="item?.recipe === null">
+			<span>Sorry, we have no recipe to recommend here.</span>
+		</div>
+		<div class="image-info-container" @click="navigateToRecipePage" v-if="item?.recipe">
+			<div class="meal-container">
+				<span class="meal" v-if="item?.meal === 1">breakfast</span>
+				<span class="meal" v-else-if="item?.meal === 2">lunch</span>
+				<span class="meal" v-else-if="item?.meal === 3">dinner</span>
+				<span class="meal" v-else-if="item?.meal === 0">dessert</span>
+			</div>
+			<div class="recipe-image-container">
+				<img class="recipe-image" :src="'data:image/' + item?.recipe.photoExt + ';base64,'+ item?.recipe.photoImage" alt="recipe-image" v-if="item?.recipe.photoImage" />
+				<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
+			</div>
+			<div class="name-container">
+				<span class="name">{{item?.recipe.name.length <= 50 ? item?.recipe.name : item?.recipe.name.substring(0,50) + '...'}}</span>
+			</div>
+
+
+			<div class="info-container">
+				<div class="line1">
+					<div class="difficulty-container">
+						<img class="icon difficulty-icon" src="@/assets/icons/difficulty_icon.png" alt="difficulty-icon"/>
+						<span>{{item?.recipe.difficulty ? item?.recipe.difficulty : "-"}}</span>
+					</div>
+					<div class="time-container">
+						<img class="icon time-icon" src="@/assets/icons/time_icon.png" alt="time-icon"/>
+						<span v-show="item?.recipe.hour || item?.recipe.minute">
+						<span>{{item?.recipe.hour ? item?.recipe.hour + "h" : ""}}</span>
+						<span v-show="item?.recipe.hour && item?.recipe.minute">{{" "}}</span>
+						<span>{{item?.recipe.minute ? item?.recipe.minute + "m" : ""}}</span>
+					</span>
+						<span v-show="!item?.recipe.hour && !item?.recipe.minute">-</span>
+					</div>
+				</div>
+				<div class="line2">
+					<div class="cost-container">
+						<img class="icon cost-icon" src="@/assets/icons/money.png" alt="cost-icon"/>
+						<span>{{item?.recipe.cost ? item?.recipe.cost : "-"}}</span>
+					</div>
+					<div class="portions-container">
+						<img class="icon portions-icon" src="@/assets/icons/group.png" alt="portions-icon"/>
+						<span>{{item?.recipe.portions ? item?.recipe.portions : "-"}}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="action-buttons" v-if="item?.recipe">
+			<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon">
+			<span class="calories" v-if="item?.recipe.calories">{{item?.recipe.calories}} kcal</span>
+		</div>
+	</div>
+</template>
+
+<script>
+export default {
+	name: "WeeklyMenuRecipeCard",
+
+	props: {
+		item: null,
+	},
+
+	methods: {
+		navigateToRecipePage(){
+			window.scrollTo(0,0);
+			this.$router.push({path: `/recipe/${this.item.recipe.id}`});
+		},
+	},
+}
+</script>
+
+<style scoped lang="scss">
+	.mycontainer {
+		display: flex;
+		justify-content: left;
+		align-items: center;
+		margin-left: auto;
+		margin-right: auto;
+		padding: 0;
+		background-color: var(--lightgreen);
+		width: 100%;
+
+		.no-recipe {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: var(--mediumgrey);
+			height: 150px;
+			width: 100%;
+			padding: 20px;
+		}
+
+		&.dessert {
+			background-color: var(--dessertyellow);
+
+			.meal-container {
+				background-color: var(--dessertpeach);
+			}
+
+			&:hover {
+				.meal-container {
+					background-color: var(--dessertpink);
+				}
+			}
+		}
+
+		.meal-container {
+			background-color: var(--darkgreen);
+			width: 50px;
+			height: 150px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			.meal {
+				display: block;
+				transform: rotate(-90deg);
+				font-family: "ABeeZee Regular", serif;
+			}
+
+		}
+
+		&:hover {
+			.meal-container {
+				background-color: var(--yellow);
+			}
+
+			.action-buttons {
+				.options-icon {
+					display: block;
+				}
+			}
+		}
+
+		.image-info-container {
+			display: flex;
+			justify-content: left;
+			align-items: center;
+			width: 100%;
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		.recipe-image-container {
+			background-color: var(--lightgreen);
+			width: 150px;
+			height: 150px;
+			margin-right: 30px;
+
+			.recipe-image {
+				width: 150px;
+				height: 150px;
+				object-fit: cover;
+			}
+		}
+
+		.name-container {
+			font-size: 1.2rem;
+			width: 40%;
+			margin-right: 20px;
+		}
+
+		.info-container {
+			display: flex;
+			font-size: 1.2rem;
+			//margin-left: auto;
+			//margin-right: 0;
+
+			.line1, .line2 {
+				display: flex;
+				flex-direction: column;
+				margin-right: 30px;
+				gap: 10px;
+			}
+
+
+			.icon {
+				width: 20px;
+				margin-right: 10px;
+			}
+		}
+
+		.action-buttons {
+			height: 150px;
+			min-width: 70px;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			align-items: flex-end;
+
+			.options-icon {
+				width: 20px;
+				margin-top: 20px;
+				margin-right: 15px;
+				display: none;
+
+				&:hover {
+					cursor: pointer;
+					opacity: 0.8;
+				}
+			}
+
+			.calories {
+				display: block;
+				width: 100%;
+				margin-top: auto;
+				margin-right: 20px;
+				margin-bottom: 10px;
+				color: var(--mediumgrey)
+			}
+		}
+
+	}
+
+	@media screen and (max-width: 1355px){
+		.info-container {
+			flex-direction: column;
+			gap: 10px;
+			font-size: 1rem !important;
+		}
+	}
+
+	@media screen and (max-width: 820px){
+		.info-container {
+			display: none !important;
+		}
+	}
+</style>

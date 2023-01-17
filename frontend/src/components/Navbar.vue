@@ -38,10 +38,10 @@
 					<img class="pfp" src="@/assets/pfps/default.png" alt="pfp" v-else>
 				</div>
 				<ul class="profile-dropdown-list dropdown-menu">
-					<li><a class="dropdown-item" href="#">
+					<li><router-link class="dropdown-item" :to="{name: 'WeeklyMenu', params: {nextWeek: 0}}">
 						<img class="calendarIcon" src="@/assets/icons/calendar.png" alt="calendar">
 						Weekly menu
-					</a></li>
+					</router-link></li>
 					<li><router-link class="dropdown-item" :to="{name: 'Favourites'}">
 						<img class="heartIcon" src="@/assets/icons/heart.png" alt="heart">
 						Favourite

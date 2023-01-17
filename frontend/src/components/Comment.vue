@@ -60,23 +60,24 @@ export default {
 			align-items: center;
 
 			.pfp-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+
 				width: 50px;
 				height: 50px;
+
 				background-color: var(--lightgreen);
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-
 				border-radius: 30px;
-				border: solid 2px var(--lightgreen);
-
-				overflow: hidden;
 
 
 				.pfp {
-					max-width: 50px;
-					max-height: 50px;
+					width: 50px;
+					height: 50px;
+
+					object-fit: cover;
+					border-radius: 30px;
+					border: solid 3px var(--lightgreen);
 				}
 			}
 

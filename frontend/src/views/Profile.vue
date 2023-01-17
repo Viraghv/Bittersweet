@@ -179,6 +179,7 @@
 					</div>
 					<div class="edit-profile-button-container">
 						<button class="edit-profile-button" @click="editProfile">Edit profile</button>
+						<Loader class="loader" v-if="editProfileShowLoader"/>
 					</div>
 				</div>
 			</div>
@@ -242,6 +243,7 @@
 					</div>
 					<div class="edit-preferences-button-container">
 						<button class="edit-preferences-button" @click="editPreferences">Save preferences</button>
+						<Loader class="loader" v-if="savePreferencesLoader"/>
 					</div>
 				</div>
 			</div>
@@ -276,12 +278,14 @@ import Multiselect from '@vueform/multiselect';
 import MinimalRecipeCard from "@/components/MinimalRecipeCard.vue";
 import Pagination from "@/components/Pagination.vue";
 import {Modal} from "bootstrap";
+import Loader from "@/components/Loader.vue";
 
 export default {
 	name: "Profile",
 	beforeRouteEnter,
 
 	components: {
+		Loader,
 		Pagination,
 		MinimalRecipeCard,
 		Multiselect,
@@ -334,6 +338,9 @@ export default {
 			myRecipesCurrentPage: 1,
 
 			deleteRecipeId: null,
+
+			editProfileShowLoader: false,
+			savePreferencesLoader: false,
 		}
 	},
 
@@ -509,6 +516,8 @@ export default {
 		},
 
 		async editProfile(){
+			this.editProfileShowLoader = true;
+
 			this.editProfileErrors = this.checkEditProfileInput;
 			this.uploadPfpErrors = [];
 
@@ -538,8 +547,8 @@ export default {
 
 					await this.initUser();
 
+					this.editProfileShowLoader = false;
 					document.getElementById("edit-profile-close-button").click();
-
 				} catch (error) {
 					if(Array.isArray(error.response.data.errorMessage)){
 						this.editProfileErrors.push(...error.response.data.errorMessage);
@@ -552,6 +561,8 @@ export default {
 		},
 
 		async editPreferences(){
+			this.savePreferencesLoader = true;
+
 			try {
 				for (let i = 0; i < this.editPreferencesInputs.allergens.length; i++) {
 					this.editPreferencesInputs.allergens[i] = Number(this.editPreferencesInputs.allergens[i]);
@@ -565,6 +576,8 @@ export default {
 				});
 
 				await this.initUser();
+
+				this.savePreferencesLoader = false;
 
 				document.getElementById("edit-preferences-close-button").click();
 
@@ -1125,6 +1138,12 @@ export default {
 						opacity: 0.8;
 					}
 				}
+
+				.loader {
+					height: 30px;
+					width: 30px;
+					margin-left: 10px;
+				}
 			}
 
 			.edit-preferences-inputs {
@@ -1196,6 +1215,12 @@ export default {
 					&:hover {
 						opacity: 0.8;
 					}
+				}
+
+				.loader {
+					height: 30px;
+					width: 30px;
+					margin-left: 10px;
 				}
 			}
 		}

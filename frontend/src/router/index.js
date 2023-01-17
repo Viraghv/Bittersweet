@@ -13,6 +13,13 @@ const routes = [
         props: true,
     },
     {
+        name: "WeeklyMenu",
+        path: "/weeklyMenu/:nextWeek",
+        component: () => import('@/views/WeeklyMenu.vue'),
+        props: true,
+        //userLoggedInNavGuard
+    },
+    {
         name: "Favourites",
         path: "/favourites",
         component: () => import('@/views/Favourites.vue'),

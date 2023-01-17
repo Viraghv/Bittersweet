@@ -282,15 +282,17 @@ module.exports.getRecipeCardsOfUser = async (userId, nextWeek) => {
         recipeCards = await weeklyMenuRepository.getRecipeCardsOfUser(userId, nextWeek);
 
         for (let i = 0; i < recipeCards.length; i++) {
-            recipeCards[i].recipe.hour = Math.floor(recipeCards[i].recipe.minute / 60);
-            recipeCards[i].recipe.minute = recipeCards[i].recipe.minute % 60;
+            if(recipeCards[i].recipe){
+                recipeCards[i].recipe.hour = Math.floor(recipeCards[i].recipe.minute / 60);
+                recipeCards[i].recipe.minute = recipeCards[i].recipe.minute % 60;
 
-            if(recipeCards[i].recipe.difficulty) {
-                recipeCards[i].recipe.difficulty = recipeCards[i].recipe.difficulty.name;
-            }
+                if(recipeCards[i].recipe.difficulty) {
+                    recipeCards[i].recipe.difficulty = recipeCards[i].recipe.difficulty.name;
+                }
 
-            if(recipeCards[i].recipe.cost) {
-                recipeCards[i].recipe.cost = recipeCards[i].recipe.cost.name;
+                if(recipeCards[i].recipe.cost) {
+                    recipeCards[i].recipe.cost = recipeCards[i].recipe.cost.name;
+                }
             }
         }
 
