@@ -14,12 +14,11 @@ module.exports.createUser = async (userData) => {
     userData.password = await bcrypt.hash(userData.password, salt);
 
     try {
-        let user = await prisma.User.create({
+        return await prisma.User.create({
             data: {
                 ...userData
             }
         });
-        return user.id;
     } catch (exception) {
         console.log(exception);
         switch (exception.meta.target){
@@ -27,6 +26,39 @@ module.exports.createUser = async (userData) => {
             case "User_email_key": throw new InternalServerError(["The email is already in use."]);
         }
         throw new InternalServerError("Something went wrong during signup.");
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.verifyEmailByUserId = async (userId) => {
+    try {
+        await prisma.User.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                emailVerified: true,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.deleteUserById = async (userId) => {
+    try {
+        return await prisma.User.delete({
+            where: {
+                id: userId,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
     } finally {
         await prisma.$disconnect();
     }
@@ -95,7 +127,7 @@ module.exports.getUserById = async (userId) => {
                 firstname: true,
                 lastname: true,
                 profilepicture: true,
-                emailValidated: true,
+                emailVerified: true,
                 difficultyPref: true,
                 costPref: true,
                 diet: true,
@@ -255,7 +287,6 @@ module.exports.editProfileOfUser = async (userData, userId) => {
             },
             data: {
                 username: userData.username,
-                email: userData.email,
                 firstname: userData.firstname ? userData.firstname : null,
                 lastname: userData.lastname ? userData.lastname : null,
             }

@@ -148,8 +148,6 @@
 					<form class="edit-profile-inputs">
 						<label for="username">Username:</label><br/>
 						<input class="input-field" type="text" id="username" v-model="editProfileInputs.username"><br>
-						<label for="email">Email:</label><br/>
-						<input class="input-field" type="email" id="email" v-model="editProfileInputs.email"><br>
 						<label for="firstname">First name:</label><br/>
 						<input class="input-field" type="text" id="firstname" v-model="editProfileInputs.firstname"><br>
 						<label for="lastname">Last name:</label><br/>
@@ -305,7 +303,6 @@ export default {
 
 			editProfileInputs: {
 				username: "",
-				email: "",
 				firstname: "",
 				lastname: "",
 				pfp: null,
@@ -525,7 +522,6 @@ export default {
 				try {
 					await this.axios.post("/user/edit/profile", {
 						username: this.editProfileInputs.username.trim(),
-						email: this.editProfileInputs.email.trim(),
 						firstname: this.editProfileInputs.firstname?.trim(),
 						lastname: this.editProfileInputs.lastname?.trim(),
 					});
@@ -684,21 +680,12 @@ export default {
 		checkEditProfileInput(){
 			let errors = [];
 
-			if(!this.editProfileInputs.username.trim() || !this.editProfileInputs.email.trim()){
-				errors.push("Please fill in the username and email fields.");
+			if(!this.editProfileInputs.username.trim()){
+				errors.push("Please fill in the username field.");
 			}
 
 			if(this.editProfileInputs.username.trim().length > 100) {
 				errors.push("Username can't be longer than 100 characters.");
-			}
-
-			if(this.editProfileInputs.email.trim().length > 100) {
-				errors.push("Email can't be longer than 100 characters.");
-			}
-
-			if(this.editProfileInputs.email.trim() &&
-				!this.editProfileInputs.email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
-				errors.push("Invalid email.");
 			}
 
 			if(this.editProfileInputs.firstname?.trim().length > 100){

@@ -102,6 +102,13 @@ module.exports.getRecipeCardsOfUser = async (userId, nextWeek) => {
                         portions: true,
                         calories: true,
                         photo: true,
+                        ingredients: {
+                            select: {
+                                name: true,
+                                amount: true,
+                                unitId: true,
+                            }
+                        },
                     },
                 }
 

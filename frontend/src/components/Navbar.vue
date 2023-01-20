@@ -86,6 +86,11 @@
 						<label for="password-again">Password again:</label><br/>
 						<input class="input-field" type="password" id="password-again" autocomplete="off" v-model="signupData.passwordAgain" v-on:keydown.enter.exact.prevent="signup">
 					</form>
+					<div class="signup-alert alert alert-success" v-if="showSignupSuccessMsg">
+						<strong>Signup successful!</strong><br>
+						<span class="signup-success-text">To log in, please verify your email by clicking the link in the email we sent to your given address!</span><br>
+						<span class="signup-success-text">The link expires in <strong>15 minutes</strong>!</span>
+					</div>
 					<div class="signup-alert alert alert-danger" v-if="signupErrorMsgs.length !== 0">
 						<strong>Signup failed!</strong><br>
 						<ul>
@@ -147,6 +152,7 @@
 <script>
 import {useUserStore} from "@/stores/userStore.js";
 import {mapStores} from "pinia";
+import {Modal} from "bootstrap";
 
 export default {
 	name: "Navbar",
@@ -168,6 +174,7 @@ export default {
 			admin: false,
 			loginErrorMsgs: [],
 			signupErrorMsgs: [],
+			showSignupSuccessMsg: false,
 		}
 	},
 	methods: {
@@ -183,6 +190,7 @@ export default {
 			this.signupData.password = "";
 			this.signupData.passwordAgain = "";
 			this.signupErrorMsgs = [];
+			this.showSignupSuccessMsg = false;
 		},
 
 		async login(){
@@ -234,13 +242,12 @@ export default {
 						email: this.signupData.email,
 						password: this.signupData.password,
 						passwordAgain: this.signupData.passwordAgain,
-					})
-					this.loginData.username = this.signupData.username;
-					this.loginData.password = this.signupData.password;
+					});
 
-					await this.login();
+					this.clearSignupFields();
+					this.showSignupSuccessMsg = true;
 
-					document.getElementById("signup-close-button").click();
+
 				} catch (error) {
 					if(Array.isArray(error.response.data.errorMessage)){
 						this.signupErrorMsgs.push(...error.response.data.errorMessage);
@@ -564,6 +571,12 @@ export default {
 
 			&.signup-alert {
 				padding-bottom: 5px;
+			}
+
+			.signup-success-text {
+				display: inline-block;
+				font-size: 0.9rem;
+				margin-top: 10px;
 			}
 		}
 	}

@@ -207,7 +207,7 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommandedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["There are no other recipes to recommend."]);
+                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 2) {
             recommandedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
@@ -217,7 +217,7 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommandedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["There are no other recipes to recommend."]);
+                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 3) {
             recommandedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
@@ -227,7 +227,7 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommandedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["There are no other recipes to recommend."]);
+                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 0){
             recommandedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
@@ -237,7 +237,7 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommandedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["There are no other recipes to recommend."]);
+                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         }
 

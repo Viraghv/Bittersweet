@@ -3,7 +3,20 @@ const userRepository = require("../repositories/userRepository");
 const bcrypt = require('bcrypt');
 const NotFound = require("../exceptions/NotFound");
 const weeklyMenuService = require("./weeklyMenuService");
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
+const NotAuthorized = require("../exceptions/NotAuthorized");
+const {TokenExpiredError} = require("jsonwebtoken");
 
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+    },
+});
+
+const EMAIL_SECRET = "ahw58zfdlcj4nvjrlsjvir6lvakdn5vrk5fvlg4847"
 
 module.exports.register = async (userData) => {
     const errors = [];
@@ -41,12 +54,35 @@ module.exports.register = async (userData) => {
     delete userData.passwordAgain;
 
     try {
-        let userId = await userRepository.createUser(userData);
+        let user = await userRepository.createUser(userData);
 
-        await weeklyMenuService.generateWeekForUser(userId, 0);
-        await weeklyMenuService.generateWeekForUser(userId, 1);
+        jwt.sign(
+            {
+                user: user.id,
+            },
+            EMAIL_SECRET,
+            {
+                expiresIn: 15 * 60,
+            },
+            (err, emailToken) => {
+                const url = `http://bittersweet.local/verification/${emailToken}`;
 
-        return userId;
+                transporter.sendMail({
+                    to: user.email,
+                    subject: 'Bittersweet - Email Verification',
+                    html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
+Welcome to <b>Bittersweet!</b><br><br>\n
+Thank you for your registration.<br>
+To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
+
+Thank you, <br>\n
+Bittersweet    
+</div>`
+                });
+            },
+        );
+
+        return user.id;
     } catch (exception){
         throw exception
     }
@@ -60,15 +96,57 @@ module.exports.login = async (loginData) => {
 
     try {
         let user = await userRepository.getUserByUsername(loginData.username);
-        if(await bcrypt.compare(loginData.password, user.password)){
-            return user.id;
+
+        if(!(await bcrypt.compare(loginData.password, user.password))){
+            throw new NotFound(["Invalid username or password."])
         }
-        throw new NotFound(["Invalid username or password."])
+
+        if(!user.emailVerified){
+            throw new NotAuthorized(["Please verify your email address."])
+
+        }
+
+        return user.id;
+
     } catch (exception){
         throw exception
     }
 }
 
+module.exports.verification = async (token) => {
+    try {
+        const userId = jwt.verify(token, EMAIL_SECRET).user;
+        await userRepository.verifyEmailByUserId(userId);
+
+        await weeklyMenuService.generateWeekForUser(userId, 0);
+        await weeklyMenuService.generateWeekForUser(userId, 1);
+
+        return "Successfull verification."
+    } catch (error) {
+        if (error instanceof TokenExpiredError) {
+            try {
+                const userId = jwt.verify(token, EMAIL_SECRET, {ignoreExpiration: true}).user;
+                await this.deleteUserById(userId);
+            } catch (error2) {
+                console.log(error2);
+                throw error2;
+            }
+            throw new BadRequest(["Verification link has expired."])
+        } else {
+            console.log(error);
+            throw error;
+        }
+    }
+}
+
+module.exports.deleteUserById = async (userId) => {
+    try {
+        await userRepository.deleteUserById(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
 
 module.exports.getUploadedRecipeCountById = async (userId) => {
     let recipeCount;
@@ -203,21 +281,12 @@ module.exports.changePasswordOfCurrentUser = async (passwordData, userId) => {
 module.exports.editProfileOfUser = async (userData, userId) => {
     const errors = []
 
-    if(!userData.username?.trim() || !userData.email?.trim()){
-        errors.push("Please fill in the username and email fields.");
+    if(!userData.username?.trim()){
+        errors.push("Please fill in the username field.");
     }
 
     if(userData.username?.trim().length > 100) {
         errors.push("Username can't be longer than 100 characters.");
-    }
-
-    if(userData.email?.trim().length > 100) {
-        errors.push("Email can't be longer than 100 characters.");
-    }
-
-    if(userData.email?.trim() &&
-        !userData.email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
-        errors.push("Invalid email.");
     }
 
     if(userData.firstname?.trim().length > 100){

@@ -48,7 +48,23 @@
 			</div>
 		</div>
 		<div class="action-buttons" v-if="item?.recipe">
-			<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon">
+			<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon"
+				 id="options-icon" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 20">
+			<ul class="dropdown-menu dropdown-menu-end options-dropdown" aria-labelledby="options-icon">
+				<li class="dropdown-item" @click="emitGenerate">
+					<img class="generate-icon" src="@/assets/icons/sync.png" alt="generate">
+					Generate different recipe
+				</li>
+				<li class="dropdown-item" @click="emitDontRecommend">
+					<img class="block-icon" src="@/assets/icons/blocked.png" alt="block">
+					Don't recommend
+				</li>
+				<li class="dropdown-item" @click="emitAddToList">
+					<img class="add-shopping-list-icon" src="@/assets/icons/plus.png" alt="add">
+					Add to shopping list
+				</li>
+			</ul>
+
 			<span class="calories" v-if="item?.recipe.calories">{{item?.recipe.calories}} kcal</span>
 		</div>
 	</div>
@@ -66,6 +82,25 @@ export default {
 		navigateToRecipePage(){
 			window.scrollTo(0,0);
 			this.$router.push({path: `/recipe/${this.item.recipe.id}`});
+		},
+
+		emitGenerate(){
+			this.$emit('generate', {
+				itemId: this.item.id,
+				meal: this.item.meal,
+				currentRecipeId: this.item.recipe.id,
+			});
+		},
+
+		emitDontRecommend(){
+			this.$emit('dontRecommend', this.item.recipe.id);
+		},
+
+		emitAddToList(){
+			this.$emit('add', {
+				categoryName: this.item.recipe.name,
+				items: this.item.recipe.ingredients,
+			});
 		},
 	},
 }
@@ -212,8 +247,62 @@ export default {
 				margin-bottom: 10px;
 				color: var(--mediumgrey)
 			}
-		}
 
+			.options-dropdown {
+				background-color: white;
+				padding: 20px;
+				border-radius: 20px;
+				border-color: transparent;
+				box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+				-webkit-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+				-moz-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+
+				.generate-icon, .block-icon, .add-shopping-list-icon {
+					height: 1.3rem;
+					margin-right: 5%;
+				}
+
+				.dropdown-item{
+					margin-bottom: 5%;
+					border-radius: 10px;
+					padding: 5px 30px 5px 25px;
+
+					&:hover {
+						background-color: var(--verylightgrey);
+						cursor: pointer;
+					}
+
+					&:active {
+						color: black;
+					}
+
+					&:last-child {
+						margin-bottom: 0;
+					}
+				}
+			}
+
+			.dropdown-menu::before {
+				border-bottom: 12px solid rgba(0, 0, 0, 0.2);
+				border-left: 12px solid rgba(0, 0, 0, 0);
+				border-right: 12px solid rgba(0, 0, 0, 0);
+				content: "";
+				display: inline-block;
+				left: 275px;
+				position: absolute;
+				top: -10px;
+			}
+			.dropdown-menu::after {
+				border-bottom: 12px solid white;
+				border-left: 12px solid rgba(0, 0, 0, 0);
+				border-right: 12px solid rgba(0, 0, 0, 0);
+				content: "";
+				display: inline-block;
+				left: 275px;
+				position: absolute;
+				top: -10px;
+			}
+		}
 	}
 
 	@media screen and (max-width: 1355px){
@@ -221,6 +310,8 @@ export default {
 			flex-direction: column;
 			gap: 10px;
 			font-size: 1rem !important;
+			margin-top: 20px;
+			margin-bottom: 20px;
 		}
 	}
 

@@ -21,77 +21,148 @@
 			</h1>
 		</div>
 		<div class="action-buttons-container">
-			<img class="add-all-to-shopping-list-icon" src="@/assets/icons/plus_lightgrey.png" alt="add-all-icon" title="Add all to shopping list">
+			<img class="add-all-to-shopping-list-icon" src="@/assets/icons/plus_lightgrey.png" alt="add-all-icon" title="Add all to shopping list"
+				 data-bs-toggle="modal"
+				 data-bs-target="#add-all-shopping-list-modal">
 			<img class="generate-week-icon" src="@/assets/icons/sync_lightgrey.png" alt="generate-week-icon" title="Generate week again"
 				 data-bs-toggle="modal"
 				 data-bs-target="#generate-week-modal"
 			/>
 		</div>
-		<div class="loader-container"  v-if="showLoader">
-			<Loader class="loader"/>
+		<div class="loader-container"  v-if="showInitLoader">
+			<Loader class="initLoader"/>
 		</div>
 		<div class="week-container" v-else>
 			<div class="monday-container menu-section">
 				<h2 class="section-title">MONDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="tuesday-container menu-section">
 				<h2 class="section-title">TUESDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="wednesday-container menu-section">
 				<h2 class="section-title">WEDNESDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="thursday-container menu-section">
 				<h2 class="section-title">THURSDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="friday-container menu-section">
 				<h2 class="section-title">FRIDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="saturday-container menu-section">
 				<h2 class="section-title">SATURDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="sunday-container menu-section">
 				<h2 class="section-title">SUNDAY</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.breakfast"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.lunch"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.dinner"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.breakfast"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.lunch"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.dinner"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 			<div class="desserts-container menu-section">
 				<h2 class="section-title">DESSERT RECOMMANDATIONS</h2>
 				<div class="recipe-cards-container">
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.desserts[0]"/>
-					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.desserts[1]"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.desserts[0]"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
+					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.desserts[1]"
+										  @generate="openGenerateOneModal"
+										  @dontRecommend="openDontRecommend"
+										  @add="openAddOneToShoppingListModal"/>
 				</div>
 			</div>
 		</div>
@@ -114,6 +185,77 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="add-all-shopping-list-modal" ref="add-all-shopping-list-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="add-all-shopping-list-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="add-all-shopping-list">
+					<span>Add ingredients of every recipe to your shopping list?</span><br>
+					<button class="add-btn" @click="addAllRecipesToShoppingList">Add</button>
+					<Loader class="addAllToShoppingListLoader" v-if="showAddAllToShoppingListLoader"/>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="generate-one-modal" ref="generate-one-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="generate-one-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="generate-one">
+					<span>Are you sure you want to generate a new recommendation instead of this recipe?</span><br>
+					<button class="generate-btn" @click="generateOne">Generate</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+
+					<div class="generate-one-alert alert alert-danger" v-if="generateErrors.length !== 0">
+						<span>{{generateErrors[0]}}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="dont-recommend-modal" ref="dont-recommend-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="dont-recommend-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="dont-recommend">
+					<span>Are you sure you want this recipe to not be recommended to you again?</span><br>
+					<button class="dont-recommend-btn" @click="dontRecommend">Don't recommend</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="add-one-to-shopping-list-modal" ref="add-one-to-shopping-list-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="add-one-to-shopping-list-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="add-one-to-shopping-list">
+					<span>Add the ingredients of this recipe to your shopping list?</span><br>
+					<button class="add-one-to-shopping-list-btn" @click="addOneToShoppingList">Add</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -121,6 +263,7 @@ import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
 import WeeklyMenuRecipeCard from "@/components/WeeklyMenuRecipeCard.vue";
 import Loader from "@/components/Loader.vue";
 import axios from "axios";
+import {Modal} from "bootstrap";
 export default {
 	name: "WeeklyMenu",
 	components: {Loader, WeeklyMenuRecipeCard},
@@ -171,13 +314,27 @@ export default {
 				desserts: [],
 			},
 
-			showLoader: false,
+			showInitLoader: false,
+			showAddAllToShoppingListLoader: false,
+
+			generateOneData: {
+				itemId: null,
+				meal: null,
+				currentRecipeId: null
+			},
+			dontRecommendRecipeId: null,
+			addOneToShoppingListData: {
+				categoryName: "",
+				items: [],
+			},
+
+			generateErrors: [],
 	 	}
 	},
 
 	methods: {
 		async initWeeklyMenu(){
-			this.showLoader = true;
+			this.showInitLoader = true;
 			try {
 				let response = await this.axios.get(`/weeklyMenu/recipeCardsOfCurrentUser/${this.nextWeek}`);
 
@@ -217,7 +374,7 @@ export default {
 					}
 				}
 
-				this.showLoader = false;
+				this.showInitLoader = false;
 
 			} catch (error) {
 				console.log(error);
@@ -234,6 +391,97 @@ export default {
 				console.log(error.response.data);
 			}
 		},
+
+		async addAllRecipesToShoppingList(){
+			this.showAddAllToShoppingListLoader = true;
+
+			try {
+				for (const day in this.weeklyMenu) {
+					for(const meal in this.weeklyMenu[day]) {
+						const response = await this.axios.post(`/shoppingList/add/categoryAndItems`, {
+							categoryName: this.weeklyMenu[day][meal].recipe.name,
+							items: this.weeklyMenu[day][meal].recipe.ingredients,
+						});
+					}
+				}
+
+				this.showAddAllToShoppingListLoader = false;
+				document.getElementById("add-all-shopping-list-close-button").click();
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async generateOne(){
+			try {
+				const response = await this.axios.post(`/weeklyMenu/generate/one`, this.generateOneData);
+				await this.axios.get(`/weeklyMenu/generate/week/${this.nextWeek}`);
+
+				document.getElementById("generate-one-close-button").click();
+				await this.initWeeklyMenu();
+			} catch (error) {
+				if(Array.isArray(error.response.data.errorMessage)){
+					this.generateErrors.push(...error.response.data.errorMessage);
+				} else {
+					this.generateErrors.push(error.response.data.errorMessage);
+				}
+			}
+		},
+
+		async dontRecommend(){
+			try {
+				const response = await this.axios.get(`/weeklyMenu/dontRecommend/set/${this.dontRecommendRecipeId}`);
+
+				document.getElementById("dont-recommend-close-button").click();
+
+				this.showInitLoader = true;
+				await this.generateWeek();
+
+				await this.initWeeklyMenu();
+			} catch (error){
+				console.log(error.response.data);
+			}
+		},
+
+		async addOneToShoppingList(){
+			try {
+				const response = await this.axios.post(`/shoppingList/add/categoryAndItems`, this.addOneToShoppingListData);
+				document.getElementById("add-one-to-shopping-list-close-button").click();
+
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		openGenerateOneModal(data){
+			let generateOneModal = new Modal(document.getElementById("generate-one-modal"), {});
+			generateOneModal.show();
+
+			this.generateOneData = data;
+		},
+
+		openDontRecommend(recipeId){
+			let dontRecommendModal = new Modal(document.getElementById("dont-recommend-modal"), {});
+			dontRecommendModal.show();
+
+			this.dontRecommendRecipeId = recipeId;
+		},
+
+		openAddOneToShoppingListModal(data){
+			let addOneToShoppingListModal = new Modal(document.getElementById("add-one-to-shopping-list-modal"), {});
+			addOneToShoppingListModal.show();
+
+			this.addOneToShoppingListData = data;
+		},
+
+		clearGenerateOneModal(){
+			this.generateErrors = [];
+		},
+
+		setModalHandlers(){
+			const generateOneModal = document.getElementById('generate-one-modal');
+			generateOneModal.addEventListener("hidden.bs.modal", () => this.clearGenerateOneModal());
+		}
 	},
 
 	watch: {
@@ -243,6 +491,7 @@ export default {
 	},
 
 	mounted() {
+		this.setModalHandlers();
 		this.initWeeklyMenu();
 	}
 }
@@ -386,12 +635,12 @@ export default {
 		}
 	}
 
-	.generate-week {
+	.generate-week, .add-all-shopping-list, .generate-one, .dont-recommend, .add-one-to-shopping-list {
 		margin: 0 10% 30px 10%;
 		font-family: Gotu, serif;
 		text-align: center;
 
-		.generate-btn, .cancel-btn {
+		.generate-btn, .add-btn, .cancel-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn {
 			border: 1px solid var(--lightgrey);
 			border-radius: 20px;
 			padding: 5px 30px;
@@ -402,13 +651,27 @@ export default {
 			}
 		}
 
-		.generate-btn {
+		.generate-btn, .add-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn  {
 			background-color: var(--yellow);
 			margin-right: 40px;
 		}
 
 		.cancel-btn {
 			background-color: var(--lightgreen);
+		}
+
+		.addAllToShoppingListLoader {
+			height: 25px;
+			width: 25px;
+			margin-right: 40px;
+			margin-left: -30px;
+			margin-bottom: -7px;
+		}
+
+		.generate-one-alert {
+			font-size: 0.8rem;
+			margin-top: 20px;
+			margin-bottom: 0;
 		}
 	}
 </style>

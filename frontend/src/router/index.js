@@ -50,6 +50,12 @@ const routes = [
         component: () => import('@/views/UploadRecipe.vue'),
         //userLoggedInNavGuard
     },
+    {
+        name: "EmailVerification",
+        path: "/verification/:token",
+        props: true,
+        component: () => import('@/views/EmailVerification.vue'),
+    },
 ]
 
 export default createRouter({
