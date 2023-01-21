@@ -52,7 +52,7 @@ const routes = [
     },
     {
         name: "EmailVerification",
-        path: "/verification/:token",
+        path: "/verification/:token?",
         props: true,
         component: () => import('@/views/EmailVerification.vue'),
     },

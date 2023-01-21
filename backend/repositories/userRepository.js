@@ -51,9 +51,10 @@ module.exports.verifyEmailByUserId = async (userId) => {
 
 module.exports.deleteUserById = async (userId) => {
     try {
-        return await prisma.User.delete({
+        return await prisma.User.deleteMany({
             where: {
                 id: userId,
+                emailVerified: false,
             }
         })
     } catch (error) {

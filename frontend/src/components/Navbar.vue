@@ -152,8 +152,6 @@
 <script>
 import {useUserStore} from "@/stores/userStore.js";
 import {mapStores} from "pinia";
-import {Modal} from "bootstrap";
-
 export default {
 	name: "Navbar",
 
