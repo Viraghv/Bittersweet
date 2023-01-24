@@ -3,7 +3,7 @@
 		<div class="user">
 			<div class="pfp-container">
 				<img class="pfp" :src="'data:image/' + comment.user.pfpExt + ';base64,'+ comment.user.pfpImage" alt="pfp" v-if="comment.user.profilepicture" />
-				<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
+				<img class="pfp" src="/src/assets/default_pfp.png" alt="pfp" v-else>
 			</div>
 			<span class="username">{{comment.user.username}}</span>
 		</div>

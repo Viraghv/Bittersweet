@@ -84,6 +84,7 @@ router.post('/login', userController.login);
 router.get('/logout', userController.logout);
 
 router.get('/verification/:token', userController.verification);
+router.post('/forgotPassword', userController.forgotPassword);
 
 router.get('/getCurrentUser', authMiddleware, userController.getCurrentUser)
 router.get('/uploadedRecipeCount/:id', userController.getUploadedRecipeCountById)

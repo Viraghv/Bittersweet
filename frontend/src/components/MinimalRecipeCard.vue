@@ -3,7 +3,7 @@
 		<div class="image-info-container" @click="navigateToRecipePage">
 			<div class="recipe-image-container">
 				<img class="recipe-image" :src="'data:image/' + photoExt + ';base64,'+ photo" alt="recipe-image" v-if="photo" />
-				<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
+				<img class="recipe-image" src='/src/assets/default_recipe_photo.png' alt="recipe-image" v-else>
 			</div>
 			<div class="info-container">
 				<div class="name">

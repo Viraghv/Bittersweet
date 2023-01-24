@@ -1,6 +1,26 @@
 <template>
 	<div class="footer">
-		<router-link class="col-3 col-md-2 col-xl-1" :to="{name: 'Home'}">
+		<div class="attributions-container">
+			<div class="flaticon-container">
+				<span class="flaticon-text">Icons from:</span>
+				<a class="flaticon-link" href="https://www.flaticon.com/" target="_blank">
+					<img class="flaticon-logo" src="@/assets/flaticon_logo_transparent.png" alt="flaticon-logo">
+				</a>
+			</div>
+			<div class="freepik-container">
+				<span class="freepik-text">Banner:</span>
+				<a class="freepik-link" href="https://www.freepik.com/" target="_blank">
+					<img class="freepik-logo" src="@/assets/freepik_logo_transparent.png" alt="freepik-logo">
+				</a>
+			</div>
+			<div class="allrecipes-container">
+				<span class="allrecipes-text">Recipes from:</span>
+				<a class="allrecipes-link" href="https://www.allrecipes.com/" target="_blank">
+					<img class="allrecipes-logo" src="@/assets/allrecipes_logo_transparent.png" alt="allrecipes-logo">
+				</a>
+			</div>
+		</div>
+		<router-link :to="{name: 'Home'}">
 			<img
 				class="logo"
 				src="@/assets/logo_yellow.png"
@@ -19,7 +39,8 @@ export default {
 <style scoped lang="scss">
 .footer {
 	display: flex;
-	justify-content: right;
+	justify-content: space-between;
+	align-items: center;
 	position: fixed;
 	bottom: 0;
 	width: 100%;
@@ -29,7 +50,35 @@ export default {
 
 	.logo{
 		width: 100%;
+		height: 40px;
 	}
 
+	.attributions-container {
+		display: flex;
+		flex-direction: row;
+		gap: 6%;
+
+		.flaticon-container, .freepik-container, .allrecipes-container {
+			display: flex;
+			flex-direction: column;
+
+			.flaticon-text, .freepik-text, .allrecipes-text {
+				color: white;
+				font-family: Gotu, serif;
+				font-size: 0.8rem;
+				white-space: nowrap;
+			}
+
+			.flaticon-logo, .freepik-logo, .allrecipes-logo {
+				height: 30px;
+			}
+		}
+	}
+
+	@media screen and (max-width: 690px){
+		.logo {
+			display: none;
+		}
+	}
 }
 </style>

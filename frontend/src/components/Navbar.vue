@@ -1,6 +1,6 @@
 <template>
 	<div class="mynavbar d-flex justify-content-between w-100 m-0">
-		<router-link class="col-3 col-md-2 col-xl-1" :to="{name: 'Home'}">
+		<router-link :to="{name: 'Home'}">
 			<img
 				class="logo"
 				src="@/assets/logo_yellow.png"
@@ -35,7 +35,7 @@
 			<div class="profile-dropdown  dropdown dropdown-menu-end col-lg-1 col-md-2 col-sm-2" v-if="userStore.loggedIn">
 				<div class="profile-button pfp-container" data-bs-toggle="dropdown" data-bs-offset="10,15">
 					<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user && userStore.user.profilepicture" />
-					<img class="pfp" src="@/assets/pfps/default.png" alt="pfp" v-else>
+					<img class="pfp" src="@/assets/default_pfp.png" alt="pfp" v-else>
 				</div>
 				<ul class="profile-dropdown-list dropdown-menu">
 					<li><router-link class="dropdown-item" :to="{name: 'WeeklyMenu', params: {nextWeek: 0}}">
@@ -126,6 +126,9 @@
 						<input class="input-field" type="text" id="username-login" autocomplete="username" v-model="loginData.username" v-on:keydown.enter.exact.prevent="login"><br>
 						<label for="password-login" >Password:</label><br/>
 						<input class="input-field" type="password" id="password-login" autocomplete="current-password" v-model="loginData.password" v-on:keydown.enter.exact.prevent="login">
+						<div class="forgot-password-link">
+							<span class="forgot-password" @click="changeToForgotPasswordModal">Forgot password?</span>
+						</div>
 					</form>
 					<div class="login-alert alert alert-danger" v-if="loginErrorMsgs.length !== 0">
 						<strong>Login failed!</strong><br>
@@ -147,11 +150,42 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade" id="forgot-password-modal" ref="forgot-password-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="forgot-password-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="forgot-password">
+					<label class="forgot-password-label" for="forgot-password">Email:</label>
+					<form class="forgot-password-form">
+						<input class="forgot-password-input" name="forgot-password" v-model="forgotPasswordEmail"/>
+
+						<div class="forgot-password-alert-success alert alert-success" v-if="forgotPasswordSuccess">
+							<span>The new password has been sent out!</span>
+						</div>
+						<div class="forgot-password-alert alert alert-danger" v-if="forgotPasswordErrorMsgs.length !== 0">
+							<strong>Error!</strong><br>
+							<ul>
+								<li class="forgot-password-error-items" v-for="(error, index) in forgotPasswordErrorMsgs" :key="index">{{error}}</li>
+							</ul>
+						</div>
+
+						<button class="send-button" type="button" @click="sendForgotPassword">Send new password</button><br>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
 import {useUserStore} from "@/stores/userStore.js";
 import {mapStores} from "pinia";
+import {Modal} from "bootstrap";
 export default {
 	name: "Navbar",
 
@@ -173,6 +207,10 @@ export default {
 			loginErrorMsgs: [],
 			signupErrorMsgs: [],
 			showSignupSuccessMsg: false,
+
+			forgotPasswordEmail: "",
+			forgotPasswordErrorMsgs: [],
+			forgotPasswordSuccess: false,
 		}
 	},
 	methods: {
@@ -189,6 +227,12 @@ export default {
 			this.signupData.passwordAgain = "";
 			this.signupErrorMsgs = [];
 			this.showSignupSuccessMsg = false;
+		},
+
+		clearForgotPasswordFields(){
+			this.forgotPasswordEmail = "";
+			this.forgotPasswordErrorMsgs = [];
+			this.forgotPasswordSuccess = false;
 		},
 
 		async login(){
@@ -274,6 +318,32 @@ export default {
 			}
 		},
 
+		async sendForgotPassword(){
+			this.forgotPasswordErrorMsgs = [];
+			if(this.forgotPasswordEmail !== ""){
+				try {
+					await this.axios.post("/user/forgotPassword", {
+						email: this.forgotPasswordEmail,
+					});
+
+					this.forgotPasswordSuccess = true;
+
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.forgotPasswordErrorMsgs.push(...error.response.data.errorMessage);
+					} else {
+						this.forgotPasswordErrorMsgs.push(error.response.data.errorMessage);
+					}
+				}
+			}
+		},
+
+		changeToForgotPasswordModal(){
+			document.getElementById("login-close-button").click();
+			let forgotPasswordModal = new Modal(document.getElementById("forgot-password-modal"), {});
+			forgotPasswordModal.show();
+		},
+
 	},
 
 	computed: {
@@ -326,6 +396,8 @@ export default {
 		loginModal.addEventListener("hidden.bs.modal", () => this.clearLoginFields());
 		const signupModal = document.getElementById('signup-modal');
 		signupModal.addEventListener("hidden.bs.modal", () => this.clearSignupFields());
+		const forgotPasswordModal = document.getElementById('forgot-password-modal');
+		forgotPasswordModal.addEventListener("hidden.bs.modal", () => this.clearForgotPasswordFields());
 
 
 		try {
@@ -351,6 +423,7 @@ export default {
 	.logo{
 		width: 100%;
 		margin-left: 10%;
+		height: 40px;
 	}
 
 	.buttons{
@@ -500,6 +573,27 @@ export default {
 					outline: var(--darkestgreen) solid 3px;
 				}
 			}
+
+			.forgot-password-link {
+				color: var(--warning);
+				font-size: 0.9rem;
+
+				.forgot-password {
+					text-decoration: underline;
+					text-align: right;
+					margin-left: 0;
+					margin-right: 0;
+
+					&:hover {
+						cursor: pointer;
+						opacity: 0.8;
+					}
+				}
+			}
+
+			#password-login {
+				margin-bottom: 2%;
+			}
 		}
 
 		.login-alert, .signup-alert{
@@ -579,6 +673,54 @@ export default {
 		}
 	}
 
+	.forgot-password {
+		margin: 0 10% 30px 10%;
+		text-align: left;
+		display: flex;
+		flex-direction: column;
+
+		.forgot-password-form{
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.forgot-password-input {
+			width: 100%;
+			margin-top: 1%;
+			margin-bottom: 4%;
+			border-radius: 10px;
+			border-width: 1px;
+			border-color: var(--lightgrey);
+			padding: 5px 10px;
+
+			&:focus {
+				outline: var(--darkestgreen) solid 3px;
+			}
+		}
+
+		.send-button {
+			border: 1px solid var(--lightgrey);
+			border-radius: 20px;
+			padding: 5px 30px;
+			//margin-top: 15px;
+			background-color: var(--yellow);
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+
+		.forgot-password-alert-success, .forgot-password-alert  {
+			width: 100%;
+		}
+
+		.forgot-password-alert  {
+			.forgot-password-error-items {
+				font-size: 0.8rem;
+			}
+		}
+	}
 
 
 }

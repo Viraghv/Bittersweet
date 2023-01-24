@@ -12,7 +12,7 @@
 			</div>
 			<div class="recipe-image-container">
 				<img class="recipe-image" :src="'data:image/' + item?.recipe.photoExt + ';base64,'+ item?.recipe.photoImage" alt="recipe-image" v-if="item?.recipe.photoImage" />
-				<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
+				<img class="recipe-image" src='/src/assets/default_recipe_photo.png' alt="recipe-image" v-else>
 			</div>
 			<div class="name-container">
 				<span class="name">{{item?.recipe.name.length <= 50 ? item?.recipe.name : item?.recipe.name.substring(0,50) + '...'}}</span>

@@ -59,7 +59,7 @@
 			<div class="column-left">
 				<div class="recipe-image-container">
 					<img class="recipe-image" :src="'data:image/' + recipe.imageExt + ';base64,'+ recipe.image" alt="recipe-image" v-if="recipe.imageUrl && recipe.imageUrl !== 'default'" />
-					<img class="recipe-image" src='/src/assets/recipe_photos/default_recipe_photo.png' alt="recipe-image" v-else>
+					<img class="recipe-image" src='/src/assets/default_recipe_photo.png' alt="recipe-image" v-else>
 				</div>
 				<div class="steps-header-container">
 					<h3 class="steps-header">Steps</h3>
@@ -117,7 +117,7 @@
 			<div class="user-info">
 				<div class="pfp-container">
 					<img class="pfp" :src="'data:image/' + user.pfpExt + ';base64,'+ user.pfp" alt="pfp" v-if="user.pfp" />
-					<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
+					<img class="pfp" src="/src/assets/default_pfp.png" alt="pfp" v-else>
 				</div>
 				<div class="user">
 					<span class="username">{{user.username.length < 10 ? user.username : user.username.substring(0, 10) + '...' }}</span><br>

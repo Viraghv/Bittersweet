@@ -139,6 +139,31 @@ module.exports.verification = async (token) => {
     }
 }
 
+module.exports.forgotPassword = async (email) => {
+    try {
+        let newPassword = makePassword(16);
+
+        await userRepository.updatePassword(email, newPassword);
+
+        transporter.sendMail({
+            to: email,
+            subject: 'Bittersweet - Forgotten Password',
+            html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
+You have recieved this email because you've asked for a new password on <b>Bittersweet</b>.<br><br>\n
+Your new password is: <b>${newPassword}</b><br>
+Please change this password as soon as possible.<br><br>
+
+Thank you, <br>\n
+Bittersweet    
+</div>`
+        });
+
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
 module.exports.deleteUserById = async (userId) => {
     try {
         await userRepository.deleteUserById(userId);
@@ -464,4 +489,15 @@ module.exports.getAllUserIds = async () => {
     }
 
     return userIds;
+}
+
+
+function makePassword(length) {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }

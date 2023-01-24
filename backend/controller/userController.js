@@ -71,6 +71,18 @@ module.exports.verification = async (req, res) => {
     }
 }
 
+module.exports.forgotPassword = async (req, res) => {
+    try {
+        res.json( await userService.forgotPassword(req.body.email));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getUploadedRecipeCountById = async (req, res) => {
     try {
         res.json( await userService.getUploadedRecipeCountById(Number(req.params.id)));

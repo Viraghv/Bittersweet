@@ -49,6 +49,30 @@ module.exports.verifyEmailByUserId = async (userId) => {
     }
 }
 
+module.exports.updatePassword = async (email, newPassword) => {
+    const salt = await bcrypt.genSalt(10);
+    newPassword = await bcrypt.hash(newPassword, salt);
+
+    try {
+        await prisma.User.update({
+            where: {
+                email: email,
+            },
+            data: {
+                password: newPassword,
+            }
+        });
+    } catch (error) {
+        if (error.meta.cause === "Record to update not found."){
+            throw new NotFound(["There is no user with this email."]);
+        }
+
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
 module.exports.deleteUserById = async (userId) => {
     try {
         return await prisma.User.deleteMany({
@@ -282,16 +306,22 @@ module.exports.changePassword = async (newPassword, userId) => {
 
 module.exports.editProfileOfUser = async (userData, userId) => {
     try {
+        let dataObject = {
+            username: userData.username,
+            firstname: userData.firstname ? userData.firstname : null,
+            lastname: userData.lastname ? userData.lastname : null,
+        }
+
+        if(userData.deletePfp){
+            dataObject.profilepicture = null;
+        }
+
         await prisma.User.update({
             where: {
                 id: userId
             },
-            data: {
-                username: userData.username,
-                firstname: userData.firstname ? userData.firstname : null,
-                lastname: userData.lastname ? userData.lastname : null,
-            }
-        })
+            data: dataObject,
+        });
     } catch (error) {
         console.log(error);
         switch (error.meta.target){

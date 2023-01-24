@@ -6,7 +6,7 @@
 					<div class="user-card">
 						<div class="pfp-container">
 							<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user && userStore.user.profilepicture" />
-							<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else>
+							<img class="pfp" src="/src/assets/default_pfp.png" alt="pfp" v-else>
 						</div>
 						<div class="user">
 							<span class="username" v-show="userStore.user?.username">{{userStore.user?.username.length < 10 ? userStore.user?.username : userStore.user?.username.substring(0, 10) + '...' }}</span><br>
@@ -154,17 +154,21 @@
 						<input class="input-field" type="text" id="lastname" v-model="editProfileInputs.lastname"><br>
 						<label for="pfp-input">Profile picture:</label><br>
 						<div class="pfp-upload-container">
-							<label class="upload-btn" for="pfp-input">Upload</label>
-							<input type="file"
-								   id="pfp-input"
-								   name="pfp-input"
-								   ref="pfpInput"
-								   accept="image/png, image/jpeg"
-								   @change="showPfpPreview($event)">
+							<div class="buttons-container">
+								<label class="upload-btn" for="pfp-input">Upload</label>
+								<input type="file"
+									   id="pfp-input"
+									   name="pfp-input"
+									   ref="pfpInput"
+									   accept="image/png, image/jpeg"
+									   @change="showPfpPreview($event)">
+								<button class="remove-pfp-btn" type="button" @click="removePfp">Remove</button>
+							</div>
 							<div class="pfp-preview-container">
 								<img id="pfp-preview-img" alt="pfp-preview"/>
-								<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="editProfileInputs.pfp === null && userStore.user && userStore.user.profilepicture" />
-								<img class="pfp" src="/src/assets/pfps/default.png" alt="pfp" v-else-if="editProfileInputs.pfp === null">
+								<img id="pfp-current" class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp"
+									 v-if="editProfileInputs.pfp === null && userStore.user && userStore.user.profilepicture && !dontShowCurrentPfp" />
+								<img id= "default-pfp" class="pfp" src="/src/assets/default_pfp.png" alt="pfp" v-else-if="editProfileInputs.pfp === null">
 							</div>
 						</div>
 					</form>
@@ -306,6 +310,7 @@ export default {
 				firstname: "",
 				lastname: "",
 				pfp: null,
+				deletePfp: false,
 			},
 
 			editProfileErrors: [],
@@ -338,6 +343,8 @@ export default {
 
 			editProfileShowLoader: false,
 			savePreferencesLoader: false,
+
+			dontShowCurrentPfp: false,
 		}
 	},
 
@@ -366,6 +373,8 @@ export default {
 			let preview = document.getElementById("pfp-preview-img");
 			preview.src = src;
 			preview.style.display = "block";
+
+			this.editProfileInputs.deletePfp = false;
 		},
 
 		clearFileInput(input) {
@@ -524,6 +533,7 @@ export default {
 						username: this.editProfileInputs.username.trim(),
 						firstname: this.editProfileInputs.firstname?.trim(),
 						lastname: this.editProfileInputs.lastname?.trim(),
+						deletePfp: this.editProfileInputs.deletePfp,
 					});
 
 					if(this.editProfileInputs.pfp){
@@ -607,6 +617,20 @@ export default {
 			}
 		},
 
+		removePfp(){
+			this.editProfileInputs.deletePfp = true;
+
+			let preview = document.getElementById("pfp-preview-img");
+			preview.src = null;
+			preview.style.display = "none";
+
+			let fileInput = document.getElementById("pfp-input");
+			this.clearFileInput(fileInput);
+
+			this.editProfileInputs.pfp = null;
+			this.dontShowCurrentPfp = true;
+		},
+
 		navigateToEditRecipe(recipeId){
 			window.scrollTo(0, 0);
 			this.$router.push({path: `/upload_recipe/${recipeId}`});
@@ -641,6 +665,8 @@ export default {
 
 			let fileInput = document.getElementById("pfp-input");
 			this.clearFileInput(fileInput);
+
+			this.dontShowCurrentPfp = false;
 		},
 
 		setModalHandlers(){
@@ -1055,11 +1081,11 @@ export default {
 					display: none;
 				}
 
+
 				.pfp-upload-container {
 					display: flex;
 					align-items: center;
 					justify-content: space-evenly;
-					margin-top: -10px;
 					margin-bottom: 15px;
 
 					.pfp-preview-container {
@@ -1087,17 +1113,35 @@ export default {
 						}
 					}
 
-					.upload-btn {
-						display: block;
-						background-color: var(--lightgreen);
+					.buttons-container {
 						width: 50%;
-						text-align: center;
-						border-radius: 15px;
-						border: solid 1px var(--lightgrey);
 
-						&:hover {
-							cursor: pointer;
-							opacity: 0.7;
+						.upload-btn {
+							display: block;
+							background-color: var(--lightgreen);
+							width: 100%;
+							text-align: center;
+							border-radius: 15px;
+							border: solid 1px var(--lightgrey);
+							margin-bottom: 10px;
+
+							&:hover {
+								cursor: pointer;
+								opacity: 0.7;
+							}
+						}
+
+						.remove-pfp-btn {
+							background-color: var(--lightgreen);
+							width: 100%;
+							text-align: center;
+							border-radius: 15px;
+							border: solid 1px var(--lightgrey);
+
+							&:hover {
+								cursor: pointer;
+								opacity: 0.7;
+							}
 						}
 					}
 				}
