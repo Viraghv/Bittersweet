@@ -56,6 +56,13 @@ const routes = [
         props: true,
         component: () => import('@/views/EmailVerification.vue'),
     },
+
+    {
+        name: "UsersAdmin",
+        path: "/admin/users",
+        component: () => import('@/views/admin/UsersAdmin.vue'),
+        //TODO NavGuard
+    },
 ]
 
 export default createRouter({

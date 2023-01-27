@@ -274,7 +274,6 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
     } finally {
         await prisma.$disconnect();
     }
-
 }
 
 module.exports.deleteRecipeOfUser = async (recipeId, userId) => {
@@ -811,17 +810,26 @@ module.exports.addComment = async (commentData, userId) => {
     }
 }
 
-module.exports.editComment = async (commentData) => {
+module.exports.editComment = async (commentData, userId) => {
+    let editCount = 0;
+
     try {
-        return await prisma.Comment.update({
+        editCount = await prisma.Comment.updateMany({
             where: {
-                id: commentData.id
+                id: commentData.id,
+                userId: userId,
             },
             data: {
                 content: commentData.content,
                 rating: commentData.rating,
             }
-        })
+        });
+
+        if (editCount.count === 0){
+            throw new BadRequest(["Comment not edited. You may not be authorized to make this change."])
+        }
+
+        return editCount;
     } catch (error) {
         console.log(error);
         throw error;
@@ -849,6 +857,28 @@ module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     } finally {
         await prisma.$disconnect();
     }
+}
+
+module.exports.getAllActiveUnits = async () => {
+    let units = [];
+    try {
+        units = await prisma.Unit.findMany({
+            where: {
+                deactivated: false,
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        });
+    } catch (error){
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return units;
 }
 
 module.exports.getAllUnits = async () => {
@@ -894,6 +924,28 @@ module.exports.getAllDifficulties = async () => {
     return difficulties;
 }
 
+module.exports.getAllActiveCategories = async () => {
+    let categories = [];
+    try {
+        categories = await prisma.RecipeCategory.findMany({
+            where: {
+                deactivated: false,
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return categories;
+}
+
 module.exports.getAllCategories = async () => {
     let categories = [];
     try {
@@ -911,6 +963,28 @@ module.exports.getAllCategories = async () => {
     }
 
     return categories;
+}
+
+module.exports.getAllActiveDiets = async () => {
+    let diets = [];
+    try {
+        diets = await prisma.Diet.findMany({
+            where: {
+                deactivated: false,
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return diets;
 }
 
 module.exports.getAllDiets = async () => {
@@ -932,6 +1006,28 @@ module.exports.getAllDiets = async () => {
     return diets;
 }
 
+module.exports.getAllActiveAllergens = async () => {
+    let allergens = [];
+    try {
+        allergens = await prisma.Allergen.findMany({
+            where: {
+                deactivated: false
+            },
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return allergens;
+}
+
 module.exports.getAllAllergens = async () => {
     let allergens = [];
     try {
@@ -949,6 +1045,218 @@ module.exports.getAllAllergens = async () => {
     }
 
     return allergens;
+}
+
+module.exports.addUnit = async (unitName) => {
+    try {
+        return await prisma.Unit.create({
+            data: {
+                name: unitName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.editUnit = async (unitId, unitName) => {
+    try {
+        return await prisma.Unit.update({
+            where: {
+                id: unitId,
+            },
+            data: {
+                name: unitName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.setDeactivatedUnit = async (unitId, deactivated) => {
+    try {
+        return await prisma.Unit.update({
+            where: {
+                id: unitId,
+            },
+            data: {
+                deactivated: deactivated,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.addCategory = async (categoryName) => {
+    try {
+        return await prisma.RecipeCategory.create({
+            data: {
+                name: categoryName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.editCategory = async (categoryId, categoryName) => {
+    try {
+        return await prisma.RecipeCategory.update({
+            where: {
+                id: categoryId,
+            },
+            data: {
+                name: categoryName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.setDeactivatedCategory = async (categoryId, deactivated) => {
+    try {
+        return await prisma.RecipeCategory.update({
+            where: {
+                id: categoryId,
+            },
+            data: {
+                deactivated: deactivated,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.addDiet = async (dietName) => {
+    try {
+        return await prisma.Diet.create({
+            data: {
+                name: dietName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.editDiet = async (dietId, dietName) => {
+    try {
+        return await prisma.Diet.update({
+            where: {
+                id: dietId,
+            },
+            data: {
+                name: dietName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.setDeactivatedDiet = async (dietId, deactivated) => {
+    try {
+        return await prisma.Diet.update({
+            where: {
+                id: dietId,
+            },
+            data: {
+                deactivated: deactivated,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.addAllergen = async (allergenName) => {
+    try {
+        return await prisma.Allergen.create({
+            data: {
+                name: allergenName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+module.exports.editAllergen = async (allergenId, allergenName) => {
+    try {
+        return await prisma.Allergen.update({
+            where: {
+                id: allergenId,
+            },
+            data: {
+                name: allergenName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.setDeactivatedAllergen = async (allergenId, deactivated) => {
+    try {
+        return await prisma.Allergen.update({
+            where: {
+                id: allergenId,
+            },
+            data: {
+                deactivated: deactivated,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 }
 
 module.exports.getAllCosts = async () => {
@@ -973,4 +1281,361 @@ module.exports.getAllCosts = async () => {
     }
 
     return costs;
+}
+
+module.exports.getAllRecipes = async (sortBy, page, searchData) => {
+    let orderBy = {};
+
+    switch (sortBy) {
+        case "idAsc":  orderBy = {id: "asc"}; break;
+        case "idDesc":  orderBy = {id: "desc"}; break;
+        case "nameAsc":  orderBy = {name: "asc"}; break;
+        case "nameDesc":  orderBy = {name: "desc"}; break;
+        case "uploadedAsc":  orderBy = {uploaded: "asc"}; break;
+        case "uploadedDesc":  orderBy = {uploaded: "desc"}; break;
+        case "lastModifiedAsc":  orderBy = {lastModified: "asc"}; break;
+        case "lastModifiedDesc":  orderBy = {lastModified: "desc"}; break;
+        case "usernameAsc": orderBy = {
+            user: {
+                username: "asc"
+            }
+        }; break;
+        case "usernameDesc": orderBy = {
+            user: {
+                username: "desc"
+            }
+        }; break;
+
+    }
+
+    try {
+        return  await prisma.Recipe.findMany({
+            skip: (page - 1) * 25,
+            take: 25,
+
+            where: {
+                id: {
+                    equals: searchData.id ? Number(searchData.id) : undefined,
+                },
+                name: {
+                    contains: searchData.name,
+                },
+                user: {
+                    username: {
+                        contains: searchData.username,
+                    }
+                },
+            },
+
+            orderBy: orderBy,
+
+            select: {
+                id: true,
+                name: true,
+                uploaded: true,
+                lastModified: true,
+                user: {
+                    select: {
+                        username: true,
+                    }
+                }
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
+    let updatedCount;
+
+    try {
+        updatedCount = await prisma.Recipe.updateMany({
+            where: {
+                id: recipeId,
+            },
+
+            data: {
+                name: recipeData.name,
+                description: recipeData.description,
+                minute: recipeData.timeMinute ? recipeData.timeMinute : null,
+                difficultyId: recipeData.difficulty ? recipeData.difficulty : null,
+                costId: recipeData.cost ? recipeData.cost : null,
+                calories: recipeData.calories ? recipeData.calories : null,
+                portions: recipeData.portions ? recipeData.portions : null,
+                lastModified: new Date(Date.now()),
+            }
+        });
+
+
+        await prisma.Ingredient.deleteMany({
+            where: {
+                recipeId: recipeId,
+            }
+        });
+
+        let ingerdientsArray = [];
+        for(const ingredient of recipeData.ingredients) {
+            ingerdientsArray.push({
+                name: ingredient.name,
+                amount: ingredient.amount ? ingredient.amount : null,
+                recipeId: recipeId,
+                unitId: ingredient.unit ? ingredient.unit : null,
+            });
+        }
+
+        await  prisma.Ingredient.createMany({
+            data: ingerdientsArray,
+        })
+
+
+        await prisma.Step.deleteMany({
+            where: {
+                recipeId: recipeId,
+            }
+        });
+
+        let stepsArray = [];
+        for(const step of recipeData.steps){
+            stepsArray.push({
+                number: step.number,
+                content: step.content,
+                recipeId: recipeId
+            })
+        }
+
+        await prisma.Step.createMany({
+            data: stepsArray
+        });
+
+
+
+        await prisma.RecipeInCategory.deleteMany({
+            where: {
+                recipeId: recipeId,
+            }
+        });
+
+        if(Array.isArray(recipeData.categories)){
+            let categoriesArray = [];
+
+            for(const category of recipeData.categories){
+                categoriesArray.push({
+                    categoryId: category.category,
+                    recipeId: recipeId,
+                    primary: category.primary
+                });
+            }
+
+            await prisma.RecipeInCategory.createMany({
+                data: categoriesArray,
+            })
+        }
+
+        await prisma.RecipeInDiet.deleteMany({
+            where: {
+                recipeId: recipeId,
+            }
+        });
+
+        if(Array.isArray(recipeData.diets)){
+            let dietsArray = [];
+
+            for (let i = 0; i < recipeData.diets.length; i++) {
+                dietsArray.push({
+                    dietId: recipeData.diets[i],
+                    recipeId: recipeId,
+                });
+            }
+
+            await prisma.RecipeInDiet.createMany({
+                data: dietsArray,
+            })
+        }
+
+        await prisma.AllergenInRecipe.deleteMany({
+            where: {
+                recipeId: recipeId,
+            }
+        });
+
+        if(Array.isArray(recipeData.allergens)){
+            let allergiesArray = [];
+
+            for (let i = 0; i < recipeData.allergens.length; i++) {
+                allergiesArray.push({
+                    allergenId: recipeData.allergens[i],
+                    recipeId: recipeId,
+                });
+            }
+
+            await prisma.AllergenInRecipe.createMany({
+                data: allergiesArray,
+            })
+        }
+
+        return updatedCount;
+
+    } catch (exception) {
+        console.log(exception);
+        throw new InternalServerError(["Something went wrong during editing the recipe."]);
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.deleteRecipeAdmin = async (recipeId) => {
+    try {
+        await prisma.Recipe.delete({
+            where: {
+                id: recipeId,
+            }
+        });
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getAllComments = async (sortBy, page, searchData) => {
+    let orderBy = {};
+
+    switch (sortBy) {
+        case "idAsc":  orderBy = {id: "asc"}; break;
+        case "idDesc":  orderBy = {id: "desc"}; break;
+        case "ratingAsc":  orderBy = {rating: "asc"}; break;
+        case "ratingDesc":  orderBy = {rating: "desc"}; break;
+        case "uploadedAsc":  orderBy = {uploaded: "asc"}; break;
+        case "uploadedDesc":  orderBy = {uploaded: "desc"}; break;
+        case "recipeIdAsc":  orderBy = {recipeId: "asc"}; break;
+        case "recipeIdDesc":  orderBy = {recipeId: "desc"}; break;
+        case "usernameAsc": orderBy = {
+            user: {
+                username: "asc"
+            }
+        }; break;
+        case "usernameDesc": orderBy = {
+            user: {
+                username: "desc"
+            }
+        }; break;
+
+    }
+
+    try {
+        return  await prisma.Comment.findMany({
+            skip: (page - 1) * 25,
+            take: 25,
+
+            where: {
+                id: {
+                    equals: searchData.id ? Number(searchData.id) : undefined,
+                },
+                content: {
+                    contains: searchData.content,
+                },
+                user: {
+                    username: {
+                        contains: searchData.username,
+                    }
+                },
+                recipeId: {
+                    equals: searchData.recipeId ? Number(searchData.recipeId) : undefined,
+                }
+            },
+
+            orderBy: orderBy,
+
+            select: {
+                id: true,
+                content: true,
+                rating: true,
+                uploaded: true,
+                recipeId: true,
+                user: {
+                    select: {
+                        username: true,
+                    }
+                }
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.editCommentAdmin = async (commentData) => {
+    try {
+        await prisma.Comment.update({
+            where: {
+                id: commentData.id,
+            },
+            data: {
+                content: commentData.content,
+                rating: commentData.rating,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.deleteCommentAdmin = async (commentId) => {
+    try {
+        await prisma.Comment.delete({
+            where: {
+                id: commentId,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getRankedCategories = async (page) => {
+    try {
+        return await prisma.RecipeCategory.findMany({
+            skip: (page - 1) * 25,
+            take: 25,
+
+            where: {
+                deactivated: false,
+            },
+
+            select: {
+                id: true,
+                name: true,
+                _count: {
+                    select: {
+                        recipes: true
+                    }
+                },
+            },
+
+            orderBy: {
+                recipes: {
+                    _count: 'desc',
+                }
+            }
+
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 }

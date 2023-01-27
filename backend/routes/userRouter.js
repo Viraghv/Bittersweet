@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controller/userController');
 const authMiddleware = require('../middlewares/auth');
+const adminAuthMiddleware = require('../middlewares/adminAuth');
 const multer = require("multer");
 const {session} = require("../session/sessionStorage");
 const fs = require("fs");
@@ -13,8 +14,14 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const extention = file.originalname.split('.')[1];
-        let sessionToken = req.headers.authorization
-        let userId = session[sessionToken].userId;
+
+        let userId;
+        if(req.params.id){
+            userId = Number(req.params.id);
+        } else {
+            let sessionToken = req.headers.authorization
+            userId = session[sessionToken].userId;
+        }
 
         cb(null, userId + '.' + extention);
     },
@@ -62,16 +69,23 @@ const uploadFile = function (req, res, next) {
 }
 
 const deleteImage = async function (req, res, next){
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
+    if(req.body?.deletePfp !== false) {
+        let userId;
+        if(req.params.id){
+            userId = Number(req.params.id);
+        } else {
+            let sessionToken = req.headers.authorization
+            userId = session[sessionToken].userId;
+        }
 
-    const directory = "./uploads/pfps/"
-    const files =  await fsPromise.readdir(directory);
+        const directory = "./uploads/pfps/"
+        const files =  await fsPromise.readdir(directory);
 
-    for(const file of files){
-        if(file.split('.')[0] === String(userId)){
-            await fs.unlinkSync(directory + file);
-            break;
+        for(const file of files){
+            if(file.split('.')[0] === String(userId)){
+                await fs.unlinkSync(directory + file);
+                break;
+            }
         }
     }
 
@@ -86,30 +100,45 @@ router.get('/logout', userController.logout);
 router.get('/verification/:token', userController.verification);
 router.post('/forgotPassword', userController.forgotPassword);
 
-router.get('/getCurrentUser', authMiddleware, userController.getCurrentUser)
-router.get('/uploadedRecipeCount/:id', userController.getUploadedRecipeCountById)
-router.get('/pfp/:filename', userController.getPfp)
-router.get('/currentUserAllRecipesWithComments', authMiddleware, userController.getCurrentUserAllRecipesWithComments)
-router.get('/currentUserAllRecipeIds', authMiddleware, userController.getCurrentUserAllRecipeIds)
-router.get('/currentUserAllRecipeCards/:sortBy/:page', authMiddleware, userController.getCurrentUserAllRecipeCards)
+router.get('/getCurrentUser', authMiddleware, userController.getCurrentUser);
+router.get('/isAdmin', authMiddleware, userController.isCurrentUserAdmin);
+router.get('/uploadedRecipeCount/:id', userController.getUploadedRecipeCountById);
+router.get('/pfp/:filename', userController.getPfp);
+router.get('/currentUserAllRecipesWithComments', authMiddleware, userController.getCurrentUserAllRecipesWithComments);
+router.get('/currentUserAllRecipeIds', authMiddleware, userController.getCurrentUserAllRecipeIds);
+router.get('/currentUserAllRecipeCards/:sortBy/:page', authMiddleware, userController.getCurrentUserAllRecipeCards);
+router.get('/allUserCount', authMiddleware, userController.getAllUserCount);
+router.get('/allUserCount/active', authMiddleware, userController.getAllActiveUserCount);
 
-router.post('/edit/password', authMiddleware, userController.changePasswordOfCurrentUser)
-router.post('/edit/profile', authMiddleware, userController.editProfileOfCurrentUser)
-router.post('/edit/uploadImage', authMiddleware, deleteImage, uploadFile, userController.uploadImageForCurrentUser)
-router.post('/edit/preferences', authMiddleware, userController.editPreferencesCurrentUser)
+router.post('/edit/password', authMiddleware, userController.changePasswordOfCurrentUser);
+router.post('/edit/profile', authMiddleware, deleteImage, userController.editProfileOfCurrentUser);
+router.post('/edit/uploadImage', authMiddleware, deleteImage, uploadFile, userController.uploadImageForCurrentUser);
+router.post('/edit/preferences', authMiddleware, userController.editPreferencesCurrentUser);
 
-router.post('/groups/createForCurrentUser', authMiddleware, userController.createGroupForCurrentUser)
-router.post('/groups/edit', authMiddleware, userController.editNameOfGroup)
-router.get('/groups/delete/:id', authMiddleware, userController.deleteGroup)
-router.get('/groups/allCurrentUser', authMiddleware, userController.getAllGroupsOfCurrentUser)
-router.get('/groups/allOfRecipeAndUser/:id', authMiddleware, userController.getAllGroupsOfFavourite)
-router.post('/groups/addRecipe', authMiddleware, userController.addRecipeToGroup)
-router.post('/groups/deleteRecipe', authMiddleware, userController.deleteRecipeFromGroup)
-router.get('/groups/getAllRecipeCards/:sortBy/:id/:page', authMiddleware, userController.getAllRecipeCardsOfGroup)
-router.get('/groups/recipeCount/:id', authMiddleware, userController.getRecipeCountOfGroup)
+router.post('/groups/createForCurrentUser', authMiddleware, userController.createGroupForCurrentUser);
+router.post('/groups/edit', authMiddleware, userController.editNameOfGroup);
+router.get('/groups/delete/:id', authMiddleware, userController.deleteGroup);
+router.get('/groups/allCurrentUser', authMiddleware, userController.getAllGroupsOfCurrentUser);
+router.get('/groups/allOfRecipeAndUser/:id', authMiddleware, userController.getAllGroupsOfFavourite);
+router.post('/groups/addRecipe', authMiddleware, userController.addRecipeToGroup);
+router.post('/groups/deleteRecipe', authMiddleware, userController.deleteRecipeFromGroup);
+router.get('/groups/getAllRecipeCards/:sortBy/:id/:page', authMiddleware, userController.getAllRecipeCardsOfGroup);
+router.get('/groups/recipeCount/:id', authMiddleware, userController.getRecipeCountOfGroup);
+
+
+router.post('/admin/all/:sortBy/:page', adminAuthMiddleware, userController.getAllUsers);
+router.post('/admin/edit/profile/:id', adminAuthMiddleware, deleteImage, userController.editProfileAdmin);
+router.post('/admin/edit/uploadImage/:id', adminAuthMiddleware, deleteImage, uploadFile, userController.uploadImageAdmin);
+router.post('/admin/edit/password/:id', adminAuthMiddleware, userController.changePasswordOfUserAdmin);
+router.post('/admin/edit/setVerified/:id', adminAuthMiddleware, userController.setVerifiedAdmin);
+router.post('/admin/edit/setAdmin/:id', adminAuthMiddleware, userController.setAdmin);
+router.get('/admin/delete/:id', adminAuthMiddleware, deleteImage, userController.deleteUserAdmin);
+
+router.get('/admin/ranked/:page', adminAuthMiddleware, userController.getRankedUsers);
+
 
 router.get("/getSessionState", authMiddleware, userController.getSessionState);
 router.get("/isLoggedIn", authMiddleware, userController.isLoggedIn);
-router.get("/refreshToken", authMiddleware, userController.refreshToken)
+router.get("/refreshToken", authMiddleware, userController.refreshToken);
 
 module.exports = router;

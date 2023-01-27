@@ -2,7 +2,6 @@ const userService = require('../services/userService')
 const HttpException = require('../exceptions/HttpException')
 const uuid = require("uuid");
 const {Session, session} = require("../session/sessionStorage");
-const NotAuthorized = require("../exceptions/NotAuthorized");
 const BadRequest = require("../exceptions/BadRequest");
 const {sendHttpException, sendServerErrorResponse} = require("../httpHandler");
 const fs = require("fs");
@@ -148,6 +147,21 @@ module.exports.getCurrentUser = async (req, res) => {
     }
 }
 
+module.exports.isCurrentUserAdmin = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await userService.isAdmin(userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getCurrentUserAllRecipesWithComments = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -193,12 +207,36 @@ module.exports.getCurrentUserAllRecipeCards = async (req, res) => {
     }
 }
 
+module.exports.getAllUserCount = async (req, res) => {
+    try {
+        res.json( await userService.getAllUserCount());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllActiveUserCount = async (req, res) => {
+    try {
+        res.json( await userService.getAllActiveUserCount());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.changePasswordOfCurrentUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
 
     try {
-        res.json( await userService.changePasswordOfCurrentUser(req.body, userId));
+        res.json( await userService.changePasswordOfUser(req.body, userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -367,6 +405,107 @@ module.exports.getRecipeCountOfGroup = async (req, res) => {
 
     try {
         res.json(await userService.getRecipeCountOfGroup(Number(req.params.id), userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllUsers = async (req, res) => {
+    try {
+        res.json(await userService.getAllUsers(req.params.sortBy, Number(req.params.page), req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editProfileAdmin = async (req, res) => {
+    try {
+        res.json( await userService.editProfileOfUser(req.body, Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.changePasswordOfUserAdmin = async (req, res) => {
+    try {
+        res.json( await userService.changePasswordOfUserAdmin(req.body, Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.uploadImageAdmin = async (req, res) => {
+    try {
+        if(req.fileValidationErrors.length > 0){
+            throw new BadRequest(req.fileValidationErrors);
+        }
+
+        res.json(await userService.uploadImage(req.file, Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+
+}
+
+module.exports.setVerifiedAdmin = async (req, res) => {
+    try {
+        res.json( await userService.setVerified(req.body.verified, Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.setAdmin = async (req, res) => {
+    try {
+        res.json( await userService.setAdmin(req.body.admin, Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.deleteUserAdmin = async (req, res) => {
+    try {
+        res.json( await userService.deleteUserById(Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getRankedUsers = async (req, res) => {
+    try {
+        res.json( await userService.getRankedUsers(Number(req.params.page)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

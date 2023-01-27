@@ -2,7 +2,7 @@
 	<div class="footer">
 		<div class="attributions-container">
 			<div class="flaticon-container">
-				<span class="flaticon-text">Icons from:</span>
+				<span class="flaticon-text">Icons:</span>
 				<a class="flaticon-link" href="https://www.flaticon.com/" target="_blank">
 					<img class="flaticon-logo" src="@/assets/flaticon_logo_transparent.png" alt="flaticon-logo">
 				</a>
@@ -14,7 +14,7 @@
 				</a>
 			</div>
 			<div class="allrecipes-container">
-				<span class="allrecipes-text">Recipes from:</span>
+				<span class="allrecipes-text">Recipes:</span>
 				<a class="allrecipes-link" href="https://www.allrecipes.com/" target="_blank">
 					<img class="allrecipes-logo" src="@/assets/allrecipes_logo_transparent.png" alt="allrecipes-logo">
 				</a>

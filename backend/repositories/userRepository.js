@@ -75,6 +75,21 @@ module.exports.updatePassword = async (email, newPassword) => {
 
 module.exports.deleteUserById = async (userId) => {
     try {
+        return await prisma.User.delete({
+            where: {
+                id: userId,
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.deleteVerifiedUserById = async (userId) => {
+    try {
         return await prisma.User.deleteMany({
             where: {
                 id: userId,
@@ -167,6 +182,24 @@ module.exports.getUserById = async (userId) => {
                         }
                     }
                 }
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.isAdmin = async (userId) => {
+    try {
+        return await prisma.User.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                admin: true,
             }
         })
     } catch (error) {
@@ -277,6 +310,40 @@ module.exports.getUsersAllRecipeCards = async (userId, sortBy, page) => {
     } finally {
         await prisma.$disconnect();
     }
+}
+
+module.exports.getAllUserCount = async () => {
+    let userCount = 0;
+
+    try {
+        userCount = await prisma.User.count();
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return userCount;
+}
+
+module.exports.getAllActiveUserCount = async () => {
+    let userCount = 0;
+
+    try {
+        userCount = await prisma.User.count({
+            where: {
+                emailVerified: true,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return userCount;
 }
 
 module.exports.changePassword = async (newPassword, userId) => {
@@ -641,6 +708,138 @@ module.exports.getAllUserIds = async () => {
                 id: true,
             },
         })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getAllUsers = async (sortBy, page, searchData) => {
+    let orderBy = {};
+
+    switch (sortBy) {
+        case "idAsc":  orderBy = {id: "asc"}; break;
+        case "idDesc":  orderBy = {id: "desc"}; break;
+        case "usernameAsc":  orderBy = {username: "asc"}; break;
+        case "usernameDesc":  orderBy = {username: "desc"}; break;
+        case "emailAsc":  orderBy = {email: "asc"}; break;
+        case "emailDesc":  orderBy = {email: "desc"}; break;
+        case "joinedAsc":  orderBy = {joined: "asc"}; break;
+        case "joinedDesc":  orderBy = {joined: "desc"}; break;
+        case "statusAsc":
+            orderBy = [
+                {
+                    admin: "asc",
+                },
+                {
+                    emailVerified: "asc",
+                }
+            ]; break;
+        case "statusDesc":  orderBy = orderBy = [
+            {
+                admin: "desc",
+            },
+            {
+                emailVerified: "desc",
+            }
+        ]; break;
+
+    }
+
+    try {
+        return  await prisma.User.findMany({
+            skip: (page - 1) * 25,
+            take: 25,
+
+            where: {
+                id: {
+                    equals: searchData.id ? Number(searchData.id) : undefined,
+                },
+                username: {
+                    contains: searchData.username,
+                },
+                email: {
+                    contains: searchData.email,
+                },
+            },
+
+            orderBy: orderBy,
+
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                joined: true,
+                admin: true,
+                emailVerified: true,
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.setVerified = async (verified, userId) => {
+    try {
+        await prisma.User.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                emailVerified: Boolean(verified),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.setAdmin = async (admin, userId) => {
+    try {
+        await prisma.User.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                admin: Boolean(admin),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getRankedUsers = async () => {
+    try {
+        return await prisma.User.findMany({
+            where: {
+                emailVerified: true,
+            },
+
+            select: {
+                id: true,
+                username: true,
+                joined: true,
+                _count: {
+                    select: {
+                        recipes: true,
+                        comments: true,
+                    }
+                },
+            }
+
+        });
     } catch (error) {
         console.log(error);
         throw error;

@@ -20,8 +20,10 @@
 			</button>
 
 			<button type="button" class="admin-button col-lg-3 col-md-3 col-sm-4" v-if="userStore.loggedIn && admin">
-				<img class="lockIcon" src="@/assets/icons/lock.png" alt="lock">
-				Admin
+				<router-link class="admin-button" :to="{name: 'UsersAdmin'}">
+					<img class="lockIcon" src="@/assets/icons/lock.png" alt="lock">
+					<span>Admin</span>
+				</router-link>
 			</button>
 
 
@@ -318,6 +320,14 @@ export default {
 			}
 		},
 
+		async initAdmin(){
+			try {
+				this.admin = await this.axios.get('/user/isAdmin');
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
 		async sendForgotPassword(){
 			this.forgotPasswordErrorMsgs = [];
 			if(this.forgotPasswordEmail !== ""){
@@ -404,6 +414,7 @@ export default {
 			await this.axios.get("/user/isLoggedIn");
 			await this.userStore.login();
 			await this.initUser();
+			await this.initAdmin();
 			console.log("User is logged in.");
 		} catch (err){
 			this.userStore.logout();
@@ -448,7 +459,7 @@ export default {
 			margin-right: 1%;
 		}
 
-		.upload-recipe-button {
+		.upload-recipe-button, .admin-button {
 			font-family: Gotu,serif;
 			text-decoration: none;
 			color: white;
@@ -461,6 +472,18 @@ export default {
 				&:hover{
 					cursor: pointer;
 				}
+			}
+
+			.addIcon {
+				margin-top: -2px;
+				margin-right: 7px;
+			}
+		}
+
+		.admin-button {
+			.lockIcon {
+				margin-top: -3px;
+				margin-right: 7px;
 			}
 		}
 	}

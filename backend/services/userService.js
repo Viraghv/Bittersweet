@@ -126,7 +126,7 @@ module.exports.verification = async (token) => {
         if (error instanceof TokenExpiredError) {
             try {
                 const userId = jwt.verify(token, EMAIL_SECRET, {ignoreExpiration: true}).user;
-                await this.deleteUserById(userId);
+                await this.deleteVerifiedUserById(userId);
             } catch (error2) {
                 console.log(error2);
                 throw error2;
@@ -167,6 +167,15 @@ Bittersweet
 module.exports.deleteUserById = async (userId) => {
     try {
         await userRepository.deleteUserById(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteVerifiedUserById = async (userId) => {
+    try {
+        await userRepository.deleteVerifiedUserById(userId);
     } catch (exception) {
         console.log(exception);
         throw exception
@@ -226,6 +235,19 @@ module.exports.getUserById = async (userId) => {
     return user;
 }
 
+module.exports.isAdmin = async (userId) => {
+    let user;
+
+    try {
+        user = await userRepository.isAdmin(userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return user.admin;
+}
+
 module.exports.getUsersAllRecipesWithCommentsById = async (userId) => {
     let recipeIds;
 
@@ -277,7 +299,33 @@ module.exports.getUsersAllRecipeCards = async (userId, sortBy, page) => {
     return recipeCards;
 }
 
-module.exports.changePasswordOfCurrentUser = async (passwordData, userId) => {
+module.exports.getAllUserCount = async () => {
+    let userCount;
+
+    try {
+        userCount = await userRepository.getAllUserCount();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return userCount;
+}
+
+module.exports.getAllActiveUserCount = async () => {
+    let activeUserCount;
+
+    try {
+        activeUserCount = await userRepository.getAllActiveUserCount();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return activeUserCount;
+}
+
+module.exports.changePasswordOfUser = async (passwordData, userId) => {
     const errors = []
 
     if(!passwordData.currentPassword?.trim() || !passwordData.newPassword?.trim()){
@@ -491,6 +539,83 @@ module.exports.getAllUserIds = async () => {
     return userIds;
 }
 
+module.exports.getAllUsers = async (sortBy, page, searchData) => {
+    let users;
+
+    try {
+        users = await userRepository.getAllUsers(sortBy, page, searchData);
+
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return users;
+}
+
+
+module.exports.changePasswordOfUserAdmin = async (passwordData, userId) => {
+    const errors = []
+
+    if(!passwordData.newPassword?.trim()){
+        errors.push("Please fill in all fields.");
+    }
+
+    if(passwordData.newPassword?.trim().length < 6){
+        errors.push("Password must be at least 6 characters long.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await userRepository.changePassword(passwordData.newPassword, userId)
+    } catch (exception){
+        throw exception
+    }
+}
+
+module.exports.setVerified = async (verified, userId) => {
+    try {
+        return await userRepository.setVerified(verified, userId)
+    } catch (exception){
+        throw exception
+    }
+}
+
+module.exports.setAdmin = async (admin, userId) => {
+    try {
+        return await userRepository.setAdmin(admin, userId)
+    } catch (exception){
+        throw exception
+    }
+}
+
+module.exports.getRankedUsers = async (page) => {
+    let rankedUsers = [];
+
+    try {
+        rankedUsers = await userRepository.getRankedUsers();
+
+        rankedUsers.sort((a, b) => ((b._count.recipes + b._count.comments) - (a._count.recipes + a._count.comments)));
+
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+
+    rankedUsers = rankedUsers.slice((page-1) * 25, page * 25);
+
+    for (let i = 0; i < rankedUsers.length; i++) {
+        rankedUsers[i].recipeCount = rankedUsers[i]._count.recipes;
+        rankedUsers[i].commentsCount = rankedUsers[i]._count.comments;
+        delete rankedUsers[i]._count;
+    }
+
+
+    return rankedUsers;
+}
 
 function makePassword(length) {
     let result = '';

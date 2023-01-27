@@ -2,6 +2,7 @@ const recipeRepository = require('../repositories/recipeRepository');
 const BadRequest = require("../exceptions/BadRequest");
 const {compareSync} = require("bcrypt");
 const fs = require("fs");
+const userRepository = require("../repositories/userRepository");
 
 
 module.exports.createOne = async (recipeData, userId) => {
@@ -336,7 +337,7 @@ module.exports.addComment = async (commentData, userId) => {
     }
 }
 
-module.exports.editComment = async (commentData) => {
+module.exports.editComment = async (commentData, userId) => {
     let errors = [];
 
     if(!commentData.rating){
@@ -356,7 +357,7 @@ module.exports.editComment = async (commentData) => {
     }
 
     try {
-        return await recipeRepository.editComment(commentData);
+        return await recipeRepository.editComment(commentData, userId);
     } catch (error) {
         console.log(error);
         throw error;
@@ -376,44 +377,474 @@ module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     return comment;
 }
 
+module.exports.getAllActiveUnits = async () => {
+    let units = [];
+
+    try {
+        units = await recipeRepository.getAllActiveUnits();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return units;
+}
+
 module.exports.getAllUnits = async () => {
     let units = [];
-    units = await recipeRepository.getAllUnits();
+
+    try {
+        units = await recipeRepository.getAllUnits();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 
     return units;
 }
 
 module.exports.getAllDifficulties = async () => {
     let difficulties = [];
-    difficulties = await recipeRepository.getAllDifficulties();
+
+    try {
+        difficulties = await recipeRepository.getAllDifficulties();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 
     return difficulties;
 }
 
-module.exports.getAllCategories = async () => {
+module.exports.getAllActiveCategories = async () => {
     let categories = [];
-    categories = await recipeRepository.getAllCategories();
+
+    try {
+        categories = await recipeRepository.getAllActiveCategories();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 
     return categories;
 }
 
-module.exports.getAllDiets = async () => {
+module.exports.getAllCategories = async () => {
+    let categories = [];
+
+    try {
+        categories = await recipeRepository.getAllCategories();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return categories;
+}
+
+
+module.exports.getAllActiveDiets = async () => {
     let diets = [];
-    diets = await recipeRepository.getAllDiets();
+
+    try {
+        diets = await recipeRepository.getAllActiveDiets();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 
     return diets;
 }
 
-module.exports.getAllAllergens = async () => {
+module.exports.getAllDiets = async () => {
+    let diets = [];
+
+    try {
+        diets = await recipeRepository.getAllDiets();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return diets;
+}
+
+module.exports.getAllActiveAllergens = async () => {
     let allergens = [];
-    allergens = await recipeRepository.getAllAllergens();
+
+    try {
+        allergens = await recipeRepository.getAllActiveAllergens();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
 
     return allergens;
 }
 
+module.exports.getAllAllergens = async () => {
+    let allergens = [];
+
+    try {
+        allergens = await recipeRepository.getAllAllergens();
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return allergens;
+}
+
+module.exports.addUnit = async (unitName) => {
+    let errors = [];
+
+    if(!unitName){
+        errors.push("Please provide the unit name.");
+    }
+
+    if(unitName.trim().length > 30){
+        errors.push("Unit name can't be longer than 30 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.addUnit(unitName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.editUnit = async (unitId, unitName) => {
+    let errors = [];
+
+    if(!unitName){
+        errors.push("Please provide the unit name.");
+    }
+
+    if(unitName.trim().length > 30){
+        errors.push("Unit name can't be longer than 30 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.editUnit(unitId, unitName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.setDeactivatedUnit = async (unitId, deactivated) => {
+    try {
+        return await recipeRepository.setDeactivatedUnit(unitId, deactivated);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.addCategory = async (categoryName) => {
+    let errors = [];
+
+    if(!categoryName){
+        errors.push("Please provide the category name.");
+    }
+
+    if(categoryName.trim().length > 50){
+        errors.push("Category name can't be longer than 50 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.addCategory(categoryName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.editCategory = async (categoryId, categoryName) => {
+    let errors = [];
+
+    if(!categoryName){
+        errors.push("Please provide the category name.");
+    }
+
+    if(categoryName.trim().length > 50){
+        errors.push("Category name can't be longer than 50 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.editCategory(categoryId, categoryName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.setDeactivatedCategory = async (categoryId, deactivated) => {
+    try {
+        return await recipeRepository.setDeactivatedCategory(categoryId, deactivated);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.addDiet = async (dietName) => {
+    let errors = [];
+
+    if(!dietName){
+        errors.push("Please provide the diet name.");
+    }
+
+    if(dietName.trim().length > 50){
+        errors.push("Diet name can't be longer than 50 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.addDiet(dietName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.editDiet = async (dietId, dietName) => {
+    let errors = [];
+
+    if(!dietName){
+        errors.push("Please provide the diet name.");
+    }
+
+    if(dietName.trim().length > 50){
+        errors.push("Diet name can't be longer than 50 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.editDiet(dietId, dietName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.setDeactivatedDiet = async (dietId, deactivated) => {
+    try {
+        return await recipeRepository.setDeactivatedDiet(dietId, deactivated);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.addAllergen = async (allergenName) => {
+    let errors = [];
+
+    if(!allergenName){
+        errors.push("Please provide the allergen name.");
+    }
+
+    if(allergenName.trim().length > 50){
+        errors.push("Allergen name can't be longer than 50 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.addAllergen(allergenName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.editAllergen = async (allergenId, allergenName) => {
+    let errors = [];
+
+    if(!allergenName){
+        errors.push("Please provide the allergen name.");
+    }
+
+    if(allergenName.trim().length > 50){
+        errors.push("Allergen name can't be longer than 50 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.editAllergen(allergenId, allergenName);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.setDeactivatedAllergen = async (allergenId, deactivated) => {
+    try {
+        return await recipeRepository.setDeactivatedAllergen(allergenId, deactivated);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 module.exports.getAllCosts = async () => {
     let costs = [];
-    costs = await recipeRepository.getAllCosts();
+
+    try {
+        costs = await recipeRepository.getAllCosts();
+    } catch (error){
+        console.log(error);
+        throw error;
+    }
 
     return costs;
+}
+
+module.exports.getAllRecipes = async (sortBy, page, searchData) => {
+    let recipes;
+
+    try {
+        recipes = await recipeRepository.getAllRecipes(sortBy, page, searchData);
+
+        for (let i = 0; i < recipes.length; i++) {
+            recipes[i].user = recipes[i].user.username;
+        }
+
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return recipes;
+}
+
+module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
+    try {
+        if(recipeData.timeHour){
+            if(!recipeData.timeMinute) {
+                recipeData.timeMinute = 0;
+            }
+
+            recipeData.timeMinute += recipeData.timeHour * 60
+        }
+
+        return await recipeRepository.editRecipeAdmin(recipeId, recipeData);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteRecipeAdmin = async (recipeId) => {
+    try {
+        const directory = "./uploads/recipe_images/"
+
+        fs.readdir(directory, (err, files) => {
+            files.forEach(file => {
+                if(file.split('.')[0] === String(recipeId)){
+                    fs.unlinkSync(directory + file);
+                }
+            });
+        });
+
+        return await recipeRepository.deleteRecipeAdmin(recipeId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.getAllComments = async (sortBy, page, searchData) => {
+    let comments;
+
+    try {
+        comments = await recipeRepository.getAllComments(sortBy, page, searchData);
+
+        for (let i = 0; i < comments.length; i++) {
+            comments[i].user = comments[i].user.username;
+        }
+
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return comments;
+}
+
+module.exports.editCommentAdmin = async (commentData) => {
+    let errors = [];
+
+    if(!commentData.rating){
+        errors.push("Please rate the recipe.");
+    }
+
+    if(commentData.rating < 1 || commentData.rating > 5) {
+        errors.push("Rating must be between 1-5 stars.");
+    }
+
+    if(commentData.content?.trim().length > 300){
+        errors.push("Content of comment can't be longer than 300 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return await recipeRepository.editCommentAdmin(commentData);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.deleteCommentAdmin = async (commentId) => {
+    try {
+        return await recipeRepository.deleteCommentAdmin(commentId);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.getRankedCategories = async (page) => {
+    let rankedCategories = [];
+
+    try {
+        rankedCategories = await recipeRepository.getRankedCategories(page);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+
+    return rankedCategories;
 }

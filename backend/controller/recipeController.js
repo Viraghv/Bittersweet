@@ -207,8 +207,11 @@ module.exports.addComment = async (req, res) => {
 }
 
 module.exports.editComment = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
     try {
-        res.json( await recipeService.editComment(req.body));
+        res.json( await recipeService.editComment(req.body, Number(userId)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -224,6 +227,18 @@ module.exports.getCommentOfCurrentUserByRecipeId = async (req, res) => {
 
     try {
         res.json( await recipeService.getCommentByUserAndRecipeId(Number(req.params.id), userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllActiveUnits = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllActiveUnits());
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -257,9 +272,33 @@ module.exports.getAllDifficulties = async (req, res) => {
     }
 }
 
+module.exports.getAllActiveCategories = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllActiveCategories());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getAllCategories = async (req, res) => {
     try {
         res.json(await recipeService.getAllCategories());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllActiveDiets = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllActiveDiets());
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -281,6 +320,18 @@ module.exports.getAllDiets = async (req, res) => {
     }
 }
 
+module.exports.getAllActiveAllergens = async (req, res) => {
+    try {
+        res.json(await  recipeService.getAllActiveAllergens());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getAllAllergens = async (req, res) => {
     try {
         res.json(await  recipeService.getAllAllergens());
@@ -293,9 +344,237 @@ module.exports.getAllAllergens = async (req, res) => {
     }
 }
 
+module.exports.addUnit = async (req, res) => {
+    try {
+        res.json(await  recipeService.addUnit(req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editUnit = async (req, res) => {
+    try {
+        res.json(await  recipeService.editUnit(Number(req.params.id), req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.setDeactivatedUnit = async (req, res) => {
+    try {
+        res.json(await  recipeService.setDeactivatedUnit(Number(req.params.id), req.body.deactivated));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.addCategory = async (req, res) => {
+    try {
+        res.json(await  recipeService.addCategory(req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editCategory = async (req, res) => {
+    try {
+        res.json(await  recipeService.editCategory(Number(req.params.id), req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.setDeactivatedCategory = async (req, res) => {
+    try {
+        res.json(await  recipeService.setDeactivatedCategory(Number(req.params.id), req.body.deactivated));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.addDiet = async (req, res) => {
+    try {
+        res.json(await  recipeService.addDiet(req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editDiet = async (req, res) => {
+    try {
+        res.json(await  recipeService.editDiet(Number(req.params.id), req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.setDeactivatedDiet = async (req, res) => {
+    try {
+        res.json(await  recipeService.setDeactivatedDiet(Number(req.params.id), req.body.deactivated));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.addAllergen = async (req, res) => {
+    try {
+        res.json(await  recipeService.addAllergen(req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editAllergen = async (req, res) => {
+    try {
+        res.json(await  recipeService.editAllergen(Number(req.params.id), req.body.name));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.setDeactivatedAllergen = async (req, res) => {
+    try {
+        res.json(await  recipeService.setDeactivatedAllergen(Number(req.params.id), req.body.deactivated));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getAllCosts = async (req, res) => {
     try {
         res.json(await recipeService.getAllCosts());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllRecipes = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllRecipes(req.params.sortBy, Number(req.params.page), req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editRecipeAdmin = async (req, res) => {
+    try {
+        res.json( await recipeService.editRecipeAdmin(Number(req.params.id), req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.deleteRecipeAdmin = async (req, res) => {
+    try {
+        res.json(await recipeService.deleteRecipeAdmin(Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllComments = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllComments(req.params.sortBy, Number(req.params.page), req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.editCommentAdmin = async (req, res) => {
+    try {
+        res.json( await recipeService.editCommentAdmin(req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.deleteCommentAdmin = async (req, res) => {
+    try {
+        res.json( await recipeService.deleteCommentAdmin(Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getRankedCategories = async (req, res) => {
+    try {
+        res.json( await recipeService.getRankedCategories(Number(req.params.page)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

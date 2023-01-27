@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/auth');
+const adminAuthMiddleware = require('../middlewares/adminAuth');
 const recipeController = require('../controller/recipeController');
 const multer = require('multer');
 const fs = require("fs");
@@ -74,14 +75,14 @@ const deleteImage = async function (req, res, next){
 
 router.post('/create', authMiddleware, recipeController.createOne);
 router.post('/uploadImage/:id', authMiddleware, deleteImage, uploadFile, recipeController.uploadImage);
-router.post('/edit/:id', authMiddleware, recipeController.editRecipeOfCurrentUser)
+router.post('/edit/:id', authMiddleware, recipeController.editRecipeOfCurrentUser);
 router.get('/delete/:id', authMiddleware, recipeController.deleteRecipeOfCurrentUser);
 
 router.get('/recipeById/:id', recipeController.getRecipeById);
 router.get('/recipeImage/:filename', recipeController.getRecipeImage);
 router.get('/allRecipeCount', recipeController.getAllRecipeCount);
-router.get('/getAllCardsWithPagination/:page', recipeController.getAllRecpieCardsWithPagination)
-router.post('/getFilteredCards/:sortBy/:page', recipeController.getFilteredRecipeCards)
+router.get('/getAllCardsWithPagination/:page', recipeController.getAllRecpieCardsWithPagination);
+router.post('/getFilteredCards/:sortBy/:page', recipeController.getFilteredRecipeCards);
 
 router.get('/commentsByRecipeId/:id/:page', recipeController.getCommentsByRecipeId);
 router.get('/commentCount/:id', recipeController.getCommentCountById);
@@ -91,11 +92,43 @@ router.post('/addComment', authMiddleware, recipeController.addComment);
 router.post('/editComment', authMiddleware, recipeController.editComment);
 router.get('/getCommentOfCurrentUserByRecipeId/:id', authMiddleware, recipeController.getCommentOfCurrentUserByRecipeId);
 
-router.get('/units', recipeController.getAllUnits);
 router.get('/difficulties', recipeController.getAllDifficulties);
-router.get('/categories', recipeController.getAllCategories);
-router.get('/diets', recipeController.getAllDiets);
-router.get('/allergens', recipeController.getAllAllergens);
 router.get('/costs', recipeController.getAllCosts);
+router.get('/units', recipeController.getAllActiveUnits);
+router.get('/categories', recipeController.getAllActiveCategories);
+router.get('/diets', recipeController.getAllActiveDiets);
+router.get('/allergens', recipeController.getAllActiveAllergens);
+
+
+router.get('/admin/units', adminAuthMiddleware, recipeController.getAllUnits);
+router.get('/admin/categories', adminAuthMiddleware, recipeController.getAllCategories);
+router.get('/admin/diets', adminAuthMiddleware, recipeController.getAllDiets);
+router.get('/admin/allergens', adminAuthMiddleware, recipeController.getAllAllergens);
+
+router.post('/admin/units/add', adminAuthMiddleware, recipeController.addUnit);
+router.post('/admin/units/edit/:id', adminAuthMiddleware, recipeController.editUnit);
+router.post('/admin/units/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedUnit);
+
+router.post('/admin/categories/add', adminAuthMiddleware, recipeController.addCategory);
+router.post('/admin/categories/edit/:id', adminAuthMiddleware, recipeController.editCategory);
+router.post('/admin/categories/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedCategory);
+
+router.post('/admin/diets/add', adminAuthMiddleware, recipeController.addDiet);
+router.post('/admin/diets/edit/:id', adminAuthMiddleware, recipeController.editDiet);
+router.post('/admin/diets/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedDiet);
+
+router.post('/admin/allergens/add', adminAuthMiddleware, recipeController.addAllergen);
+router.post('/admin/allergens/edit/:id', adminAuthMiddleware, recipeController.editAllergen);
+router.post('/admin/allergens/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedAllergen);
+
+router.post('/admin/all/:sortBy/:page', adminAuthMiddleware, recipeController.getAllRecipes);
+router.post('/admin/edit/:id', adminAuthMiddleware, recipeController.editRecipeAdmin);
+router.get('/admin/delete/:id', adminAuthMiddleware, recipeController.deleteRecipeAdmin);
+
+router.post('/admin/allComments/:sortBy/:page', adminAuthMiddleware, recipeController.getAllComments);
+router.post('/admin/editComment', adminAuthMiddleware, recipeController.editCommentAdmin);
+router.get('/admin/deleteComment/:id', adminAuthMiddleware, recipeController.deleteCommentAdmin);
+
+router.get('/admin/categories/ranked/:page', adminAuthMiddleware, recipeController.getRankedCategories);
 
 module.exports = router;
