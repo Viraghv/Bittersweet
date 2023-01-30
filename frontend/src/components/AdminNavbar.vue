@@ -27,9 +27,9 @@ export default {
 	.navbar-container {
 		display: flex;
 		flex-direction: column;
-		width: 20%;
+		width: 100%;
 		background-color: var(--lightgreen);
-		padding: 2%;
+		padding: 20px;
 		border-radius: 20px;
 
 		.link {

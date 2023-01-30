@@ -56,31 +56,33 @@ module.exports.register = async (userData) => {
     try {
         let user = await userRepository.createUser(userData);
 
-        jwt.sign(
-            {
-                user: user.id,
-            },
-            EMAIL_SECRET,
-            {
-                expiresIn: 15 * 60,
-            },
-            (err, emailToken) => {
-                const url = `http://bittersweet.local/verification/${emailToken}`;
 
-                transporter.sendMail({
-                    to: user.email,
-                    subject: 'Bittersweet - Email Verification',
-                    html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
-Welcome to <b>Bittersweet!</b><br><br>\n
-Thank you for your registration.<br>
-To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
-
-Thank you, <br>\n
-Bittersweet    
-</div>`
-                });
-            },
-        );
+            //TODO REMOVE COMMENT
+//         jwt.sign(
+//             {
+//                 user: user.id,
+//             },
+//             EMAIL_SECRET,
+//             {
+//                 expiresIn: 15 * 60,
+//             },
+//             (err, emailToken) => {
+//                 const url = `http://bittersweet.local/verification/${emailToken}`;
+//
+//                 transporter.sendMail({
+//                     to: user.email,
+//                     subject: 'Bittersweet - Email Verification',
+//                     html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
+// Welcome to <b>Bittersweet!</b><br><br>\n
+// Thank you for your registration.<br>
+// To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
+//
+// Thank you, <br>\n
+// Bittersweet
+// </div>`
+//                 });
+//             },
+//         );
 
         return user.id;
     } catch (exception){
@@ -381,6 +383,49 @@ module.exports.editProfileOfUser = async (userData, userId) => {
     }
 }
 
+module.exports.editProfileOfUserAdmin = async (userData, userId) => {
+    const errors = []
+
+    if(!userData.username?.trim() || !userData.email?.trim()){
+        errors.push("Please fill in the username field.");
+    }
+
+    if(userData.username?.trim().length > 100) {
+        errors.push("Username can't be longer than 100 characters.");
+    }
+
+    if(userData.username?.trim().length > 100) {
+        errors.push("Username can't be longer than 100 characters.");
+    }
+
+    if(userData.email?.trim().length > 100) {
+        errors.push("Email can't be longer than 100 characters.");
+    }
+
+    if(userData.email?.trim() &&
+        !userData.email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+        errors.push("Invalid email.");
+    }
+
+    if(userData.firstname?.trim().length > 100){
+        errors.push("First name can't be longer than 100 characters.");
+    }
+
+    if(userData.lastname?.trim().length > 100){
+        errors.push("Last name can't be longer than 100 characters.");
+    }
+
+    if(errors.length > 0){
+        throw new BadRequest(errors);
+    }
+
+    try {
+        return userRepository.editProfileOfUserAdmin(userData, userId)
+    } catch (exception){
+        throw exception
+    }
+}
+
 module.exports.uploadImage = async (image, userId) => {
     try {
         return userRepository.uploadImage(image, userId);
@@ -544,7 +589,6 @@ module.exports.getAllUsers = async (sortBy, page, searchData) => {
 
     try {
         users = await userRepository.getAllUsers(sortBy, page, searchData);
-
     } catch (exception) {
         console.log(exception);
         throw exception
@@ -553,6 +597,18 @@ module.exports.getAllUsers = async (sortBy, page, searchData) => {
     return users;
 }
 
+module.exports.getAllUsersCount = async (searchData) => {
+    let users;
+
+    try {
+        users = await userRepository.getAllUsersCount(searchData);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return users;
+}
 
 module.exports.changePasswordOfUserAdmin = async (passwordData, userId) => {
     const errors = []

@@ -170,7 +170,6 @@
 import Multiselect from '@vueform/multiselect';
 import Loader from "@/components/Loader.vue";
 import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
-import recipe from "@/views/Recipe.vue";
 
 export default {
 	name: "UploadRecipe",

@@ -522,12 +522,11 @@ export default {
 		},
 
 		async editProfile(){
-			this.editProfileShowLoader = true;
-
 			this.editProfileErrors = this.checkEditProfileInput;
 			this.uploadPfpErrors = [];
 
 			if(this.editProfileErrors.length === 0){
+				this.editProfileShowLoader = true;
 				try {
 					await this.axios.post("/user/edit/profile", {
 						username: this.editProfileInputs.username.trim(),
@@ -656,6 +655,7 @@ export default {
 			this.editProfileInputs.firstname = "";
 			this.editProfileInputs.lastname = "";
 			this.editProfileInputs.pfp = null;
+			this.editProfileInputs.deletePfp = false;
 			this.editProfileErrors = [];
 			this.uploadPfpErrors = [];
 

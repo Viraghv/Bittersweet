@@ -374,9 +374,38 @@ module.exports.changePassword = async (newPassword, userId) => {
 module.exports.editProfileOfUser = async (userData, userId) => {
     try {
         let dataObject = {
-            username: userData.username,
-            firstname: userData.firstname ? userData.firstname : null,
-            lastname: userData.lastname ? userData.lastname : null,
+            username: userData.username.trim(),
+            firstname: userData.firstname ? userData.firstname.trim() : null,
+            lastname: userData.lastname ? userData.lastname.trim() : null,
+        }
+
+        if(userData.deletePfp){
+            dataObject.profilepicture = null;
+        }
+
+        await prisma.User.update({
+            where: {
+                id: userId
+            },
+            data: dataObject,
+        });
+    } catch (error) {
+        console.log(error);
+        switch (error.meta.target){
+            case "User_username_key": throw new InternalServerError(["The username is already taken."]);
+            case "User_email_key": throw new InternalServerError(["The email is already in use."]);
+        }
+        throw new InternalServerError("Something went wrong during profile editing.");
+    }
+}
+
+module.exports.editProfileOfUserAdmin = async (userData, userId) => {
+    try {
+        let dataObject = {
+            username: userData.username.trim(),
+            email: userData.email.trim(),
+            firstname: userData.firstname ? userData.firstname.trim() : null,
+            lastname: userData.lastname ? userData.lastname.trim() : null,
         }
 
         if(userData.deletePfp){
@@ -774,6 +803,29 @@ module.exports.getAllUsers = async (sortBy, page, searchData) => {
                 joined: true,
                 admin: true,
                 emailVerified: true,
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getAllUsersCount = async (searchData) => {
+    try {
+        return  await prisma.User.count({
+            where: {
+                id: {
+                    equals: searchData.id ? Number(searchData.id) : undefined,
+                },
+                username: {
+                    contains: searchData.username,
+                },
+                email: {
+                    contains: searchData.email,
+                },
             },
         })
     } catch (error) {

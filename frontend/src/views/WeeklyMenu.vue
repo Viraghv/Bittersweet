@@ -262,7 +262,6 @@
 import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
 import WeeklyMenuRecipeCard from "@/components/WeeklyMenuRecipeCard.vue";
 import Loader from "@/components/Loader.vue";
-import axios from "axios";
 import {Modal} from "bootstrap";
 export default {
 	name: "WeeklyMenu",

@@ -414,6 +414,18 @@ module.exports.getRecipeCountOfGroup = async (req, res) => {
     }
 }
 
+module.exports.getUserAdmin = async (req, res) => {
+    try {
+        res.json( await userService.getUserById(Number(req.params.id)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getAllUsers = async (req, res) => {
     try {
         res.json(await userService.getAllUsers(req.params.sortBy, Number(req.params.page), req.body));
@@ -426,9 +438,21 @@ module.exports.getAllUsers = async (req, res) => {
     }
 }
 
+module.exports.getAllUsersCount = async (req, res) => {
+    try {
+        res.json(await userService.getAllUsersCount(req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.editProfileAdmin = async (req, res) => {
     try {
-        res.json( await userService.editProfileOfUser(req.body, Number(req.params.id)));
+        res.json( await userService.editProfileOfUserAdmin(req.body, Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

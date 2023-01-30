@@ -1,5 +1,5 @@
 <template>
-	<div class="mynavbar d-flex justify-content-between w-100 m-0">
+	<div class="mynavbar">
 		<router-link :to="{name: 'Home'}">
 			<img
 				class="logo"
@@ -8,33 +8,33 @@
 			/>
 		</router-link>
 
-		<div class="buttons col-lg-4 col-md-6 col-sm-8 row">
-			<button type="button" class="login-button col-lg-4 col-md-5 col-sm-6" data-bs-toggle="modal" data-bs-target="#login-modal" v-if="!userStore.loggedIn">
+		<div class="buttons">
+			<button type="button" class="login-button" data-bs-toggle="modal" data-bs-target="#login-modal" v-if="!userStore.loggedIn">
 				<img class="loginIcon" src="@/assets/icons/log-in_white.png" alt="login">
-				Log in
+				<span>Log in</span>
 			</button>
 
-			<button type="button" class="signup-button col-lg-4 col-md-5 col-sm-6" data-bs-toggle="modal" data-bs-target="#signup-modal" v-if="!userStore.loggedIn">
+			<button type="button" class="signup-button" data-bs-toggle="modal" data-bs-target="#signup-modal" v-if="!userStore.loggedIn">
 				<img class="signUpIcon" src="@/assets/icons/add-user_white.png" alt="signup">
-				Sign up
+				<span>Sign up</span>
 			</button>
 
-			<button type="button" class="admin-button col-lg-3 col-md-3 col-sm-4" v-if="userStore.loggedIn && admin">
+			<button type="button" class="admin-button" v-if="userStore.loggedIn && admin">
 				<router-link class="admin-button" :to="{name: 'UsersAdmin'}">
-					<img class="lockIcon" src="@/assets/icons/lock.png" alt="lock">
+					<img class="lockIcon" src="@/assets/icons/lock_white.png" alt="lock">
 					<span>Admin</span>
 				</router-link>
 			</button>
 
 
-			<button type="button" class="upload-recipe-button col-lg-5 col-md-5 col-sm-6" v-if="userStore.loggedIn" >
+			<button type="button" class="upload-recipe-button" v-if="userStore.loggedIn" >
 				<router-link class="upload-recipe-button" :to="{name: 'UploadRecipe'}">
 					<img class="addIcon" src="@/assets/icons/add_icon_white.png" alt="add">
 					<span>Upload recipe</span>
 				</router-link>
 			</button>
 
-			<div class="profile-dropdown  dropdown dropdown-menu-end col-lg-1 col-md-2 col-sm-2" v-if="userStore.loggedIn">
+			<div class="profile-dropdown  dropdown dropdown-menu-end" v-if="userStore.loggedIn">
 				<div class="profile-button pfp-container" data-bs-toggle="dropdown" data-bs-offset="10,15">
 					<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user && userStore.user.profilepicture" />
 					<img class="pfp" src="@/assets/default_pfp.png" alt="pfp" v-else>
@@ -252,6 +252,7 @@ export default {
 
 					await this.userStore.login();
 					await this.initUser();
+					await this.initAdmin();
 
 					document.getElementById("login-close-button").click();
 				} catch (error) {
@@ -279,6 +280,7 @@ export default {
 
 		async signup() {
 			this.signupErrorMsgs = this.areSignupInputsValid;
+			this.showSignupSuccessMsg = false;
 			if (this.signupErrorMsgs.length === 0) {
 				try {
 					await this.axios.post("/user/register", {
@@ -322,7 +324,8 @@ export default {
 
 		async initAdmin(){
 			try {
-				this.admin = await this.axios.get('/user/isAdmin');
+				const response = await this.axios.get('/user/isAdmin');
+				this.admin = response.data;
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -426,27 +429,40 @@ export default {
 <style scoped lang="scss">
 
 .mynavbar {
-	background-color: var(--darkgrey);
-	padding: 2vh;
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
-  	height: 80px;
+	width: 100%;
+	background-color: var(--darkgrey);
+	padding: 2vh 4vh;
+	z-index: 200;
 
 	.logo{
-		width: 100%;
+		width: 175px;
 		margin-left: 10%;
 		height: 40px;
 	}
 
 	.buttons{
-		margin-right: 5%;
+		margin-right: 15%;
+		display: flex;
+		justify-content: right;
+		gap: 30%;
+
 		button {
 			background: none;
 			border: none;
 			font-family: Gotu, serif;
 			color: white;
+
+			span {
+				display: block;
+				white-space: nowrap;
+			}
 		}
 		.signup-button {
 			font-weight: bold;
+			margin-left: 10%;
 		}
 
 		.loginIcon, .signUpIcon, .addIcon {
@@ -454,24 +470,24 @@ export default {
 			margin-right: 1%;
 		}
 
+		.loginIcon, .signUpIcon {
+			margin-right: 15%;
+		}
+
 		.lockIcon {
 			height: 1rem;
 			margin-right: 1%;
 		}
 
-		.upload-recipe-button, .admin-button {
+		.upload-recipe-button, .admin-button, .signup-button, .login-button {
 			font-family: Gotu,serif;
 			text-decoration: none;
 			color: white;
+			display: flex;
+			align-items: center;
 
 			&:hover{
-				cursor: default;
-			}
-
-			img, span {
-				&:hover{
-					cursor: pointer;
-				}
+				cursor: pointer;
 			}
 
 			.addIcon {

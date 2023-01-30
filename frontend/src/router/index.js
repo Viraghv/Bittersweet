@@ -61,7 +61,7 @@ const routes = [
         name: "UsersAdmin",
         path: "/admin/users",
         component: () => import('@/views/admin/UsersAdmin.vue'),
-        //TODO NavGuard
+        //userLoggedInAndAdminNavGuard
     },
 ]
 

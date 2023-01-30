@@ -125,8 +125,9 @@ router.post('/groups/deleteRecipe', authMiddleware, userController.deleteRecipeF
 router.get('/groups/getAllRecipeCards/:sortBy/:id/:page', authMiddleware, userController.getAllRecipeCardsOfGroup);
 router.get('/groups/recipeCount/:id', authMiddleware, userController.getRecipeCountOfGroup);
 
-
+router.get('/admin/getUser/:id', adminAuthMiddleware, userController.getUserAdmin);
 router.post('/admin/all/:sortBy/:page', adminAuthMiddleware, userController.getAllUsers);
+router.post('/admin/all/count', adminAuthMiddleware, userController.getAllUsersCount);
 router.post('/admin/edit/profile/:id', adminAuthMiddleware, deleteImage, userController.editProfileAdmin);
 router.post('/admin/edit/uploadImage/:id', adminAuthMiddleware, deleteImage, uploadFile, userController.uploadImageAdmin);
 router.post('/admin/edit/password/:id', adminAuthMiddleware, userController.changePasswordOfUserAdmin);
