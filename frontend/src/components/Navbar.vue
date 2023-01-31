@@ -213,6 +213,8 @@ export default {
 			forgotPasswordEmail: "",
 			forgotPasswordErrorMsgs: [],
 			forgotPasswordSuccess: false,
+
+			loginErrorsRefresher: 0,
 		}
 	},
 	methods: {
@@ -238,6 +240,7 @@ export default {
 		},
 
 		async login(){
+			this.loginErrorsRefresher++;
 			this.loginErrorMsgs = this.areLoginInputsValid;
 			if (this.loginErrorMsgs.length === 0){
 				try {
@@ -393,6 +396,8 @@ export default {
 		},
 
 		areLoginInputsValid(){
+			this.loginErrorsRefresher;
+
 			let errors = [];
 
 			if(this.loginData.username.trim() === "" || this.loginData.password.trim() === ""){

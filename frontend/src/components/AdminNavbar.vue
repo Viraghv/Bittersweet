@@ -1,7 +1,7 @@
 <template>
 	<div class="navbar-container">
-		<router-link class="link" :class="currentPage === 'UserAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Users</router-link>
-		<router-link class="link" :class="currentPage === 'RecipesAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Recipes</router-link>
+		<router-link class="link" :class="currentPage === 'UsersAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Users</router-link>
+		<router-link class="link" :class="currentPage === 'RecipesAdmin' ? 'selected' : ''" :to="{name: 'RecipesAdmin'}">Recipes</router-link>
 		<router-link class="link" :class="currentPage === 'RatingsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Ratings</router-link>
 		<hr>
 		<router-link class="link" :class="currentPage === 'UnitsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Units</router-link>

@@ -94,34 +94,30 @@ router.get('/getCommentOfCurrentUserByRecipeId/:id', authMiddleware, recipeContr
 
 router.get('/difficulties', recipeController.getAllDifficulties);
 router.get('/costs', recipeController.getAllCosts);
-router.get('/units', recipeController.getAllActiveUnits);
-router.get('/categories', recipeController.getAllActiveCategories);
-router.get('/diets', recipeController.getAllActiveDiets);
-router.get('/allergens', recipeController.getAllActiveAllergens);
+router.get('/units', recipeController.getAllUnits);
+router.get('/categories', recipeController.getAllCategories);
+router.get('/diets', recipeController.getAllDiets);
+router.get('/allergens', recipeController.getAllAllergens);
 
-
-router.get('/admin/units', adminAuthMiddleware, recipeController.getAllUnits);
-router.get('/admin/categories', adminAuthMiddleware, recipeController.getAllCategories);
-router.get('/admin/diets', adminAuthMiddleware, recipeController.getAllDiets);
-router.get('/admin/allergens', adminAuthMiddleware, recipeController.getAllAllergens);
 
 router.post('/admin/units/add', adminAuthMiddleware, recipeController.addUnit);
 router.post('/admin/units/edit/:id', adminAuthMiddleware, recipeController.editUnit);
-router.post('/admin/units/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedUnit);
+router.get('/admin/units/delete/:id', adminAuthMiddleware, recipeController.deleteUnit);
 
 router.post('/admin/categories/add', adminAuthMiddleware, recipeController.addCategory);
 router.post('/admin/categories/edit/:id', adminAuthMiddleware, recipeController.editCategory);
-router.post('/admin/categories/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedCategory);
+router.get('/admin/categories/delete/:id', adminAuthMiddleware, recipeController.deleteCategory);
 
 router.post('/admin/diets/add', adminAuthMiddleware, recipeController.addDiet);
 router.post('/admin/diets/edit/:id', adminAuthMiddleware, recipeController.editDiet);
-router.post('/admin/diets/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedDiet);
+router.get('/admin/diets/delete/:id', adminAuthMiddleware, recipeController.deleteDiet);
 
 router.post('/admin/allergens/add', adminAuthMiddleware, recipeController.addAllergen);
 router.post('/admin/allergens/edit/:id', adminAuthMiddleware, recipeController.editAllergen);
-router.post('/admin/allergens/deactivated/:id', adminAuthMiddleware, recipeController.setDeactivatedAllergen);
+router.get('/admin/allergens/delete/:id', adminAuthMiddleware, recipeController.deleteAllergen);
 
 router.post('/admin/all/:sortBy/:page', adminAuthMiddleware, recipeController.getAllRecipes);
+router.post('/admin/all/count', adminAuthMiddleware, recipeController.getAllAdminPageRecipesCount);
 router.post('/admin/edit/:id', adminAuthMiddleware, recipeController.editRecipeAdmin);
 router.get('/admin/delete/:id', adminAuthMiddleware, recipeController.deleteRecipeAdmin);
 

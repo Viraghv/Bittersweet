@@ -7,6 +7,7 @@ const {sendHttpException, sendServerErrorResponse} = require("../httpHandler");
 const fs = require("fs");
 const NotFound = require("../exceptions/NotFound");
 const path = require("path");
+const NotAuthorized = require("../exceptions/NotAuthorized");
 
 
 module.exports.register = async (req, res) => {
@@ -492,7 +493,14 @@ module.exports.uploadImageAdmin = async (req, res) => {
 }
 
 module.exports.setVerifiedAdmin = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
     try {
+        if(userId === Number(req.params.id)) {
+            throw new BadRequest(["You cannot set the verification for yourself."]);
+        }
+
         res.json( await userService.setVerified(req.body.verified, Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
@@ -504,7 +512,14 @@ module.exports.setVerifiedAdmin = async (req, res) => {
 }
 
 module.exports.setAdmin = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
     try {
+        if(userId === Number(req.params.id)) {
+            throw new BadRequest(["You cannot set the admin role for yourself."]);
+        }
+
         res.json( await userService.setAdmin(req.body.admin, Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
@@ -516,7 +531,14 @@ module.exports.setAdmin = async (req, res) => {
 }
 
 module.exports.deleteUserAdmin = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
     try {
+        if(userId === Number(req.params.id)) {
+            throw new BadRequest(["You cannot delete your own account."]);
+        }
+
         res.json( await userService.deleteUserById(Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){

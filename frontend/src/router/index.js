@@ -63,6 +63,13 @@ const routes = [
         component: () => import('@/views/admin/UsersAdmin.vue'),
         //userLoggedInAndAdminNavGuard
     },
+
+    {
+        name: "RecipesAdmin",
+        path: "/admin/recipes",
+        component: () => import('@/views/admin/RecipesAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
 ]
 
 export default createRouter({

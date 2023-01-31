@@ -837,14 +837,22 @@ module.exports.getAllUsersCount = async (searchData) => {
 }
 
 module.exports.setVerified = async (verified, userId) => {
+    let dataObj = {
+        emailVerified: Boolean(verified)
+    }
+
+    if(!dataObj.emailVerified){
+        dataObj.admin = false;
+    }
+
     try {
+
+
         await prisma.User.update({
             where: {
                 id: userId,
             },
-            data: {
-                emailVerified: Boolean(verified),
-            }
+            data: dataObj,
         });
     } catch (error) {
         console.log(error);
@@ -861,6 +869,7 @@ module.exports.setAdmin = async (admin, userId) => {
                 id: userId,
             },
             data: {
+                emailVerified: true,
                 admin: Boolean(admin),
             }
         });

@@ -48,8 +48,9 @@
 			</div>
 		</div>
 		<div class="action-buttons" v-if="item?.recipe">
-			<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon"
-				 id="options-icon" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 20">
+			<button class="options-btn" id="options-icon" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 10">
+				<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon">
+			</button>
 			<ul class="dropdown-menu dropdown-menu-end options-dropdown" aria-labelledby="options-icon">
 				<li class="dropdown-item" @click="emitGenerate">
 					<img class="generate-icon" src="@/assets/icons/sync.png" alt="generate">
@@ -227,10 +228,18 @@ export default {
 			justify-content: flex-start;
 			align-items: flex-end;
 
+			.options-btn {
+				padding: 0;
+				background-color: transparent;
+				border: none;
+				width: 20px;
+				height: 20px;
+				margin-right: 15px;
+			}
+
 			.options-icon {
 				width: 20px;
 				margin-top: 20px;
-				margin-right: 15px;
 				display: none;
 
 				&:hover {
@@ -282,26 +291,26 @@ export default {
 				}
 			}
 
-			.dropdown-menu::before {
-				border-bottom: 12px solid rgba(0, 0, 0, 0.2);
-				border-left: 12px solid rgba(0, 0, 0, 0);
-				border-right: 12px solid rgba(0, 0, 0, 0);
-				content: "";
-				display: inline-block;
-				left: 275px;
-				position: absolute;
-				top: -10px;
-			}
-			.dropdown-menu::after {
-				border-bottom: 12px solid white;
-				border-left: 12px solid rgba(0, 0, 0, 0);
-				border-right: 12px solid rgba(0, 0, 0, 0);
-				content: "";
-				display: inline-block;
-				left: 275px;
-				position: absolute;
-				top: -10px;
-			}
+			//.dropdown-menu::before {
+			//	border-bottom: 12px solid rgba(0, 0, 0, 0.2);
+			//	border-left: 12px solid rgba(0, 0, 0, 0);
+			//	border-right: 12px solid rgba(0, 0, 0, 0);
+			//	content: "";
+			//	display: inline-block;
+			//	left: 275px;
+			//	position: absolute;
+			//	top: -10px;
+			//}
+			//.dropdown-menu::after {
+			//	border-bottom: 12px solid white;
+			//	border-left: 12px solid rgba(0, 0, 0, 0);
+			//	border-right: 12px solid rgba(0, 0, 0, 0);
+			//	content: "";
+			//	display: inline-block;
+			//	left: 275px;
+			//	position: absolute;
+			//	top: -10px;
+			//}
 		}
 	}
 

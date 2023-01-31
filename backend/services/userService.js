@@ -598,16 +598,16 @@ module.exports.getAllUsers = async (sortBy, page, searchData) => {
 }
 
 module.exports.getAllUsersCount = async (searchData) => {
-    let users;
+    let usersCount;
 
     try {
-        users = await userRepository.getAllUsersCount(searchData);
+        usersCount = await userRepository.getAllUsersCount(searchData);
     } catch (exception) {
         console.log(exception);
         throw exception
     }
 
-    return users;
+    return usersCount;
 }
 
 module.exports.changePasswordOfUserAdmin = async (passwordData, userId) => {

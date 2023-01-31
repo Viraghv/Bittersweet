@@ -377,19 +377,6 @@ module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     return comment;
 }
 
-module.exports.getAllActiveUnits = async () => {
-    let units = [];
-
-    try {
-        units = await recipeRepository.getAllActiveUnits();
-    } catch (exception) {
-        console.log(exception);
-        throw exception
-    }
-
-    return units;
-}
-
 module.exports.getAllUnits = async () => {
     let units = [];
 
@@ -416,19 +403,6 @@ module.exports.getAllDifficulties = async () => {
     return difficulties;
 }
 
-module.exports.getAllActiveCategories = async () => {
-    let categories = [];
-
-    try {
-        categories = await recipeRepository.getAllActiveCategories();
-    } catch (exception) {
-        console.log(exception);
-        throw exception
-    }
-
-    return categories;
-}
-
 module.exports.getAllCategories = async () => {
     let categories = [];
 
@@ -442,20 +416,6 @@ module.exports.getAllCategories = async () => {
     return categories;
 }
 
-
-module.exports.getAllActiveDiets = async () => {
-    let diets = [];
-
-    try {
-        diets = await recipeRepository.getAllActiveDiets();
-    } catch (exception) {
-        console.log(exception);
-        throw exception
-    }
-
-    return diets;
-}
-
 module.exports.getAllDiets = async () => {
     let diets = [];
 
@@ -467,19 +427,6 @@ module.exports.getAllDiets = async () => {
     }
 
     return diets;
-}
-
-module.exports.getAllActiveAllergens = async () => {
-    let allergens = [];
-
-    try {
-        allergens = await recipeRepository.getAllActiveAllergens();
-    } catch (exception) {
-        console.log(exception);
-        throw exception
-    }
-
-    return allergens;
 }
 
 module.exports.getAllAllergens = async () => {
@@ -541,9 +488,9 @@ module.exports.editUnit = async (unitId, unitName) => {
     }
 }
 
-module.exports.setDeactivatedUnit = async (unitId, deactivated) => {
+module.exports.deleteUnit = async (unitId) => {
     try {
-        return await recipeRepository.setDeactivatedUnit(unitId, deactivated);
+        return await recipeRepository.deleteUnit(unitId);
     } catch (error) {
         console.log(error);
         throw error;
@@ -596,9 +543,9 @@ module.exports.editCategory = async (categoryId, categoryName) => {
     }
 }
 
-module.exports.setDeactivatedCategory = async (categoryId, deactivated) => {
+module.exports.deleteCategory = async (categoryId) => {
     try {
-        return await recipeRepository.setDeactivatedCategory(categoryId, deactivated);
+        return await recipeRepository.deleteCategory(categoryId);
     } catch (error) {
         console.log(error);
         throw error;
@@ -651,9 +598,9 @@ module.exports.editDiet = async (dietId, dietName) => {
     }
 }
 
-module.exports.setDeactivatedDiet = async (dietId, deactivated) => {
+module.exports.deleteDiet = async (dietId) => {
     try {
-        return await recipeRepository.setDeactivatedDiet(dietId, deactivated);
+        return await recipeRepository.deleteDiet(dietId);
     } catch (error) {
         console.log(error);
         throw error;
@@ -706,9 +653,9 @@ module.exports.editAllergen = async (allergenId, allergenName) => {
     }
 }
 
-module.exports.setDeactivatedAllergen = async (allergenId, deactivated) => {
+module.exports.deleteAllergen = async (allergenId) => {
     try {
-        return await recipeRepository.setDeactivatedAllergen(allergenId, deactivated);
+        return await recipeRepository.deleteAllergen(allergenId);
     } catch (error) {
         console.log(error);
         throw error;
@@ -744,6 +691,19 @@ module.exports.getAllRecipes = async (sortBy, page, searchData) => {
     }
 
     return recipes;
+}
+
+module.exports.getAllAdminPageRecipesCount = async (searchData) => {
+    let recipesCount;
+
+    try {
+        recipesCount = await recipeRepository.getAllAdminPageRecipesCount(searchData);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return recipesCount;
 }
 
 module.exports.editRecipeAdmin = async (recipeId, recipeData) => {

@@ -236,18 +236,6 @@ module.exports.getCommentOfCurrentUserByRecipeId = async (req, res) => {
     }
 }
 
-module.exports.getAllActiveUnits = async (req, res) => {
-    try {
-        res.json(await recipeService.getAllActiveUnits());
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
 module.exports.getAllUnits = async (req, res) => {
     try {
         res.json(await recipeService.getAllUnits());
@@ -272,18 +260,6 @@ module.exports.getAllDifficulties = async (req, res) => {
     }
 }
 
-module.exports.getAllActiveCategories = async (req, res) => {
-    try {
-        res.json(await recipeService.getAllActiveCategories());
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
 module.exports.getAllCategories = async (req, res) => {
     try {
         res.json(await recipeService.getAllCategories());
@@ -296,33 +272,9 @@ module.exports.getAllCategories = async (req, res) => {
     }
 }
 
-module.exports.getAllActiveDiets = async (req, res) => {
-    try {
-        res.json(await recipeService.getAllActiveDiets());
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
 module.exports.getAllDiets = async (req, res) => {
     try {
         res.json(await recipeService.getAllDiets());
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.getAllActiveAllergens = async (req, res) => {
-    try {
-        res.json(await  recipeService.getAllActiveAllergens());
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -368,9 +320,9 @@ module.exports.editUnit = async (req, res) => {
     }
 }
 
-module.exports.setDeactivatedUnit = async (req, res) => {
+module.exports.deleteUnit = async (req, res) => {
     try {
-        res.json(await  recipeService.setDeactivatedUnit(Number(req.params.id), req.body.deactivated));
+        res.json(await  recipeService.deleteUnit(Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -404,9 +356,9 @@ module.exports.editCategory = async (req, res) => {
     }
 }
 
-module.exports.setDeactivatedCategory = async (req, res) => {
+module.exports.deleteCategory = async (req, res) => {
     try {
-        res.json(await  recipeService.setDeactivatedCategory(Number(req.params.id), req.body.deactivated));
+        res.json(await  recipeService.deleteCategory(Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -440,9 +392,9 @@ module.exports.editDiet = async (req, res) => {
     }
 }
 
-module.exports.setDeactivatedDiet = async (req, res) => {
+module.exports.deleteDiet = async (req, res) => {
     try {
-        res.json(await  recipeService.setDeactivatedDiet(Number(req.params.id), req.body.deactivated));
+        res.json(await  recipeService.deleteDiet(Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -476,9 +428,9 @@ module.exports.editAllergen = async (req, res) => {
     }
 }
 
-module.exports.setDeactivatedAllergen = async (req, res) => {
+module.exports.deleteAllergen = async (req, res) => {
     try {
-        res.json(await  recipeService.setDeactivatedAllergen(Number(req.params.id), req.body.deactivated));
+        res.json(await  recipeService.deleteAllergen(Number(req.params.id)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -503,6 +455,18 @@ module.exports.getAllCosts = async (req, res) => {
 module.exports.getAllRecipes = async (req, res) => {
     try {
         res.json(await recipeService.getAllRecipes(req.params.sortBy, Number(req.params.page), req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllAdminPageRecipesCount = async (req, res) => {
+    try {
+        res.json( await recipeService.getAllAdminPageRecipesCount(req.body));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

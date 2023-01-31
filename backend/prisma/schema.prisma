@@ -87,7 +87,6 @@ model Step {
 model Unit {
   id Int @id @default(autoincrement())
   name String @db.VarChar(30)
-  deactivated Boolean @default(false)
   ingredients Ingredient[]
   shoppingListItems ShoppingListItem[]
 }
@@ -142,7 +141,6 @@ model RecipeInGroup{
 model RecipeCategory {
   id Int @id @default(autoincrement())
   name String @db.VarChar(50)
-  deactivated Boolean @default(false)
   recipes RecipeInCategory[]
 }
 
@@ -159,7 +157,6 @@ model RecipeInCategory {
 model Allergen {
   id Int @id @default(autoincrement())
   name String @db.VarChar(50)
-  deactivated Boolean @default(false)
   recipes AllergenInRecipe[]
   users UserAllergy[]
 }
@@ -186,7 +183,6 @@ model UserAllergy {
 model Diet {
   id Int @id @default(autoincrement())
   name String @db.VarChar(50)
-  deactivated Boolean @default(false)
   recipes RecipeInDiet[]
   users User[]
 }

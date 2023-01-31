@@ -75,7 +75,7 @@ export default {
 			}
 
 			.search-button {
-				width: 10%;
+				width: 60px;
 				height: 3rem;
 				border-left: none;
 				border-radius: 0 20px 20px 0;

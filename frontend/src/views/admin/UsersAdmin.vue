@@ -1,7 +1,7 @@
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
-			<AdminNavbar current-page="UserAdmin"/>
+			<AdminNavbar current-page="UsersAdmin"/>
 		</div>
 		<div class="main-container">
 			<div class="filters-container">
@@ -43,34 +43,36 @@
 							</div>
 						</td>
 						<td class="options-icon-cell">
-							<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon"
-								 :id="'options-icon' + index" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 17">
+							<button class="options-btn" :id="'options-icon' + index" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 10">
+								<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon"/>
+							</button>
+
 							<ul class="dropdown-menu dropdown-menu-end options-dropdown" :aria-labelledby="'options-icon' + index">
 								<li class="dropdown-item" @click="openEditModal(user.id)">
 									<img class="edit-icon icon" src="@/assets/icons/edit.png" alt="edit">
 									Edit
 								</li>
-								<li class="dropdown-item" @click="">
+								<li class="dropdown-item" @click="openChangePasswordModal(user.id)">
 									<img class="password-icon icon" src="@/assets/icons/password.png" alt="password">
 									Change password
 								</li>
-								<li class="dropdown-item" @click="" v-if="!user.emailVerified">
+								<li class="dropdown-item" @click="openVerificationModal(user.id, 'verify')" v-if="!user.emailVerified">
 									<img class="verify-icon icon" src="@/assets/icons/verify.png" alt="verify">
 									Verify
 								</li>
-								<li class="dropdown-item" @click="" v-else>
+								<li class="dropdown-item" @click="openVerificationModal(user.id, 'revoke')" v-else>
 									<img class="verify-icon icon" src="@/assets/icons/verify.png" alt="verify">
 									Revoke verification
 								</li>
-								<li class="dropdown-item" @click="" v-if="!user.admin">
+								<li class="dropdown-item" @click="openAdminModal(user.id, 'admin')" v-if="!user.admin">
 									<img class="admin-icon icon" src="@/assets/icons/lock_black.png" alt="admin">
 									Give admin role
 								</li>
-								<li class="dropdown-item" @click="" v-else>
+								<li class="dropdown-item" @click="openAdminModal(user.id, 'revoke')" v-else>
 									<img class="admin-icon icon" src="@/assets/icons/lock_black.png" alt="admin">
 									Revoke admin role
 								</li>
-								<li class="dropdown-item" @click="">
+								<li class="dropdown-item" @click="openDeleteUserModal(user.id)">
 									<img class="delete-icon icon" src="@/assets/icons/bin.png" alt="delete">
 									Delete
 								</li>
@@ -78,9 +80,10 @@
 						</td>
 					</tr>
 				</table>
+				<p class="no-results-text" v-if="usersCount === 0">No results</p>
 			</div>
 			<div class="pagination-container">
-				<Pagination :total-items="usersCount" :items-per-page="25" @change-page="initUsers"/>
+				<Pagination :total-items="usersCount" :items-per-page="25" @change-page="initUsers" v-if="users.length > 0"/>
 			</div>
 		</div>
 	</div>
@@ -138,6 +141,119 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade" id="change-password-modal" ref="change-password-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="change-password-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="modal-body change-password-modal-body">
+					<form class="change-password-inputs">
+						<label for="new-password">New password:</label><br/>
+						<input class="input-field" type="password" id="new-password" autocomplete="off" v-model="changePasswordInput.newPassword"><br>
+						<label for="new-password-again">New password again:</label><br/>
+						<input class="input-field" type="password" id="new-password-again" autocomplete="off" v-model="changePasswordInput.newPasswordAgain"><br>
+					</form>
+					<div class="change-password-alert alert alert-danger" v-if="changePasswordErrors.length !== 0">
+						<strong>Editing failed!</strong><br>
+						<ul>
+							<li class="change-password-error-items" v-for="(error, index) in changePasswordErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+					<div class="change-password-button-container">
+						<button class="change-password-button" @click="changePassword">Change password</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="verification-modal" ref="verification-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="verification-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="verification">
+					<span v-if="verificationModalMode === 'verify'">Are you sure you want to manually verify this user?</span>
+					<span v-else>Are you sure you want to revoke the verification of this user? If the user is an admin, admin rights will be revoked too.</span><br>
+
+					<div class="verification-alert alert alert-danger" v-if="verificationErrors.length !== 0">
+						<strong>Error!</strong><br>
+						<ul>
+							<li class="verification-error-items" v-for="(error, index) in verificationErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+
+					<button class="action-btn" @click="setVerification(verificationModalMode === 'verify')">
+						{{verificationModalMode === 'verify' ? 'Verify' : 'Revoke' }}
+					</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="admin-modal" ref="admin-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="admin-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="admin">
+					<span v-if="adminModalMode === 'admin'">Are you sure you want to give admin rights to this user? If the user is unverified, they will get automatically verified.</span>
+					<span v-else>Are you sure you want to revoke admin rights from this user?</span><br>
+
+					<div class="admin-alert alert alert-danger" v-if="adminErrors.length !== 0">
+						<strong>Error!</strong><br>
+						<ul>
+							<li class="admin-error-items" v-for="(error, index) in adminErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+
+					<button class="action-btn" @click="setAdmin(adminModalMode === 'admin')">
+						{{adminModalMode === 'admin' ? 'Make admin' : 'Revoke' }}
+					</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="delete-user-modal" ref="delete-user-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="delete-user-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="delete-user">
+					<span>Are you sure you want to delete this user?</span><br>
+
+					<div class="delete-user-alert alert alert-danger" v-if="deleteUserErrors.length !== 0">
+						<strong>Error!</strong><br>
+						<ul>
+							<li class="delete-user-error-items" v-for="(error, index) in deleteUserErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+
+					<button class="action-btn" @click="deleteUser">Delete</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -147,6 +263,8 @@ import Multiselect from '@vueform/multiselect';
 import Pagination from "@/components/Pagination.vue";
 import Loader from "@/components/Loader.vue";
 import {Modal} from "bootstrap";
+import {useUserStore} from "@/stores/userStore.js";
+import {mapStores} from "pinia";
 
 export default {
 	name: "UsersAdmin",
@@ -209,6 +327,21 @@ export default {
 			dontShowCurrentPfp: false,
 			editProfileShowLoader: false,
 			currentUserId: null,
+
+			changePasswordInput: {
+				newPassword: "",
+				newPasswordAgain: "",
+			},
+
+			changePasswordErrors: [],
+
+			verificationModalMode: "verify",   // verify/revoke
+			verificationErrors: [],
+
+			adminModalMode: "admin",     	   // admin/revoke
+			adminErrors: [],
+
+			deleteUserErrors: [],
 		}
 	},
 
@@ -349,7 +482,110 @@ export default {
 					}
 				}
 			}
+		},
 
+		async changePassword(){
+			this.changePasswordErrors = this.checkChangePasswordInput;
+
+			if(this.changePasswordErrors.length === 0){
+				try {
+					await this.axios.post(`/user/admin/edit/password/${this.currentUserId}`, {
+						newPassword: this.changePasswordInput.newPassword.trim(),
+					});
+
+					document.getElementById("change-password-close-button").click();
+
+				} catch (error) {
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.changePasswordErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.changePasswordErrors.push(error.response.data.errorMessage);
+					}
+				}
+			}
+		},
+
+		async setVerification(verified){
+			if(this.userStore.user.id === this.currentUserId){
+				this.verificationErrors.push("You cannot set the verification for yourself.");
+			}
+
+			if(this.verificationErrors.length === 0){
+				try {
+					await this.axios.post(`/user/admin/edit/setVerified/${this.currentUserId}`, {
+						verified: verified
+					});
+
+					await this.initUsers(this.currentPage);
+					document.getElementById("verification-close-button").click();
+
+				} catch (error){
+					if(Array.isArray(error.response.data.errorMessage)){
+						this.verificationErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.verificationErrors.push(error.response.data.errorMessage);
+					}
+				}
+			}
+		},
+
+		async setAdmin(admin){
+			if(this.userStore.user.id === this.currentUserId){
+				this.adminErrors.push("You cannot set the admin role for yourself.");
+			}
+
+			if(this.adminErrors.length === 0) {
+				try {
+					await this.axios.post(`/user/admin/edit/setAdmin/${this.currentUserId}`, {
+						admin: admin
+					});
+
+					await this.initUsers(this.currentPage);
+					document.getElementById("admin-close-button").click();
+
+				} catch (error) {
+					if (Array.isArray(error.response.data.errorMessage)) {
+						this.adminErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.adminErrors.push(error.response.data.errorMessage);
+					}
+				}
+			}
+		},
+
+		async deleteUser(){
+			if(this.userStore.user.id === this.currentUserId){
+				this.deleteUserErrors.push("You cannot delete your own account.");
+			}
+
+			if(this.deleteUserErrors.length === 0) {
+				try {
+					await this.axios.get(`/user/admin/delete/${this.currentUserId}`);
+					document.getElementById("delete-user-close-button").click();
+
+					await this.initUsersCount();
+					await this.initUsers(this.currentPage);
+
+					if(!this.currentUsersPageExists){
+						this.currentPage--;
+
+						let paginateButtons = document.getElementsByClassName("paginate-buttons");
+
+						for (let i = 0; i < paginateButtons.length; i++) {
+							if(paginateButtons[i].innerHTML === String(this.currentPage)){
+								paginateButtons[i].click();
+							}
+						}
+					}
+
+				} catch (error) {
+					if (Array.isArray(error.response.data.errorMessage)) {
+						this.deleteUserErrors.push(...error.response.data.errorMessage);
+					} else {
+						this.deleteUserErrors.push(error.response.data.errorMessage);
+					}
+				}
+			}
 		},
 
 		searchForUser(){
@@ -374,6 +610,36 @@ export default {
 			this.currentUserId = userId;
 		},
 
+		openChangePasswordModal(userId){
+			let changePasswordModal = new Modal(document.getElementById("change-password-modal"), {});
+			changePasswordModal.show();
+
+			this.currentUserId = userId;
+		},
+
+		openVerificationModal(userId, mode){
+			this.currentUserId = userId;
+			this.verificationModalMode = mode;
+
+			let verificationModal = new Modal(document.getElementById("verification-modal"), {});
+			verificationModal.show();
+		},
+
+		openAdminModal(userId, mode){
+			this.currentUserId = userId;
+			this.adminModalMode = mode;
+
+			let adminModal = new Modal(document.getElementById("admin-modal"), {});
+			adminModal.show();
+		},
+
+		openDeleteUserModal(userId){
+			let deleteUserModal = new Modal(document.getElementById("delete-user-modal"), {});
+			deleteUserModal.show();
+
+			this.currentUserId = userId;
+		},
+
 		clearEditProfileFields(){
 			this.editProfileInputs.username = "";
 			this.editProfileInputs.email = "";
@@ -383,6 +649,7 @@ export default {
 			this.editProfileInputs.deletePfp = false;
 			this.editProfileErrors = [];
 			this.uploadPfpErrors = [];
+			this.currentUserId = null;
 
 			let preview = document.getElementById("pfp-preview-img");
 			preview.src = null;
@@ -394,12 +661,43 @@ export default {
 			this.dontShowCurrentPfp = false;
 		},
 
+		clearChangePasswordFields(){
+			this.changePasswordInput.newPassword = "";
+			this.changePasswordInput.newPasswordAgain = "";
+			this.changePasswordErrors = [];
+			this.currentUserId = null;
+		},
+
+		clearVerificationModal(){
+			this.verificationErrors = [];
+			this.currentUserId = null;
+		},
+
+		clearAdminModal(){
+			this.adminErrors = [];
+			this.currentUserId = null;
+		},
+
+		clearDeleteUserModal(){
+			this.deleteUserErrors = [];
+			this.currentUserId = null;
+		},
+
 		setModalHandlers(){
-			// const changePasswordModal = document.getElementById('change-password-modal');
-			// changePasswordModal.addEventListener("hidden.bs.modal", () => this.clearChangePasswordFields());
+			const changePasswordModal = document.getElementById('change-password-modal');
+			changePasswordModal.addEventListener("hidden.bs.modal", () => this.clearChangePasswordFields());
 
 			const editProfileModal = document.getElementById('edit-profile-modal');
 			editProfileModal.addEventListener("hidden.bs.modal", () => this.clearEditProfileFields());
+
+			const verificationModal = document.getElementById('verification-modal');
+			verificationModal.addEventListener("hidden.bs.modal", () => this.clearVerificationModal());
+
+			const adminModal = document.getElementById('admin-modal');
+			adminModal.addEventListener("hidden.bs.modal", () => this.clearAdminModal());
+
+			const deleteUserModal = document.getElementById('delete-user-modal');
+			deleteUserModal.addEventListener("hidden.bs.modal", () => this.clearDeleteUserModal());
 		},
 	},
 
@@ -465,6 +763,32 @@ export default {
 
 			return errors;
 		},
+
+		checkChangePasswordInput(){
+			let errors = [];
+
+			if(this.changePasswordInput.newPassword.trim() === "" ||this.changePasswordInput.newPasswordAgain.trim() === ""){
+				errors.push("Please fill in all fields.");
+			}
+
+			if(this.changePasswordInput.newPassword.trim() !== "" && this.changePasswordInput.newPassword.trim().length < 6){
+				errors.push("Password must be at least 6 characters long.")
+			}
+
+			if(this.changePasswordInput.newPassword !== this.changePasswordInput.newPasswordAgain){
+				errors.push("Passwords do not match.");
+			}
+
+			return errors;
+		},
+
+		currentUsersPageExists(){
+			let lastPage = Math.ceil(this.usersCount / 25);
+
+			return this.currentPage <= lastPage;
+		},
+
+		...mapStores(useUserStore),
 	},
 
 	watch: {
@@ -600,11 +924,15 @@ export default {
 					}
 
 					tr {
+						height: 65px;
+
 						&:hover {
 							background-color: var(--verylightgrey);
 
-							.options-icon {
-								display: block;
+							.options-btn {
+								.options-icon {
+									display: block;
+								}
 							}
 						}
 					}
@@ -612,9 +940,19 @@ export default {
 					.options-icon-cell {
 						width: 40px;
 
+						.options-btn {
+							padding: 0;
+							background-color: transparent;
+							border: none;
+							width: 20px;
+
+							.options-icon {
+								display: none;
+							}
+						}
+
 						.options-icon {
 							width: 20px;
-							display: none;
 
 							&:hover {
 								cursor: pointer;
@@ -656,26 +994,26 @@ export default {
 							}
 						}
 
-						.dropdown-menu::before {
-							border-bottom: 12px solid rgba(0, 0, 0, 0.2);
-							border-left: 12px solid rgba(0, 0, 0, 0);
-							border-right: 12px solid rgba(0, 0, 0, 0);
-							content: "";
-							display: inline-block;
-							left: 218px;
-							position: absolute;
-							top: -10px;
-						}
-						.dropdown-menu::after {
-							border-bottom: 12px solid var(--lightgreen);
-							border-left: 12px solid rgba(0, 0, 0, 0);
-							border-right: 12px solid rgba(0, 0, 0, 0);
-							content: "";
-							display: inline-block;
-							left: 218px;
-							position: absolute;
-							top: -10px;
-						}
+						//.dropdown-menu::before {
+						//	border-bottom: 12px solid rgba(0, 0, 0, 0.2);
+						//	border-left: 12px solid rgba(0, 0, 0, 0);
+						//	border-right: 12px solid rgba(0, 0, 0, 0);
+						//	content: "";
+						//	display: inline-block;
+						//	left: 218px;
+						//	position: absolute;
+						//	top: -10px;
+						//}
+						//.dropdown-menu::after {
+						//	border-bottom: 12px solid var(--lightgreen);
+						//	border-left: 12px solid rgba(0, 0, 0, 0);
+						//	border-right: 12px solid rgba(0, 0, 0, 0);
+						//	content: "";
+						//	display: inline-block;
+						//	left: 218px;
+						//	position: absolute;
+						//	top: -10px;
+						//}
 					}
 
 					.admin-badge, .verified-badge, .unverified-badge {
@@ -699,6 +1037,12 @@ export default {
 					.unverified-badge {
 						background-color: #FFE9AD;
 					}
+				}
+
+				.no-results-text {
+					color: var(--mediumgrey);
+					text-align: center;
+					margin-top: 20px;
 				}
 			}
 
@@ -896,14 +1240,44 @@ export default {
 
 		.alert {
 			width: 100%;
+			text-align: left;
 
-			.edit-profile-error-items, .change-password-error-items {
+			.edit-profile-error-items, .change-password-error-items, .verification-error-items, .admin-error-items, .delete-user-error-items {
 				font-size: 0.8rem;
 			}
 
-			&.edit-profile-alert, &.change-password-alert {
+			&.edit-profile-alert, &.change-password-alert, &.verification-alert, &.admin-alert, &.delete-user-alert {
 				padding-bottom: 5px;
 			}
+		}
+	}
+
+	.verification, .admin, .delete-user {
+		margin: 0 10% 30px 10%;
+		text-align: center;
+
+		.action-btn, .cancel-btn {
+			border: 1px solid var(--lightgrey);
+			border-radius: 20px;
+			padding: 5px 30px;
+			margin-top: 15px;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+
+		.action-btn {
+			background-color: var(--yellow);
+			margin-right: 40px;
+		}
+
+		.cancel-btn {
+			background-color: var(--lightgreen);
+		}
+
+		.verification-alert, .admin-alert, .delete-user-alert {
+			margin-top: 10px;
 		}
 	}
 
