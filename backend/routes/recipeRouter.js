@@ -84,13 +84,13 @@ router.get('/allRecipeCount', recipeController.getAllRecipeCount);
 router.get('/getAllCardsWithPagination/:page', recipeController.getAllRecpieCardsWithPagination);
 router.post('/getFilteredCards/:sortBy/:page', recipeController.getFilteredRecipeCards);
 
-router.get('/commentsByRecipeId/:id/:page', recipeController.getCommentsByRecipeId);
-router.get('/commentCount/:id', recipeController.getCommentCountById);
-router.get('/averageRating/:id', recipeController.getAverageRatingById);
+router.get('/comment/get/byRecipeId/:recipeId/:page', recipeController.getCommentsByRecipeId);
+router.get('/comment/count/:recipeId', recipeController.getCommentCountById);
+router.get('/averageRating/:recipeId', recipeController.getAverageRatingById);
 
-router.post('/addComment', authMiddleware, recipeController.addComment);
-router.post('/editComment', authMiddleware, recipeController.editComment);
-router.get('/getCommentOfCurrentUserByRecipeId/:id', authMiddleware, recipeController.getCommentOfCurrentUserByRecipeId);
+router.post('/comment/add', authMiddleware, recipeController.addComment);
+router.post('/comment/edit/:id', authMiddleware, recipeController.editComment);
+router.get('/comment/get/currentUser/:recipeId', authMiddleware, recipeController.getCommentOfCurrentUserByRecipeId);
 
 router.get('/difficulties', recipeController.getAllDifficulties);
 router.get('/costs', recipeController.getAllCosts);
@@ -107,6 +107,7 @@ router.get('/admin/units/delete/:id', adminAuthMiddleware, recipeController.dele
 router.post('/admin/categories/add', adminAuthMiddleware, recipeController.addCategory);
 router.post('/admin/categories/edit/:id', adminAuthMiddleware, recipeController.editCategory);
 router.get('/admin/categories/delete/:id', adminAuthMiddleware, recipeController.deleteCategory);
+router.get('/admin/categories/ranked/:page', adminAuthMiddleware, recipeController.getRankedCategories);
 
 router.post('/admin/diets/add', adminAuthMiddleware, recipeController.addDiet);
 router.post('/admin/diets/edit/:id', adminAuthMiddleware, recipeController.editDiet);
@@ -121,10 +122,10 @@ router.post('/admin/all/count', adminAuthMiddleware, recipeController.getAllAdmi
 router.post('/admin/edit/:id', adminAuthMiddleware, recipeController.editRecipeAdmin);
 router.get('/admin/delete/:id', adminAuthMiddleware, recipeController.deleteRecipeAdmin);
 
-router.post('/admin/allComments/:sortBy/:page', adminAuthMiddleware, recipeController.getAllComments);
-router.post('/admin/editComment', adminAuthMiddleware, recipeController.editCommentAdmin);
-router.get('/admin/deleteComment/:id', adminAuthMiddleware, recipeController.deleteCommentAdmin);
+router.post('/admin/comment/all/:sortBy/:page', adminAuthMiddleware, recipeController.getAllComments);
+router.post('/admin/comment/count', adminAuthMiddleware, recipeController.getAllAdminPageCommentsCount);
+router.post('/admin/comment/edit/:id', adminAuthMiddleware, recipeController.editCommentAdmin);
+router.get('/admin/comment/delete/:id', adminAuthMiddleware, recipeController.deleteCommentAdmin);
 
-router.get('/admin/categories/ranked/:page', adminAuthMiddleware, recipeController.getRankedCategories);
 
 module.exports = router;

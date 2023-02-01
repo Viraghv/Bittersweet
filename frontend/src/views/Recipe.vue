@@ -11,7 +11,7 @@
 					<span class="star star-two" :class="Math.round(rating) === 1 ? 'checked' : ''">☆</span>
 					<span class="star star-one" >☆</span>
 				</div>
-				<span class="rating-count">({{ratingCount}} ratings)</span>
+				<span class="comment-count">({{ commentCount }} ratings)</span>
 			</div>
 		</div>
 		<div class="favourite-container" v-show="userStore.loggedIn">
@@ -133,8 +133,8 @@
 			<span class="uploded">Uploaded: {{formattedUploaded}}</span><br>
 			<span class="last-modified" v-show="wasModified">Last modified: {{formattedLastModified}}</span>
 		</div>
-		<div class="ratings-header">
-			<h3 class="ratings-text">Ratings ({{ratingCount}})</h3>
+		<div class="comments-header">
+			<h3 class="comments-text">Comments ({{ commentCount }})</h3>
 			<button class="rate-btn"
 					data-bs-toggle="modal"
 					data-bs-target="#comment-modal"
@@ -148,7 +148,7 @@
 					@click="initEditComment"
 					v-show="userStore.loggedIn && user.id !== userStore.user?.id"
 					v-else>
-					Edit your rating
+					Edit your comment
 			</button>
 		</div>
 		<div class="average-rating-container">
@@ -175,10 +175,10 @@
 			</div>
 		</div>
 		<div class="no-comment" v-else>
-			<span>There are no ratings yet</span>
+			<span>There are no comments yet</span>
 		</div>
 		<div class="my-pagination-container">
-			<Pagination :total-items="ratingCount" :items-per-page="5" @change-page="initComments" v-show="rating"/>
+			<Pagination :total-items="commentCount" :items-per-page="5" @change-page="initComments" v-show="rating"/>
 		</div>
 	</div>
 
@@ -243,15 +243,15 @@
 						<textarea class="comment-content-input" id="comment-content" maxlength="300" v-model="newComment.content"/>
 						<span class="comment-content-counter">{{newComment.content.length}}/300</span>
 					</div>
-					<div class="comment-alert alert alert-danger" v-if="ratingErrors.length !== 0">
+					<div class="comment-alert alert alert-danger" v-if="commentErrors.length !== 0">
 						<strong>Submit failed!</strong><br>
 						<ul>
-							<li class="comment-error-items" v-for="(error, index) in ratingErrors" :key="index">{{error}}</li>
+							<li class="comment-error-items" v-for="(error, index) in commentErrors" :key="index">{{error}}</li>
 						</ul>
 					</div>
-					<div class="submit-rating-btn-container">
-						<button class="submit-rating-btn" type="button" @click="submitRating" v-if="!hasCommented">Submit rating</button>
-						<button class="submit-rating-btn" type="button" @click="editRating" v-else>Edit rating</button>
+					<div class="submit-comment-btn-container">
+						<button class="submit-comment-btn" type="button" @click="submitComment" v-if="!hasCommented">Submit comment</button>
+						<button class="submit-comment-btn" type="button" @click="editComment" v-else>Edit comment</button>
 					</div>
 				</form>
 			</div>
@@ -321,7 +321,7 @@ export default {
 			},
 
 			rating: 0,
-			ratingCount: 0,
+			commentCount: 0,
 			comments: [],
 
 			user: {
@@ -355,7 +355,7 @@ export default {
 
 			hasCommented: false,
 
-			ratingErrors: [],
+			commentErrors: [],
 
 		}
 	},
@@ -470,10 +470,10 @@ export default {
 			}
 		},
 
-		async initRatingCount(){
+		async initCommentCount(){
 			try {
-				const response = await this.axios.get(`/recipe/commentCount/${this.recipeID}`)
-				this.ratingCount = response.data;
+				const response = await this.axios.get(`/recipe/comment/count/${this.recipeID}`)
+				this.commentCount = response.data;
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -481,7 +481,7 @@ export default {
 
 		async initComments(page){
 			try {
-				const response = await this.axios.get(`/recipe/commentsByRecipeId/${this.recipeID}/${page}`)
+				const response = await this.axios.get(`/recipe/comment/get/byRecipeId/${this.recipeID}/${page}`)
 				this.comments = response.data;
 
 				for (let i = 0; i < this.comments.length; i++) {
@@ -633,11 +633,11 @@ export default {
 			}
 		},
 
-		async submitRating(){
-			this.ratingErrors = this.ratingInputsAreValid;
-			if(this.ratingErrors.length === 0){
+		async submitComment(){
+			this.commentErrors = this.commentInputsAreValid;
+			if(this.commentErrors.length === 0){
 				try {
-					await this.axios.post("/recipe/addComment", {
+					await this.axios.post("/recipe/comment/add", {
 						content: this.newComment.content,
 						rating: Number(this.newComment.rating),
 						recipeId: Number(this.recipeID),
@@ -647,13 +647,13 @@ export default {
 					await this.initHasCommented();
 					await this.initComments(1);
 					await this.initRating();
-					await this.initRatingCount()
+					await this.initCommentCount()
 
 				} catch (error) {
 					if(Array.isArray(error.response.data.errorMessage)){
-						this.ratingErrors.push(...error.response.data.errorMessage);
+						this.commentErrors.push(...error.response.data.errorMessage);
 					} else {
-						this.ratingErrors.push(error.response.data.errorMessage);
+						this.commentErrors.push(error.response.data.errorMessage);
 					}
 				}
 			}
@@ -661,7 +661,7 @@ export default {
 
 		async initEditComment(){
 			try {
-				const response = await this.axios.get(`/recipe/getCommentOfCurrentUserByRecipeId/${this.recipeID}`)
+				const response = await this.axios.get(`/recipe/comment/get/currentUser/${this.recipeID}`);
 				this.newComment = response.data[0];
 			} catch (error) {
 				console.log(error.response.data);
@@ -684,17 +684,16 @@ export default {
 			}
 
 			await this.initRating();
-			await this.initRatingCount();
+			await this.initCommentCount();
 			await this.initUserRecipeCount();
 			await this.initComments(1);
 		},
 
-		async editRating(){
-			this.ratingErrors = this.ratingInputsAreValid;
-			if(this.ratingErrors.length === 0){
+		async editComment(){
+			this.commentErrors = this.commentInputsAreValid;
+			if(this.commentErrors.length === 0){
 				try {
-					await this.axios.post("/recipe/editComment", {
-						id: Number(this.newComment.id),
+					await this.axios.post(`/recipe/comment/edit/${this.newComment.id}`, {
 						content: this.newComment.content,
 						rating: Number(this.newComment.rating),
 					});
@@ -705,9 +704,9 @@ export default {
 
 				} catch (error) {
 					if(Array.isArray(error.response.data.errorMessage)){
-						this.ratingErrors.push(...error.response.data.errorMessage);
+						this.commentErrors.push(...error.response.data.errorMessage);
 					} else {
-						this.ratingErrors.push(error.response.data.errorMessage);
+						this.commentErrors.push(error.response.data.errorMessage);
 					}
 				}
 			}
@@ -743,7 +742,7 @@ export default {
 		clearCommentModal(){
 			this.newComment.rating = null;
 			this.newComment.content = "";
-			this.ratingErrors = [];
+			this.commentErrors = [];
 		},
 
 		setModalHandlers() {
@@ -764,7 +763,7 @@ export default {
 			return new Date(this.recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB");
 		},
 
-		ratingInputsAreValid(){
+		commentInputsAreValid(){
 			let errors = [];
 
 			if(!this.newComment.rating){
@@ -818,7 +817,7 @@ export default {
 				display: flex;
 				align-items: center;
 
-				.rating-count {
+				.comment-count {
 					margin-left: 10px;
 				}
 			}
@@ -1143,7 +1142,7 @@ export default {
 			font-size: 0.9rem;
 		}
 
-		.ratings-header {
+		.comments-header {
 			display: flex;
 			justify-content: space-between;
 			margin-top: 75px;
@@ -1444,11 +1443,11 @@ export default {
 			}
 		}
 
-		.submit-rating-btn-container {
+		.submit-comment-btn-container {
 			display: flex;
 			justify-content: center;
 
-			.submit-rating-btn {
+			.submit-comment-btn {
 				background-color: var(--yellow);
 				border: 1px solid var(--lightgrey);
 				border-radius: 15px;

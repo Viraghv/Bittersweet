@@ -810,13 +810,13 @@ module.exports.addComment = async (commentData, userId) => {
     }
 }
 
-module.exports.editComment = async (commentData, userId) => {
+module.exports.editComment = async (commentId, commentData, userId) => {
     let editCount = 0;
 
     try {
         editCount = await prisma.Comment.updateMany({
             where: {
-                id: commentData.id,
+                id: commentId,
                 userId: userId,
             },
             data: {
@@ -1496,11 +1496,39 @@ module.exports.getAllComments = async (sortBy, page, searchData) => {
     }
 }
 
-module.exports.editCommentAdmin = async (commentData) => {
+module.exports.getAllAdminPageCommentsCount = async (searchData) => {
+    try {
+        return  await prisma.Comment.count({
+            where: {
+                id: {
+                    equals: searchData.id ? Number(searchData.id) : undefined,
+                },
+                content: {
+                    contains: searchData.content,
+                },
+                user: {
+                    username: {
+                        contains: searchData.username,
+                    }
+                },
+                recipeId: {
+                    equals: searchData.recipeId ? Number(searchData.recipeId) : undefined,
+                }
+            },
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.editCommentAdmin = async (commentId, commentData) => {
     try {
         await prisma.Comment.update({
             where: {
-                id: commentData.id,
+                id: commentId,
             },
             data: {
                 content: commentData.content,

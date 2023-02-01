@@ -88,10 +88,10 @@
 
 				<div class="add-to-group">
 					<label class="add-to-group-label" for="add-to-group">Select group:</label><br/>
-					<form class="add-to-group-form">
+					<div class="add-to-group-form">
 						<Multiselect class="add-to-group-input" name="add-to-group" v-model="allFavouritesSelectedGroup" :options="allFavouritesSelectableGroups" :searchable="true" :can-clear="false"/>
 						<button class="add-to-group-button" type="button" @click="addToGroup">Add</button><br>
-					</form>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -143,7 +143,7 @@
 
 				<div class="create-group">
 					<label class="create-group-label" for="create-group">Group name:</label>
-					<form class="create-group-form">
+					<div class="create-group-form">
 						<input class="create-group-input" name="create-group" v-model="newGroupName"/>
 
 						<div class="create-group-alert alert alert-danger" v-if="newGroupErrors.length !== 0">
@@ -154,7 +154,7 @@
 						</div>
 
 						<button class="create-group-button" type="button" @click="createGroup">Create group</button><br>
-					</form>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -170,7 +170,7 @@
 
 				<div class="edit-group">
 					<label class="edit-group-label" for="edit-group">Group name:</label>
-					<form class="edit-group-form">
+					<div class="edit-group-form">
 						<input class="edit-group-input" name="edit-group" v-model="newGroupName"/>
 
 						<div class="edit-group-alert alert alert-danger" v-if="newGroupErrors.length !== 0">
@@ -181,7 +181,7 @@
 						</div>
 
 						<button class="edit-group-button" type="button" @click="editGroup">Rename group</button><br>
-					</form>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -144,7 +144,7 @@ module.exports.getFilteredRecipeCards = async (req, res) => {
 
 module.exports.getCommentsByRecipeId = async (req, res) => {
     try {
-        res.json( await recipeService.getCommentsByRecipeId(Number(req.params.id), Number(req.params.page)));
+        res.json( await recipeService.getCommentsByRecipeId(Number(req.params.recipeId), Number(req.params.page)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -156,7 +156,7 @@ module.exports.getCommentsByRecipeId = async (req, res) => {
 
 module.exports.getCommentCountById = async (req, res) => {
     try {
-        res.json( await recipeService.getCommentCountById(Number(req.params.id)));
+        res.json( await recipeService.getCommentCountById(Number(req.params.recipeId)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -168,7 +168,7 @@ module.exports.getCommentCountById = async (req, res) => {
 
 module.exports.getAverageRatingById = async (req, res) => {
     try {
-        res.json( await recipeService.getAverageRatingById(Number(req.params.id)));
+        res.json( await recipeService.getAverageRatingById(Number(req.params.recipeId)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -211,7 +211,7 @@ module.exports.editComment = async (req, res) => {
     let userId = session[sessionToken].userId;
 
     try {
-        res.json( await recipeService.editComment(req.body, Number(userId)));
+        res.json( await recipeService.editComment(Number(req.params.id), req.body, Number(userId)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -226,7 +226,7 @@ module.exports.getCommentOfCurrentUserByRecipeId = async (req, res) => {
     let userId = session[sessionToken].userId;
 
     try {
-        res.json( await recipeService.getCommentByUserAndRecipeId(Number(req.params.id), userId));
+        res.json( await recipeService.getCommentByUserAndRecipeId(Number(req.params.recipeId), userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -512,9 +512,21 @@ module.exports.getAllComments = async (req, res) => {
     }
 }
 
+module.exports.getAllAdminPageCommentsCount = async (req, res) => {
+    try {
+        res.json(await recipeService.getAllAdminPageCommentsCount(req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.editCommentAdmin = async (req, res) => {
     try {
-        res.json( await recipeService.editCommentAdmin(req.body));
+        res.json( await recipeService.editCommentAdmin(Number(req.params.id), req.body));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

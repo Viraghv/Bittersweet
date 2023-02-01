@@ -337,7 +337,7 @@ module.exports.addComment = async (commentData, userId) => {
     }
 }
 
-module.exports.editComment = async (commentData, userId) => {
+module.exports.editComment = async (commentId, commentData, userId) => {
     let errors = [];
 
     if(!commentData.rating){
@@ -357,7 +357,7 @@ module.exports.editComment = async (commentData, userId) => {
     }
 
     try {
-        return await recipeRepository.editComment(commentData, userId);
+        return await recipeRepository.editComment(commentId, commentData, userId);
     } catch (error) {
         console.log(error);
         throw error;
@@ -760,7 +760,20 @@ module.exports.getAllComments = async (sortBy, page, searchData) => {
     return comments;
 }
 
-module.exports.editCommentAdmin = async (commentData) => {
+module.exports.getAllAdminPageCommentsCount = async (searchData) => {
+    let commentsCount;
+
+    try {
+        commentsCount = await recipeRepository.getAllAdminPageCommentsCount(searchData);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+
+    return commentsCount;
+}
+
+module.exports.editCommentAdmin = async (commentId, commentData) => {
     let errors = [];
 
     if(!commentData.rating){
@@ -780,7 +793,7 @@ module.exports.editCommentAdmin = async (commentData) => {
     }
 
     try {
-        return await recipeRepository.editCommentAdmin(commentData);
+        return await recipeRepository.editCommentAdmin(commentId, commentData);
     } catch (error) {
         console.log(error);
         throw error;

@@ -125,6 +125,10 @@ export default {
 	.content-container {
 		padding: 0 3%;
 		margin: 0 70px 40px 70px;
+
+		.content {
+			white-space: break-spaces;
+		}
 	}
 
 </style>

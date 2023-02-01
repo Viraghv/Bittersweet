@@ -2,12 +2,12 @@
 	<div class="navbar-container">
 		<router-link class="link" :class="currentPage === 'UsersAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Users</router-link>
 		<router-link class="link" :class="currentPage === 'RecipesAdmin' ? 'selected' : ''" :to="{name: 'RecipesAdmin'}">Recipes</router-link>
-		<router-link class="link" :class="currentPage === 'RatingsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Ratings</router-link>
+		<router-link class="link" :class="currentPage === 'CommentsAdmin' ? 'selected' : ''" :to="{name: 'CommentsAdmin'}">Comments</router-link>
 		<hr>
-		<router-link class="link" :class="currentPage === 'UnitsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Units</router-link>
-		<router-link class="link" :class="currentPage === 'DietsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Diets</router-link>
-		<router-link class="link" :class="currentPage === 'AllergensAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Allergens</router-link>
-		<router-link class="link" :class="currentPage === 'CategoriesAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Categories</router-link>
+		<router-link class="link" :class="currentPage === 'UnitsAdmin' ? 'selected' : ''" :to="{name: 'UnitsAdmin'}">Units</router-link>
+		<router-link class="link" :class="currentPage === 'DietsAdmin' ? 'selected' : ''" :to="{name: 'DietsAdmin'}">Diets</router-link>
+		<router-link class="link" :class="currentPage === 'AllergensAdmin' ? 'selected' : ''" :to="{name: 'AllergensAdmin'}">Allergens</router-link>
+		<router-link class="link" :class="currentPage === 'CategoriesAdmin' ? 'selected' : ''" :to="{name: 'CategoriesAdmin'}">Categories</router-link>
 		<hr>
 		<router-link class="link" :class="currentPage === 'StatisticsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Statistics</router-link>
 	</div>

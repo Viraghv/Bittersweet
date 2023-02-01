@@ -57,17 +57,47 @@ const routes = [
         component: () => import('@/views/EmailVerification.vue'),
     },
 
+
     {
         name: "UsersAdmin",
         path: "/admin/users",
         component: () => import('@/views/admin/UsersAdmin.vue'),
         //userLoggedInAndAdminNavGuard
     },
-
     {
         name: "RecipesAdmin",
         path: "/admin/recipes",
         component: () => import('@/views/admin/RecipesAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "CommentsAdmin",
+        path: "/admin/comments",
+        component: () => import('@/views/admin/CommentsAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "UnitsAdmin",
+        path: "/admin/units",
+        component: () => import('@/views/admin/UnitsAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "DietsAdmin",
+        path: "/admin/diets",
+        component: () => import('@/views/admin/DietsAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "AllergensAdmin",
+        path: "/admin/allergens",
+        component: () => import('@/views/admin/AllergensAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "CategoriesAdmin",
+        path: "/admin/categories",
+        component: () => import('@/views/admin/CategoriesAdmin.vue'),
         //userLoggedInAndAdminNavGuard
     },
 ]
