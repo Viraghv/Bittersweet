@@ -28,7 +28,7 @@
 					</tr>
 					<tr v-for="(recipe, index) in recipes" :key="index">
 						<td>{{recipe.id}}</td>
-						<td>{{recipe.name.length < 30 ? recipe.name : recipe.name.substring(0, 30) + '...' }}</td>
+						<td>{{recipe.name}}</td>
 						<td>{{new Date(recipe.uploaded.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
 						<td>{{new Date(recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
 						<td>{{recipe.user.length < 30 ? recipe.user : recipe.user.substring(0, 30) + '...' }}</td>

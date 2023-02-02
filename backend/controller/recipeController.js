@@ -559,3 +559,15 @@ module.exports.getRankedCategories = async (req, res) => {
         sendServerErrorResponse(res, exception.message);
     }
 }
+
+module.exports.getCategoriesCount = async (req, res) => {
+    try {
+        res.json( await recipeService.getCategoriesCount());
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}

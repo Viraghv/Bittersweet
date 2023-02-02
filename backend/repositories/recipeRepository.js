@@ -1564,10 +1564,6 @@ module.exports.getRankedCategories = async (page) => {
             skip: (page - 1) * 25,
             take: 25,
 
-            where: {
-                deactivated: false,
-            },
-
             select: {
                 id: true,
                 name: true,
@@ -1585,6 +1581,17 @@ module.exports.getRankedCategories = async (page) => {
             }
 
         });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getCategoriesCount = async () => {
+    try {
+        return await prisma.RecipeCategory.count();
     } catch (error) {
         console.log(error);
         throw error;

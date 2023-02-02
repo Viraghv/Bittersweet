@@ -100,6 +100,24 @@ const routes = [
         component: () => import('@/views/admin/CategoriesAdmin.vue'),
         //userLoggedInAndAdminNavGuard
     },
+    {
+        name: "StatisticsAdmin",
+        path: "/admin/statistics",
+        component: () => import('@/views/admin/StatisticsAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "UsersRankingAdmin",
+        path: "/admin/statistics/ranking/users",
+        component: () => import('@/views/admin/UsersRankingAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
+    {
+        name: "CategoriesRankingAdmin",
+        path: "/admin/statistics/ranking/categories",
+        component: () => import('@/views/admin/CategoriesRankingAdmin.vue'),
+        //userLoggedInAndAdminNavGuard
+    },
 ]
 
 export default createRouter({

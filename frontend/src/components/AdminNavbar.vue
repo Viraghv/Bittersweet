@@ -9,7 +9,7 @@
 		<router-link class="link" :class="currentPage === 'AllergensAdmin' ? 'selected' : ''" :to="{name: 'AllergensAdmin'}">Allergens</router-link>
 		<router-link class="link" :class="currentPage === 'CategoriesAdmin' ? 'selected' : ''" :to="{name: 'CategoriesAdmin'}">Categories</router-link>
 		<hr>
-		<router-link class="link" :class="currentPage === 'StatisticsAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Statistics</router-link>
+		<router-link class="link" :class="currentPage === 'StatisticsAdmin' ? 'selected' : ''" :to="{name: 'StatisticsAdmin'}">Statistics</router-link>
 	</div>
 
 </template>

@@ -821,3 +821,16 @@ module.exports.getRankedCategories = async (page) => {
 
     return rankedCategories;
 }
+
+module.exports.getCategoriesCount = async () => {
+    let categoriesCount = null;
+
+    try {
+        categoriesCount = await recipeRepository.getCategoriesCount();
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+
+    return categoriesCount;
+}

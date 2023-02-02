@@ -108,6 +108,7 @@ router.post('/admin/categories/add', adminAuthMiddleware, recipeController.addCa
 router.post('/admin/categories/edit/:id', adminAuthMiddleware, recipeController.editCategory);
 router.get('/admin/categories/delete/:id', adminAuthMiddleware, recipeController.deleteCategory);
 router.get('/admin/categories/ranked/:page', adminAuthMiddleware, recipeController.getRankedCategories);
+router.get('/admin/categories/count', adminAuthMiddleware, recipeController.getCategoriesCount);
 
 router.post('/admin/diets/add', adminAuthMiddleware, recipeController.addDiet);
 router.post('/admin/diets/edit/:id', adminAuthMiddleware, recipeController.editDiet);

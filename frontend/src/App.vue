@@ -1,6 +1,8 @@
 <template>
 	<Navbar/>
-	<router-view></router-view>
+	<div class="app-container">
+		<router-view></router-view>
+	</div>
 	<Footer/>
 </template>
 
@@ -10,7 +12,10 @@ import Footer from "@/components/Footer.vue";
 
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 
+	.app-container {
+		min-height: 100vh;
+	}
 
 </style>
