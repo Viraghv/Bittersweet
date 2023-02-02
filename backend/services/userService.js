@@ -56,33 +56,31 @@ module.exports.register = async (userData) => {
     try {
         let user = await userRepository.createUser(userData);
 
+        jwt.sign(
+            {
+                user: user.id,
+            },
+            EMAIL_SECRET,
+            {
+                expiresIn: 15 * 60,
+            },
+            (err, emailToken) => {
+                const url = `http://bittersweet.local/verification/${emailToken}`;
 
-            //TODO REMOVE COMMENT
-//         jwt.sign(
-//             {
-//                 user: user.id,
-//             },
-//             EMAIL_SECRET,
-//             {
-//                 expiresIn: 15 * 60,
-//             },
-//             (err, emailToken) => {
-//                 const url = `http://bittersweet.local/verification/${emailToken}`;
-//
-//                 transporter.sendMail({
-//                     to: user.email,
-//                     subject: 'Bittersweet - Email Verification',
-//                     html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
-// Welcome to <b>Bittersweet!</b><br><br>\n
-// Thank you for your registration.<br>
-// To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
-//
-// Thank you, <br>\n
-// Bittersweet
-// </div>`
-//                 });
-//             },
-//         );
+                transporter.sendMail({
+                    to: user.email,
+                    subject: 'Bittersweet - Email Verification',
+                    html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
+Welcome to <b>Bittersweet!</b><br><br>\n
+Thank you for your registration.<br>
+To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
+
+Thank you, <br>\n
+Bittersweet
+</div>`
+                });
+            },
+        );
 
         return user.id;
     } catch (exception){
