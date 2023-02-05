@@ -139,5 +139,26 @@ export default {
 
 	}
 
+	@media (hover: none) {
+		.action-buttons {
+			display: flex;
+			justify-content: right;
+			align-self: flex-start;
+			margin-left: auto;
+			padding-top: 15px;
+			padding-right: 25px;
+			gap: 15px;
+
+			.add-icon, .delete-icon, .edit-icon {
+				width: 20px;
+				display: block;
+
+				&:hover {
+					cursor: pointer;
+					opacity: 0.8;
+				}
+			}
+		}
+	}
 
 </style>

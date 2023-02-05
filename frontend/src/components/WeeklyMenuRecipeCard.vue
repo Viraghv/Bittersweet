@@ -329,4 +329,10 @@ export default {
 			display: none !important;
 		}
 	}
+
+	@media (hover: none) {
+		.options-icon {
+			display: block !important;
+		}
+	}
 </style>

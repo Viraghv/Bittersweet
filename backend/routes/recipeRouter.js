@@ -90,6 +90,7 @@ router.get('/averageRating/:recipeId', recipeController.getAverageRatingById);
 
 router.post('/comment/add', authMiddleware, recipeController.addComment);
 router.post('/comment/edit/:id', authMiddleware, recipeController.editComment);
+router.get('/comment/delete/:id', authMiddleware, recipeController.deleteComment);
 router.get('/comment/get/currentUser/:recipeId', authMiddleware, recipeController.getCommentOfCurrentUserByRecipeId);
 
 router.get('/difficulties', recipeController.getAllDifficulties);

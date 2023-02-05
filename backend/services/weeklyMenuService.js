@@ -62,81 +62,81 @@ module.exports.generateWeekForUser = async (userId, nextWeek) => {
         }
         recipeIds.dessert = dessertIds;
 
-        let recommandations = [];
+        let recommendations = [];
 
         for (let day = 0; day <= 6; day++) {
             for (let meal = 1; meal <= 3; meal++) {
-                let recommandedRecipe = null;
+                let recommendedRecipe = null;
 
                 if(meal === 1) {
                     if(breakfastIds.length === 0){
                         breakfastIds = recipeIds.breakfast;
                     }
-                    recommandedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+                    recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
                 } else if(meal === 2) {
                     if(lunchIds.length === 0){
                         lunchIds = recipeIds.lunch;
                     }
 
                     if(lunchIds.length > 1) {
-                        lunchIds = lunchIds.filter(e => e !== recommandations[day * 3 + meal - 2].recipeId);
+                        lunchIds = lunchIds.filter(e => e !== recommendations[day * 3 + meal - 2].recipeId);
                     }
 
-                    recommandedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+                    recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
                 } else if(meal === 3) {
                     if(dinnerIds.length === 0){
                         dinnerIds = recipeIds.dinner;
                     }
 
                     if(dinnerIds.length > 1) {
-                        dinnerIds = dinnerIds.filter(e => e !== recommandations[day * 3 + meal - 2].recipeId);
+                        dinnerIds = dinnerIds.filter(e => e !== recommendations[day * 3 + meal - 2].recipeId);
                     }
 
                     if(dinnerIds.length > 1) {
-                        dinnerIds = dinnerIds.filter(e => e !== recommandations[day * 3 + meal - 3].recipeId);
+                        dinnerIds = dinnerIds.filter(e => e !== recommendations[day * 3 + meal - 3].recipeId);
                     }
 
-                    recommandedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+                    recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
                 }
 
-                recommandations.push({
-                    recipeId: recommandedRecipe,
+                recommendations.push({
+                    recipeId: recommendedRecipe,
                     day: day,
                     meal: meal,
                 });
 
-                breakfastIds = breakfastIds.filter(e => e !== recommandedRecipe);
-                lunchIds = lunchIds.filter(e => e !== recommandedRecipe);
-                dinnerIds = dinnerIds.filter(e => e !== recommandedRecipe);
-                dessertIds = dessertIds.filter(e => e !== recommandedRecipe);
+                breakfastIds = breakfastIds.filter(e => e !== recommendedRecipe);
+                lunchIds = lunchIds.filter(e => e !== recommendedRecipe);
+                dinnerIds = dinnerIds.filter(e => e !== recommendedRecipe);
+                dessertIds = dessertIds.filter(e => e !== recommendedRecipe);
 
             }
         }
 
         for (let i = 0; i < 2; i++) {
-            let recommandedRecipe = null;
+            let recommendedRecipe = null;
 
             if(dessertIds.length === 0){
                 dessertIds = recipeIds.dessert;
             }
 
-            recommandedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
-            dessertIds = dessertIds.filter(e => e !== recommandedRecipe);
+            recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
+            dessertIds = dessertIds.filter(e => e !== recommendedRecipe);
 
-            recommandations.push({
-                recipeId: recommandedRecipe,
+            recommendations.push({
+                recipeId: recommendedRecipe,
                 day: null,
                 meal: 0,
             });
         }
 
-        let createCount = await weeklyMenuRepository.setItemsOfWeek(userId, nextWeek, recommandations);
+        let createCount = await weeklyMenuRepository.setItemsOfWeek(userId, nextWeek, recommendations);
 
         if (createCount.count !== 23){
             throw new InternalServerError(["Something went wrong during weekly menu generation."])
         }
 
-        return recommandations;
+        return recommendations;
     } catch (error) {
         console.log(error);
         throw error;
@@ -197,51 +197,51 @@ module.exports.generateOneForUser = async (userId, data) => {
         recipeIds.dessert = dessertIds;
 
 
-        let recommandedRecipe = null;
+        let recommendedRecipe = null;
 
         if(data.meal === 1) {
-            recommandedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+            recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
 
             if(breakfastIds.length > 1) {
-                while(recommandedRecipe === data.currentRecipeId) {
-                    recommandedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+                while(recommendedRecipe === data.currentRecipeId) {
+                    recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
                 }
             } else {
                 throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 2) {
-            recommandedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+            recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
 
             if(lunchIds.length > 1) {
-                while(recommandedRecipe === data.currentRecipeId) {
-                    recommandedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+                while(recommendedRecipe === data.currentRecipeId) {
+                    recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
                 }
             } else {
                 throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 3) {
-            recommandedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+            recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
 
             if(dinnerIds.length > 1) {
-                while(recommandedRecipe === data.currentRecipeId) {
-                    recommandedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+                while(recommendedRecipe === data.currentRecipeId) {
+                    recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
                 }
             } else {
                 throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 0){
-            recommandedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
+            recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
 
             if(dessertIds.length > 1) {
-                while(recommandedRecipe === data.currentRecipeId) {
-                    recommandedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
+                while(recommendedRecipe === data.currentRecipeId) {
+                    recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
                 }
             } else {
                 throw new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         }
 
-        await weeklyMenuRepository.updateOneForUser(userId, data.itemId, recommandedRecipe);
+        await weeklyMenuRepository.updateOneForUser(userId, data.itemId, recommendedRecipe);
 
     } catch (error) {
         console.log(error);

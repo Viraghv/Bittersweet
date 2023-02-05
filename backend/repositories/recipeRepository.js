@@ -838,6 +838,23 @@ module.exports.editComment = async (commentId, commentData, userId) => {
     }
 }
 
+
+module.exports.deleteComment = async (commentId, userId) => {
+    try {
+        await prisma.Comment.deleteMany({
+            where: {
+                id: commentId,
+                userId: userId,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
 module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     try {
         return  await prisma.Comment.findMany({

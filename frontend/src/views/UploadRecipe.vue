@@ -60,7 +60,7 @@
 				<ol class="steps-list">
 					<li v-for="(step, index) in recipe.steps" :key="index">
 						<div class="step-list-item">
-							<input class="step-description-input" type="text" placeholder="Step description" v-model="step.content">
+							<textarea class="step-description-input" type="text" placeholder="Step description" v-model="step.content"></textarea>
 							<img class="delete-step-button" src="@/assets/icons/close_grey.png" alt="" @click="deleteStep(index)">
 						</div>
 					</li>
@@ -977,6 +977,7 @@ export default {
 						font-size: 1rem;
 						font-family: Gotu,serif;
 						height: 2.7rem;
+						resize: none;
 
 						&:focus {
 							outline: var(--darkgreen) solid 3px;
@@ -986,6 +987,7 @@ export default {
 					.step-description-input {
 						width: 95%;
 						margin-left: 10px;
+						height: 4rem;
 					}
 
 					.ingredient-name-input {

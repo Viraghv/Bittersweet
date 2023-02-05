@@ -605,4 +605,10 @@ export default {
 		}
 	}
 }
+
+@media (hover: none) {
+	.options-icon {
+		display: block !important;
+	}
+}
 </style>

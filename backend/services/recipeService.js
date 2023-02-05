@@ -364,6 +364,15 @@ module.exports.editComment = async (commentId, commentData, userId) => {
     }
 }
 
+module.exports.deleteComment = async (commentId, userId) => {
+    try {
+        return await recipeRepository.deleteComment(commentId, userId);
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
 module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     let comment;
 

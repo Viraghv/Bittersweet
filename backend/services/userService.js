@@ -62,7 +62,7 @@ module.exports.register = async (userData) => {
             },
             EMAIL_SECRET,
             {
-                expiresIn: 15 * 60,
+                expiresIn: 15 * 60,  //15 minutes
             },
             (err, emailToken) => {
                 const url = `http://bittersweet.local/verification/${emailToken}`;

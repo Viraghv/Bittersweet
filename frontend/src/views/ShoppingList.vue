@@ -821,4 +821,10 @@ export default {
 			padding-bottom: 5px;
 		}
 	}
+
+	@media (hover: none) {
+		.icons-container {
+			display: block !important;
+		}
+	}
 </style>

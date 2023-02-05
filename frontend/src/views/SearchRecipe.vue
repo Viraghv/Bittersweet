@@ -12,6 +12,9 @@
 					Filters
 				</button>
 				<div class="dropdown-menu dropdown-menu-end filter-dropdown" aria-labelledby="filter-btn">
+					<div class="clear-filters-container">
+						<button class="clear-filters-btn" type="button" @click="clearFilters">Clear</button>
+					</div>
 					<div class="line-one">
 						<div class="categories-container">
 							<div class="categories-header header">
@@ -398,26 +401,30 @@ export default {
 			if(this.$cookies.get("searchFilters") !== null){
 				this.filters = this.$cookies.get("searchFilters");
 			} else {
-				this.filters = {
-					timeFrom: {
-						hour: null,
-						minute: null
-					},
-					timeTo: {
-						hour: null,
-						minute: null
-					},
-					excludeAllergens: [],
-					difficulties: [],
-					costs: [],
-					categories: [],
-					diets: [],
-					caloriesFrom: null,
-					caloriesTo: null,
-					portions: null
-				};
+				this.clearFilters();
 			}
-		}
+		},
+
+		clearFilters(){
+			this.filters = {
+				timeFrom: {
+					hour: null,
+					minute: null
+				},
+				timeTo: {
+					hour: null,
+					minute: null
+				},
+				excludeAllergens: [],
+				difficulties: [],
+				costs: [],
+				categories: [],
+				diets: [],
+				caloriesFrom: null,
+				caloriesTo: null,
+				portions: null
+			};
+		},
 	},
 
 	watch: {
@@ -499,6 +506,23 @@ export default {
 					-moz-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
 					max-height: 55vh;
 					overflow-y: scroll;
+
+					.clear-filters-container {
+						display: flex;
+						justify-content: right;
+						margin-bottom: 20px;
+
+						.clear-filters-btn {
+							background-color: var(--yellow);
+							border: 1px solid var(--lightgrey);
+							border-radius: 10px;
+							padding: 3px 20px;
+
+							&:hover {
+								opacity: 0.8;
+							}
+						}
+					}
 
 					.line-one, .line-two, .line-three, .line-four {
 						display: flex;

@@ -221,6 +221,21 @@ module.exports.editComment = async (req, res) => {
     }
 }
 
+module.exports.deleteComment = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await recipeService.deleteComment(Number(req.params.id), Number(userId)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getCommentOfCurrentUserByRecipeId = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;

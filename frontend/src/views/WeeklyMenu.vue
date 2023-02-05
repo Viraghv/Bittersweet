@@ -414,7 +414,6 @@ export default {
 		async generateOne(){
 			try {
 				const response = await this.axios.post(`/weeklyMenu/generate/one`, this.generateOneData);
-				await this.axios.get(`/weeklyMenu/generate/week/${this.nextWeek}`);
 
 				document.getElementById("generate-one-close-button").click();
 				await this.initWeeklyMenu();
@@ -434,7 +433,32 @@ export default {
 				document.getElementById("dont-recommend-close-button").click();
 
 				this.showInitLoader = true;
-				await this.generateWeek();
+
+				let thisWeek = await this.axios.get(`/weeklyMenu/recipeCardsOfCurrentUser/0`);
+				thisWeek = thisWeek.data;
+
+				let nextWeek = await this.axios.get(`/weeklyMenu/recipeCardsOfCurrentUser/1`);
+				nextWeek = nextWeek.data;
+
+				for (const item of thisWeek) {
+					if (item.recipe.id === this.dontRecommendRecipeId){
+						await this.axios.post(`/weeklyMenu/generate/one`, {
+							itemId: item.id,
+							meal: item.meal,
+							currentRecipeId: item.recipe.id,
+						});
+					}
+				}
+
+				for (const item of nextWeek) {
+					if (item.recipe.id === this.dontRecommendRecipeId){
+						await this.axios.post(`/weeklyMenu/generate/one`, {
+							itemId: item.id,
+							meal: item.meal,
+							currentRecipeId: item.recipe.id,
+						});
+					}
+				}
 
 				await this.initWeeklyMenu();
 			} catch (error){

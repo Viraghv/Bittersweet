@@ -135,21 +135,30 @@
 		</div>
 		<div class="comments-header">
 			<h3 class="comments-text">Comments ({{ commentCount }})</h3>
-			<button class="rate-btn"
-					data-bs-toggle="modal"
-					data-bs-target="#comment-modal"
-					v-show="userStore.loggedIn && user.id !== userStore.user?.id"
-					v-if="!hasCommented">
+			<div class="comment-action-btns">
+				<button class="rate-btn"
+						data-bs-toggle="modal"
+						data-bs-target="#comment-modal"
+						v-show="userStore.loggedIn && user.id !== userStore.user?.id"
+						v-if="!hasCommented">
 					Rate this recipe
-			</button>
-			<button class="rate-btn"
-					data-bs-toggle="modal"
-					data-bs-target="#comment-modal"
-					@click="initEditComment"
-					v-show="userStore.loggedIn && user.id !== userStore.user?.id"
-					v-else>
-					Edit your comment
-			</button>
+				</button>
+				<button class="rate-btn"
+						data-bs-toggle="modal"
+						data-bs-target="#comment-modal"
+						@click="initEditComment"
+						v-show="userStore.loggedIn && user.id !== userStore.user?.id"
+						v-if="hasCommented">
+					Edit comment
+				</button>
+				<button class="delete-btn"
+						data-bs-toggle="modal"
+						data-bs-target="#delete-comment-modal"
+						v-show="userStore.loggedIn && user.id !== userStore.user?.id"
+						v-if="hasCommented">
+					Delete comment
+				</button>
+			</div>
 		</div>
 		<div class="average-rating-container">
 			<div>
@@ -258,6 +267,32 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="delete-comment-modal" ref="delete-comment-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="delete-comment-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="delete-comment">
+					<span>Are you sure you want to delete your comment?</span><br>
+
+					<div class="delete-comment-alert alert alert-danger" v-if="deleteCommentErrors.length !== 0">
+						<strong>Error!</strong><br>
+						<ul>
+							<li class="delete-comment-error-items" v-for="(error, index) in deleteCommentErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+
+					<button class="action-btn" @click="deleteComment">Delete</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="modal fade" id="shopping-list-modal" ref="shopping-list-modal">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -356,6 +391,8 @@ export default {
 			hasCommented: false,
 
 			commentErrors: [],
+			deleteCommentErrors: [],
+			commentsCurrentPage: 1,
 
 		}
 	},
@@ -495,6 +532,8 @@ export default {
 						}
 					}
 				}
+
+				this.commentsCurrentPage = page;
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -708,6 +747,38 @@ export default {
 					} else {
 						this.commentErrors.push(error.response.data.errorMessage);
 					}
+				}
+			}
+		},
+
+		async deleteComment(){
+			try {
+				const response = await this.axios.get(`/recipe/comment/get/currentUser/${this.recipeID}`);
+
+				let commentId = response.data[0].id;
+
+				await this.axios.get(`/recipe/comment/delete/${commentId}`);
+				document.getElementById("delete-comment-close-button").click();
+
+				await this.initCommentCount();
+				await this.initComments(1);
+				await this.initRating();
+				await this.initHasCommented();
+
+				let paginateButtons = document.getElementsByClassName("paginate-buttons");
+
+				for (let i = 0; i < paginateButtons.length; i++) {
+					if(paginateButtons[i].innerHTML === "1"){
+						paginateButtons[i].click();
+					}
+				}
+
+
+			} catch (error) {
+				if(Array.isArray(error.response.data.errorMessage)){
+					this.deleteCommentErrors.push(...error.response.data.errorMessage);
+				} else {
+					this.deleteCommentErrors.push(error.response.data.errorMessage);
 				}
 			}
 		},
@@ -1147,11 +1218,21 @@ export default {
 			justify-content: space-between;
 			margin-top: 75px;
 
-			.rate-btn {
-				background-color: var(--yellow);
-				border: 1px solid var(--lightgrey);
-				border-radius: 20px;
-				padding: 5px 30px;
+			.comment-action-btns {
+				display: flex;
+				gap: 10px;
+
+				.rate-btn, .delete-btn {
+					background-color: var(--yellow);
+					border: 1px solid var(--lightgrey);
+					border-radius: 20px;
+					padding: 5px 30px;
+					height: min-content;
+
+					&:hover {
+						opacity: 0.8;
+					}
+				}
 			}
 		}
 
@@ -1489,5 +1570,62 @@ export default {
 			}
 		}
 	}
+
+	.delete-comment {
+		margin: 0 10% 30px 10%;
+		text-align: center;
+		font-family: Gotu,serif;
+
+		.action-btn, .cancel-btn {
+			border: 1px solid var(--lightgrey);
+			border-radius: 20px;
+			padding: 5px 30px;
+			margin-top: 15px;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+
+		.action-btn {
+			background-color: var(--yellow);
+			margin-right: 40px;
+		}
+
+		.cancel-btn {
+			background-color: var(--lightgreen);
+		}
+
+		.delete-comment-alert {
+			margin-top: 10px;
+		}
+
+		.alert {
+			width: 100%;
+			text-align: left;
+
+			.delete-comment-error-items {
+				font-size: 0.8rem;
+			}
+
+			&.delete-comment-alert {
+				padding-bottom: 5px;
+			}
+		}
+	}
+
+
+	.modal-header {
+		border-bottom: none;
+
+		.warning-icon {
+			height: 40px;
+			margin-top: -50px;
+			margin-left: -27px;
+			z-index: 1100;
+		}
+	}
+
+
 
 </style>
