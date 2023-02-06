@@ -1,5 +1,4 @@
 const { PrismaClient } = require('@prisma/client')
-const BadRequest = require("../exceptions/BadRequest");
 
 const prisma = new PrismaClient();
 
@@ -71,6 +70,68 @@ module.exports.getAllDontRecommendRecipesOfUser = async (userId) => {
             },
             select: {
                 recipeId: true,
+            },
+        });
+
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getAllDontRecommendRecipeCardsOfCurrentUser = async (userId, page) => {
+    try {
+        return prisma.DontRecommend.findMany({
+            skip: (page - 1) * 10,
+            take: 10,
+
+            where: {
+                userId: userId,
+            },
+            select: {
+                recipe: {
+                    select: {
+                        id: true,
+                        name: true,
+                        uploaded: true,
+                        photo: true,
+                    }
+                },
+            },
+
+            orderBy: {
+                timeOfAction: 'desc',
+            }
+        });
+
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.getAllDontRecommendRecipeCardsCountOfCurrentUser = async (userId) => {
+    try {
+        return prisma.DontRecommend.count({
+            where: {
+                userId: userId,
+            },
+        });
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+module.exports.deleteDontRecommendOfCurrentUser = async (userId, recipeId) => {
+    try {
+        return prisma.DontRecommend.deleteMany({
+            where: {
+                userId: userId,
+                recipeId: recipeId,
             },
         });
 

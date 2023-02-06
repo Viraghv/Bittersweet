@@ -8,15 +8,21 @@ const routes = [
     },
     {
         name: "SearchRecipe",
-        path: "/search/:searchTerm?",
+        path: "/search/:filters",
         component: () => import('@/views/SearchRecipe'),
         props: true,
     },
     {
         name: "WeeklyMenu",
-        path: "/weeklyMenu/:nextWeek",
+        path: "/weekly-menu/:nextWeek",
         component: () => import('@/views/WeeklyMenu.vue'),
         props: true,
+        //userLoggedInNavGuard
+    },
+    {
+        name: "DontRecommendRecipes",
+        path: "/weekly-menu/dont-recommend",
+        component: () => import('@/views/DontRecommendRecipes.vue'),
         //userLoggedInNavGuard
     },
     {

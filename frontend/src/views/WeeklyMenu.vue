@@ -24,6 +24,9 @@
 			<img class="add-all-to-shopping-list-icon" src="@/assets/icons/plus_lightgrey.png" alt="add-all-icon" title="Add all to shopping list"
 				 data-bs-toggle="modal"
 				 data-bs-target="#add-all-shopping-list-modal">
+			<router-link :to="{name: 'DontRecommendRecipes'}">
+				<img class="dont-recommend-recipes-icon" src="@/assets/icons/blocked_lightgrey.png" alt="block" title="View 'Don't recommend' recipes">
+			</router-link>
 			<img class="generate-week-icon" src="@/assets/icons/sync_lightgrey.png" alt="generate-week-icon" title="Generate week again"
 				 data-bs-toggle="modal"
 				 data-bs-target="#generate-week-modal"
@@ -263,8 +266,14 @@ import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
 import WeeklyMenuRecipeCard from "@/components/WeeklyMenuRecipeCard.vue";
 import Loader from "@/components/Loader.vue";
 import {Modal} from "bootstrap";
+import DontRecommendRecipes from "@/views/DontRecommendRecipes.vue";
 export default {
 	name: "WeeklyMenu",
+	computed: {
+		DontRecommendRecipes() {
+			return DontRecommendRecipes
+		}
+	},
 	components: {Loader, WeeklyMenuRecipeCard},
 	beforeRouteEnter,
 
@@ -441,7 +450,10 @@ export default {
 				nextWeek = nextWeek.data;
 
 				for (const item of thisWeek) {
-					if (item.recipe.id === this.dontRecommendRecipeId){
+					console.log(item.recipe?.id);
+					console.log(this.dontRecommendRecipeId);
+
+					if (item.recipe?.id === this.dontRecommendRecipeId){
 						await this.axios.post(`/weeklyMenu/generate/one`, {
 							itemId: item.id,
 							meal: item.meal,
@@ -451,7 +463,7 @@ export default {
 				}
 
 				for (const item of nextWeek) {
-					if (item.recipe.id === this.dontRecommendRecipeId){
+					if (item.recipe?.id === this.dontRecommendRecipeId){
 						await this.axios.post(`/weeklyMenu/generate/one`, {
 							itemId: item.id,
 							meal: item.meal,
@@ -462,7 +474,7 @@ export default {
 
 				await this.initWeeklyMenu();
 			} catch (error){
-				console.log(error.response.data);
+				console.log(error);
 			}
 		},
 
@@ -602,7 +614,7 @@ export default {
 			gap: 30px;
 			margin-bottom: 50px;
 
-			.add-all-to-shopping-list-icon, .generate-week-icon {
+			.add-all-to-shopping-list-icon, .generate-week-icon, .dont-recommend-recipes-icon {
 				width: 22px;
 
 				&:hover {

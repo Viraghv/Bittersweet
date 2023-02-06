@@ -72,7 +72,35 @@ module.exports.generateWeekForUser = async (userId, nextWeek) => {
                     if(breakfastIds.length === 0){
                         breakfastIds = recipeIds.breakfast;
                     }
-                    recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+
+                    if(day !== 0 ) {
+                        let previousBreakfast = recommendations[(day-1) * 3].recipeId
+                        let previousLunch = recommendations[(day-1) * 3 + 1].recipeId
+                        let previousDinner = recommendations[(day-1) * 3 + 2].recipeId
+                        let breakfastIdsCopy = breakfastIds.slice()  //copy by value
+
+                        let index = breakfastIdsCopy.indexOf(previousBreakfast);
+                        if (index !== -1) {
+                            breakfastIdsCopy.splice(index, 1);
+                        }
+                        index = breakfastIdsCopy.indexOf(previousLunch);
+                        if (index !== -1) {
+                            breakfastIdsCopy.splice(index, 1);
+                        }
+                        index = breakfastIdsCopy.indexOf(previousDinner);
+                        if (index !== -1) {
+                            breakfastIdsCopy.splice(index, 1);
+                        }
+
+                        if(breakfastIdsCopy.length > 0){
+                            recommendedRecipe = breakfastIdsCopy[Math.floor(Math.random() * breakfastIdsCopy.length)] || null;
+                        } else {
+                            recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+
+                        }
+                    } else {
+                        recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+                    }
                 } else if(meal === 2) {
                     if(lunchIds.length === 0){
                         lunchIds = recipeIds.lunch;
@@ -82,7 +110,34 @@ module.exports.generateWeekForUser = async (userId, nextWeek) => {
                         lunchIds = lunchIds.filter(e => e !== recommendations[day * 3 + meal - 2].recipeId);
                     }
 
-                    recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+                    if(day !== 0 ) {
+                        let previousBreakfast = recommendations[(day-1) * 3].recipeId
+                        let previousLunch = recommendations[(day-1) * 3 + 1].recipeId
+                        let previousDinner = recommendations[(day-1) * 3 + 2].recipeId
+                        let lunchIdsCopy = lunchIds.slice()  //copy by value
+
+                        let index = lunchIdsCopy.indexOf(previousBreakfast);
+                        if (index !== -1) {
+                            lunchIdsCopy.splice(index, 1);
+                        }
+                        index = lunchIdsCopy.indexOf(previousLunch);
+                        if (index !== -1) {
+                            lunchIdsCopy.splice(index, 1);
+                        }
+                        index = lunchIdsCopy.indexOf(previousDinner);
+                        if (index !== -1) {
+                            lunchIdsCopy.splice(index, 1);
+                        }
+
+                        if(lunchIdsCopy.length > 0){
+                            recommendedRecipe = lunchIdsCopy[Math.floor(Math.random() * lunchIdsCopy.length)] || null;
+                        } else {
+                            recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+
+                        }
+                    } else {
+                        recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+                    }
                 } else if(meal === 3) {
                     if(dinnerIds.length === 0){
                         dinnerIds = recipeIds.dinner;
@@ -96,7 +151,34 @@ module.exports.generateWeekForUser = async (userId, nextWeek) => {
                         dinnerIds = dinnerIds.filter(e => e !== recommendations[day * 3 + meal - 3].recipeId);
                     }
 
-                    recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+                    if(day !== 0 ) {
+                        let previousBreakfast = recommendations[(day-1) * 3].recipeId
+                        let previousLunch = recommendations[(day-1) * 3 + 1].recipeId
+                        let previousDinner = recommendations[(day-1) * 3 + 2].recipeId
+                        let dinnerIdsCopy = dinnerIds.slice()  //copy by value
+
+                        let index = dinnerIdsCopy.indexOf(previousBreakfast);
+                        if (index !== -1) {
+                            dinnerIdsCopy.splice(index, 1);
+                        }
+                        index = dinnerIdsCopy.indexOf(previousLunch);
+                        if (index !== -1) {
+                            dinnerIdsCopy.splice(index, 1);
+                        }
+                        index = dinnerIdsCopy.indexOf(previousDinner);
+                        if (index !== -1) {
+                            dinnerIdsCopy.splice(index, 1);
+                        }
+
+                        if(dinnerIdsCopy.length > 0){
+                            recommendedRecipe = dinnerIdsCopy[Math.floor(Math.random() * dinnerIdsCopy.length)] || null;
+                        } else {
+                            recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+
+                        }
+                    } else {
+                        recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+                    }
                 }
 
                 recommendations.push({
@@ -207,7 +289,8 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
+                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 2) {
             recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
@@ -217,7 +300,8 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
+                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 3) {
             recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
@@ -227,7 +311,8 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
+                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 0){
             recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
@@ -237,7 +322,8 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
                 }
             } else {
-                throw new NotFound(["Sorry, there are no other recipes to recommend."]);
+                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         }
 
@@ -269,6 +355,45 @@ module.exports.getAllDontRecommendRecipesOfUser = async (userId) => {
         }
 
         return recipeIds;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.getAllDontRecommendRecipeCardsOfCurrentUser = async (userId, page) => {
+    try {
+        let recipeCards = [];
+
+        recipeCards = await weeklyMenuRepository.getAllDontRecommendRecipeCardsOfCurrentUser(userId, page);
+
+        for (let i = 0; i < recipeCards.length; i++) {
+            recipeCards[i] = recipeCards[i].recipe;
+        }
+
+        return recipeCards;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.getAllDontRecommendRecipeCardsCountOfCurrentUser = async (userId) => {
+    try {
+        let recipeCardsCount = 0;
+
+        recipeCardsCount = await weeklyMenuRepository.getAllDontRecommendRecipeCardsCountOfCurrentUser(userId);
+
+        return recipeCardsCount;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.deleteDontRecommendOfCurrentUser = async (userId, recipeId) => {
+    try {
+        return await weeklyMenuRepository.deleteDontRecommendOfCurrentUser(userId, recipeId);
     } catch (error) {
         console.log(error);
         throw error;

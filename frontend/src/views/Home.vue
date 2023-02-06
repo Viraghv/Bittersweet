@@ -1,5 +1,5 @@
 <template>
-	<Searchbar/>
+	<Searchbar @search="navigateToSearchPage"/>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<h1 class="home-title">New and Hot!</h1>
 		<div class="recipe_cards">
@@ -25,6 +25,7 @@
 import Searchbar from "@/components/Searchbar.vue";
 import RecipeCardSearch from "@/components/RecipeCardSearch.vue";
 import Pagination from "@/components/Pagination.vue";
+import SearchRecipe from "@/views/SearchRecipe.vue";
 
 export default {
 	name: "Home",
@@ -71,7 +72,36 @@ export default {
 			} catch (error) {
 				console.log(error.response.data);
 			}
-		}
+		},
+
+		navigateToSearchPage(searchTerm){
+			window.scrollTo(0, 0);
+
+			this.$router.push({
+				name: 'SearchRecipe',
+				params: {
+					filters: JSON.stringify({
+						searchTerm: searchTerm,
+						timeFrom: {
+							hour: null,
+							minute: null
+						},
+						timeTo: {
+							hour: null,
+							minute: null
+						},
+						excludeAllergens: [],
+						difficulties: [],
+						costs: [],
+						categories: [],
+						diets: [],
+						caloriesFrom: null,
+						caloriesTo: null,
+						portions: null
+					}),
+				}
+			});
+		},
 	},
 	mounted() {
 		this.initAllRecipesCount();

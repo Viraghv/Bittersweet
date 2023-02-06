@@ -18,7 +18,7 @@
 			<img class="add-icon" src="@/assets/icons/plus_grey.png" alt="add" @click="emitAdd" v-if="page === 'allFavourites'">
 			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'allFavourites'">
 
-			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'groups'">
+			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'groups' || page === 'dontRecommend'">
 
 			<img class="edit-icon" src="@/assets/icons/edit_grey.png" alt="edit" @click="emitEdit" v-if="page === 'profile'">
 			<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete" @click="emitDelete" v-if="page === 'profile'">

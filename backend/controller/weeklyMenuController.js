@@ -63,6 +63,51 @@ module.exports.getAllDontRecommendRecipesOfCurrentUser = async (req, res) => {
     }
 }
 
+module.exports.getAllDontRecommendRecipeCardsOfCurrentUser = async (req, res) => {
+    try {
+        let sessionToken = req.headers.authorization
+        let userId = session[sessionToken].userId;
+
+        res.json( await weeklyMenuService.getAllDontRecommendRecipeCardsOfCurrentUser(userId, Number(req.params.page)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.getAllDontRecommendRecipeCardsCountOfCurrentUser = async (req, res) => {
+    try {
+        let sessionToken = req.headers.authorization
+        let userId = session[sessionToken].userId;
+
+        res.json( await weeklyMenuService.getAllDontRecommendRecipeCardsCountOfCurrentUser(userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.deleteDontRecommendOfCurrentUser = async (req, res) => {
+    try {
+        let sessionToken = req.headers.authorization
+        let userId = session[sessionToken].userId;
+
+        res.json( await weeklyMenuService.deleteDontRecommendOfCurrentUser(userId, Number(req.params.recipeId)));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.getRecipeCardsOfCurrentUser = async (req, res) => {
     try {
         let sessionToken = req.headers.authorization

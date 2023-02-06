@@ -10,239 +10,238 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id Int @id @default(autoincrement())
-  username String @unique @db.VarChar(100)
-  password String @db.VarChar(256)
-  email String @unique @db.VarChar(100)
-  emailVerified Boolean @default(false)
-  firstname String? @db.VarChar(100)
-  lastname String? @db.VarChar(100)
-  admin Boolean @default(false)
-  profilepicture String? @db.VarChar(200)
-  joined DateTime @default(now())
-  difficultyPref Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull) 
-  difficultyId Int?
-  costPref Cost? @relation(fields: [costId], references: [id], onDelete: SetNull)
-  costId Int?
-  diet Diet? @relation(fields: [dietId], references: [id], onDelete: SetNull)
-  dietId Int?
-  recipes Recipe[]
-  comments Comment[]
-  recipeGroups RecipeGroup[]
-  allergies UserAllergy[]
+  id                     Int                    @id @default(autoincrement())
+  username               String                 @unique @db.VarChar(100)
+  password               String                 @db.VarChar(256)
+  email                  String                 @unique @db.VarChar(100)
+  emailVerified          Boolean                @default(false)
+  firstname              String?                @db.VarChar(100)
+  lastname               String?                @db.VarChar(100)
+  admin                  Boolean                @default(false)
+  profilepicture         String?                @db.VarChar(200)
+  joined                 DateTime               @default(now())
+  difficultyPref         Difficulty?            @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
+  difficultyId           Int?
+  costPref               Cost?                  @relation(fields: [costId], references: [id], onDelete: SetNull)
+  costId                 Int?
+  diet                   Diet?                  @relation(fields: [dietId], references: [id], onDelete: SetNull)
+  dietId                 Int?
+  recipes                Recipe[]
+  comments               Comment[]
+  recipeGroups           RecipeGroup[]
+  allergies              UserAllergy[]
   shoppingListCategories ShoppingListCategory[]
-  favouriteRecipes Favourite[]
-  weeklyMenuItems WeeklyMenuItem[]
-  dontRecommendRecipes DontRecommend[]
+  favouriteRecipes       Favourite[]
+  weeklyMenuItems        WeeklyMenuItem[]
+  dontRecommendRecipes   DontRecommend[]
 }
 
 model Recipe {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
-  description String @db.VarChar(1000)
-  minute Int?
-  difficulty Difficulty? @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
-  difficultyId Int? 
-  cost Cost? @relation(fields: [costId], references: [id], onDelete: SetNull)
-  costId Int?
-  calories Int?
-  portions Int?
-  uploaded DateTime @default(now())
-  lastModified DateTime @default(now())
-  photo String @db.VarChar(200)
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId Int?
-  ingredients Ingredient[]
-  steps Step[]
-  recipeCategories RecipeInCategory[]
-  allergens AllergenInRecipe[]
-  diets RecipeInDiet[]
-  comments Comment[]
-  recipeGroups RecipeInGroup[]
-  usersFavourite Favourite[]
-  weeklyMenuItems WeeklyMenuItem[]
+  id                 Int                @id @default(autoincrement())
+  name               String             @db.VarChar(100)
+  description        String             @db.VarChar(1000)
+  minute             Int?
+  difficulty         Difficulty?        @relation(fields: [difficultyId], references: [id], onDelete: SetNull)
+  difficultyId       Int?
+  cost               Cost?              @relation(fields: [costId], references: [id], onDelete: SetNull)
+  costId             Int?
+  calories           Int?
+  portions           Int?
+  uploaded           DateTime           @default(now())
+  lastModified       DateTime           @default(now())
+  photo              String             @db.VarChar(200)
+  user               User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId             Int?
+  ingredients        Ingredient[]
+  steps              Step[]
+  recipeCategories   RecipeInCategory[]
+  allergens          AllergenInRecipe[]
+  diets              RecipeInDiet[]
+  comments           Comment[]
+  recipeGroups       RecipeInGroup[]
+  usersFavourite     Favourite[]
+  weeklyMenuItems    WeeklyMenuItem[]
   dontRecommendUsers DontRecommend[]
 }
 
 model Ingredient {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
-  amount Decimal? @db.Decimal(10,3)
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id       Int      @id @default(autoincrement())
+  name     String   @db.VarChar(100)
+  amount   Decimal? @db.Decimal(10, 3)
+  recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
-  unit Unit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
-  unitId Int?
+  unit     Unit?    @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  unitId   Int?
 }
 
 model Step {
-  id Int @id @default(autoincrement())
-  number Int
-  content String @db.VarChar(1000)
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  number   Int
+  content  String @db.VarChar(1000)
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
 }
 
 model Unit {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(30)
-  ingredients Ingredient[]
+  id                Int                @id @default(autoincrement())
+  name              String             @db.VarChar(30)
+  ingredients       Ingredient[]
   shoppingListItems ShoppingListItem[]
 }
 
 model Difficulty {
-  id Int @id @default(autoincrement())
-  name String @unique @db.VarChar(15)
-  level Int? @unique
-  users User[]
+  id      Int      @id @default(autoincrement())
+  name    String   @unique @db.VarChar(15)
+  level   Int?     @unique
+  users   User[]
   recipes Recipe[]
 }
 
 model Cost {
-  id Int @id @default(autoincrement())
-  name String @unique @db.VarChar(15)
-  level Int? @unique
-  users User[]
+  id      Int      @id @default(autoincrement())
+  name    String   @unique @db.VarChar(15)
+  level   Int?     @unique
+  users   User[]
   recipes Recipe[]
 }
 
 model Comment {
-  id Int @id @default(autoincrement())
-  content String? @db.VarChar(300)
-  rating Int
+  id       Int      @id @default(autoincrement())
+  content  String?  @db.VarChar(300)
+  rating   Int
   uploaded DateTime @default(now())
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
 
   @@unique([recipeId, userId])
 }
 
 model RecipeGroup {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(50)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  id      Int             @id @default(autoincrement())
+  name    String          @db.VarChar(50)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
   recipes RecipeInGroup[]
 }
 
-model RecipeInGroup{
+model RecipeInGroup {
   recipeGroup RecipeGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  recipeId Int
-  added DateTime @default(now())
+  groupId     Int
+  recipe      Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId    Int
+  added       DateTime    @default(now())
 
   @@id([groupId, recipeId])
 }
 
 model RecipeCategory {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(50)
+  id      Int                @id @default(autoincrement())
+  name    String             @db.VarChar(50)
   recipes RecipeInCategory[]
 }
 
 model RecipeInCategory {
   recipeCategory RecipeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId Int
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  recipeId Int
-  primary Boolean @default(false)
+  categoryId     Int
+  recipe         Recipe         @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId       Int
+  primary        Boolean        @default(false)
 
   @@id([categoryId, recipeId])
 }
 
 model Allergen {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(50)
+  id      Int                @id @default(autoincrement())
+  name    String             @db.VarChar(50)
   recipes AllergenInRecipe[]
-  users UserAllergy[]
+  users   UserAllergy[]
 }
 
-
 model AllergenInRecipe {
-  allergen Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
+  allergen   Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
   allergenId Int
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  recipeId Int
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId   Int
 
   @@id([allergenId, recipeId])
 }
 
 model UserAllergy {
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
-  allergen Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  allergen   Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
   allergenId Int
 
   @@id([userId, allergenId])
 }
 
 model Diet {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(50)
+  id      Int            @id @default(autoincrement())
+  name    String         @db.VarChar(50)
   recipes RecipeInDiet[]
-  users User[]
+  users   User[]
 }
 
 model RecipeInDiet {
-  diet Diet @relation(fields: [dietId], references: [id], onDelete: Cascade)
-  dietId Int
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  diet     Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
+  dietId   Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
 
   @@id([dietId, recipeId])
 }
 
 model ShoppingListItem {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
-  amount Decimal? @db.Decimal(5,3)
-  done Boolean @default(false)
-  unit Unit? @relation(fields: [unitId], references: [id], onDelete: SetNull)
-  unitId Int?
+  id                   Int                  @id @default(autoincrement())
+  name                 String               @db.VarChar(100)
+  amount               Decimal?             @db.Decimal(5, 3)
+  done                 Boolean              @default(false)
+  unit                 Unit?                @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  unitId               Int?
   shoppingListCategory ShoppingListCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId Int
+  categoryId           Int
 }
 
 model ShoppingListCategory {
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
+  id                Int                @id @default(autoincrement())
+  name              String             @db.VarChar(100)
   shoppingListItems ShoppingListItem[]
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            Int
 }
 
 model Favourite {
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
-  added DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+  added    DateTime @default(now())
 
   @@id([recipeId, userId])
 }
 
 model WeeklyMenuItem {
-  id Int @id @default(autoincrement())
-  recipe Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  id       Int     @id @default(autoincrement())
+  recipe   Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
   recipeId Int?
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
-  day Int? @db.TinyInt // 0 - 6, starting from Monday
-  meal Int @db.TinyInt // 0 => dessert, 1 => breakfast, 2 => lunch, 3 => dinner
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+  day      Int?    @db.TinyInt // 0 - 6, starting from Monday
+  meal     Int     @db.TinyInt // 0 => dessert, 1 => breakfast, 2 => lunch, 3 => dinner
   nextWeek Boolean
 
   @@unique([userId, day, meal, nextWeek])
 }
 
 model DontRecommend {
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  recipeId Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId     Int
+  timeOfAction DateTime @default(now())
 
   @@id([recipeId, userId])
 }

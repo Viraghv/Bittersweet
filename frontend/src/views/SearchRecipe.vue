@@ -1,5 +1,5 @@
 <template>
-	<Searchbar :search-term-prop="searchTerm"/>
+	<Searchbar :search-term-prop="localFilters.searchTerm" @search="navigateToSearchPage"/>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="recipes-found-header">
 			<h1 class="recipes-found-title">Recipes found</h1>
@@ -23,7 +23,7 @@
 							<div class="categories-input-container">
 								<Multiselect
 									class="categories-input"
-									v-model="filters.categories"
+									v-model="localFilters.categories"
 									:options="categoryOptions"
 									mode="tags"
 									:close-on-select="false"
@@ -39,7 +39,7 @@
 							<div class="diets-input-container">
 								<Multiselect
 									class="diets-input"
-									v-model="filters.diets"
+									v-model="localFilters.diets"
 									:options="dietOptions"
 									mode="tags"
 									:close-on-select="false"
@@ -58,7 +58,7 @@
 								<Multiselect
 									class="allergens-input"
 									name="allergens"
-									v-model="filters.excludeAllergens"
+									v-model="localFilters.excludeAllergens"
 									:options="allergenOptions"
 									mode="tags"
 									:close-on-select="false"
@@ -73,7 +73,7 @@
 							</div>
 							<div class="portions-inputs-container">
 								<div class="portions-inputs">
-									<input class="portions-input" type="number" v-model="filters.portions">
+									<input class="portions-input" type="number" v-model="localFilters.portions">
 									<label for="portions-input">portion(s)</label>
 								</div>
 							</div>
@@ -87,17 +87,17 @@
 							<div class="time-from-container">
 								<label for="time-from-inputs">From:</label>
 								<div class="time-from-inputs">
-									<input class="time-from-hour-input" type="number" placeholder="HH" v-model="filters.timeFrom.hour" @input="restrictFromHours">
+									<input class="time-from-hour-input" type="number" placeholder="HH" v-model="localFilters.timeFrom.hour" @input="restrictFromHours">
 									<span>:</span>
-									<input class="time-from-min-input" type="number" placeholder="MM" v-model="filters.timeFrom.minute" @input="restrictFromMins">
+									<input class="time-from-min-input" type="number" placeholder="MM" v-model="localFilters.timeFrom.minute" @input="restrictFromMins">
 								</div>
 							</div>
 							<div class="time-to-container">
 								<label for="time-to-inputs">To:</label>
 								<div class="time-to-inputs">
-									<input class="time-to-hour-input" type="number" placeholder="HH" v-model="filters.timeTo.hour" @input="restrictToHours">
+									<input class="time-to-hour-input" type="number" placeholder="HH" v-model="localFilters.timeTo.hour" @input="restrictToHours">
 									<span>:</span>
-									<input class="time-to-min-input" type="number" placeholder="MM" v-model="filters.timeTo.minute" @input="restrictToMins">
+									<input class="time-to-min-input" type="number" placeholder="MM" v-model="localFilters.timeTo.minute" @input="restrictToMins">
 								</div>
 							</div>
 						</div>
@@ -108,14 +108,14 @@
 							<div class="calories-from-container">
 								<label for="calories-from-inputs">From:</label>
 								<div class="calories-from-inputs">
-									<input class="calories-from-input" type="number" v-model="filters.caloriesFrom">
+									<input class="calories-from-input" type="number" v-model="localFilters.caloriesFrom">
 									<span class="kcal-text">kcal</span>
 								</div>
 							</div>
 							<div class="calories-to-container">
 								<label for="calories-to-inputs">To:</label>
 								<div class="calories-to-inputs">
-									<input class="calories-to-input" type="number" v-model="filters.caloriesTo">
+									<input class="calories-to-input" type="number" v-model="localFilters.caloriesTo">
 									<span class="kcal-text">kcal</span>
 								</div>
 							</div>
@@ -128,7 +128,7 @@
 							</div>
 							<div class="difficulty-inputs">
 								<div class="difficulty-input" v-for="(difficulty, index) in difficultyOptions" :key="index" >
-									<input class="checkbox-input" type="checkbox" :id="'check-difficulty' + index" :value="difficulty.id" v-model="filters.difficulties">
+									<input class="checkbox-input" type="checkbox" :id="'check-difficulty' + index" :value="difficulty.id" v-model="localFilters.difficulties">
 									<label :for="'check-difficulty' + index">{{difficulty.name.charAt(0).toUpperCase() + difficulty.name.slice(1)}}</label>
 								</div>
 							</div>
@@ -139,14 +139,14 @@
 							</div>
 							<div class="cost-inputs">
 								<div class="cost-input" v-for="(cost, index) in costOptions" :key="index" >
-									<input class="checkbox-input" type="checkbox" :id="'check-cost' + index" :value="cost.id" v-model="filters.costs">
+									<input class="checkbox-input" type="checkbox" :id="'check-cost' + index" :value="cost.id" v-model="localFilters.costs">
 									<label :for="'check-cost' + index">{{cost.name.charAt(0).toUpperCase() + cost.name.slice(1)}}</label>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="apply-filters-btn-container">
-						<button class="apply-filters-btn" type="submit" @click="getSearchResults(1, true, true)">Apply filters</button>
+						<button class="apply-filters-btn" type="submit" @click="navigateToSearchPage(this.localFilters.searchTerm)">Apply filters</button>
 					</div>
 				</div>
 			</div>
@@ -191,7 +191,25 @@ export default {
 	},
 
 	props: {
-		searchTerm: String,
+		filters: {
+			searchTerm: "",
+			timeFrom: {
+				hour: null,
+				minute: null
+			},
+			timeTo: {
+				hour: null,
+				minute: null
+			},
+			excludeAllergens: [],
+			difficulties: [],
+			costs: [],
+			categories: [],
+			diets: [],
+			caloriesFrom: null,
+			caloriesTo: null,
+			portions: null
+		},
 	},
 
 	data(){
@@ -216,7 +234,8 @@ export default {
 				costDesc: "Cost &#8595",
 			},
 
-			filters: {
+			localFilters: {
+				searchTerm: "",
 				timeFrom: {
 					hour: null,
 					minute: null
@@ -248,10 +267,7 @@ export default {
 			try {
 				window.scroll(0,0);
 
-				const expirationDate = new Date(Date.now() + 24*60*60*1000);
-				this.$cookies.set("searchFilters", this.filters, expirationDate);
-
-				let convertedFilters = JSON.parse(JSON.stringify(this.filters));
+				let convertedFilters = JSON.parse(JSON.stringify(this.localFilters));
 
 				convertedFilters.timeFrom.hour = !([null, ""].includes(convertedFilters.timeFrom.hour)) ? Number(convertedFilters.timeFrom.hour) : null;
 				convertedFilters.timeFrom.minute = !([null, ""].includes(convertedFilters.timeFrom.minute)) ? Number(convertedFilters.timeFrom.minute) : null;
@@ -282,9 +298,11 @@ export default {
 				convertedFilters.caloriesTo = !([null, ""].includes(convertedFilters.caloriesTo)) ? Number(convertedFilters.caloriesTo) : null;
 				convertedFilters.portions = !([null, ""].includes(convertedFilters.portions)) ? Number(convertedFilters.portions) : null;
 
+				let searchTerm = convertedFilters.searchTerm;
+				delete convertedFilters.searchTerm;
 
 				const response = await this.axios.post(`/recipe/getFilteredCards/${this.selectedSortType}/${page}`, {
-					search: this.searchTerm,
+					search: searchTerm,
 					filters: convertedFilters,
 				});
 
@@ -374,39 +392,39 @@ export default {
 		},
 
 		restrictFromHours(){
-			if(this.filters.timeFrom.hour > 99){
-				this.filters.timeFrom.hour = Math.floor(this.filters.timeFrom.hour / 10) ;
+			if(this.localFilters.timeFrom.hour > 99){
+				this.localFilters.timeFrom.hour = Math.floor(this.localFilters.timeFrom.hour / 10) ;
 			}
 		},
 
 		restrictFromMins(){
-			if(this.filters.timeFrom.minute > 59){
-				this.filters.timeFrom.minute = Math.floor(this.filters.timeFrom.minute / 10) ;
+			if(this.localFilters.timeFrom.minute > 59){
+				this.localFilters.timeFrom.minute = Math.floor(this.localFilters.timeFrom.minute / 10) ;
 			}
 		},
 
 		restrictToHours(){
-			if(this.filters.timeTo.hour > 99){
-				this.filters.timeTo.hour = Math.floor(this.filters.timeTo.hour / 10) ;
+			if(this.localFilters.timeTo.hour > 99){
+				this.localFilters.timeTo.hour = Math.floor(this.localFilters.timeTo.hour / 10) ;
 			}
 		},
 
 		restrictToMins(){
-			if(this.filters.timeTo.minute > 59){
-				this.filters.timeTo.minute = Math.floor(this.filters.timeTo.minute / 10) ;
+			if(this.localFilters.timeTo.minute > 59){
+				this.localFilters.timeTo.minute = Math.floor(this.localFilters.timeTo.minute / 10) ;
 			}
 		},
 
 		setFilters(){
-			if(this.$cookies.get("searchFilters") !== null){
-				this.filters = this.$cookies.get("searchFilters");
+			if(this.filters){
+				this.localFilters = JSON.parse(this.filters);
 			} else {
 				this.clearFilters();
 			}
 		},
 
 		clearFilters(){
-			this.filters = {
+			this.localFilters = {
 				timeFrom: {
 					hour: null,
 					minute: null
@@ -425,10 +443,22 @@ export default {
 				portions: null
 			};
 		},
+
+		navigateToSearchPage(searchTerm){
+			this.localFilters.searchTerm = searchTerm;
+
+			window.scrollTo(0, 0);
+			this.$router.push({
+				name: 'SearchRecipe',
+				params: {
+					filters: JSON.stringify(this.localFilters),
+				}
+			});
+		},
 	},
 
 	watch: {
-		'searchTerm'(){
+		'filters'(){
 			this.getSearchResults(1, true, true);
 		},
 
@@ -445,7 +475,7 @@ export default {
 		await this.initCosts();
 
 		this.setFilters();
-		this.getSearchResults(1);
+		this.getSearchResults(1, true, true);
 	}
 }
 </script>

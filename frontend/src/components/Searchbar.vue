@@ -2,8 +2,8 @@
 	<div class="searchbar-header">
 		<div class="search-container col-xxl-4 col-xl-5 col-lg-6 col-md-7 col-sm-8 col-9">
 			<input type="text" class="searchbar" placeholder="Search for a recipe..." v-model="searchTerm"
-				   @keydown.enter="navigateToSearchPage"/>
-			<button type="button" class="search-button" @click="navigateToSearchPage">
+				   @keydown.enter="emitSearch"/>
+			<button type="button" class="search-button" @click="emitSearch">
 				<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
 			</button>
 		</div>
@@ -25,14 +25,18 @@ export default {
 	},
 
 	methods: {
-		navigateToSearchPage(){
-			if(this.searchTerm){
-				window.scrollTo(0, 0);
-				this.$router.push({path: `/search/${this.searchTerm ? this.searchTerm : ""}`});
+		emitSearch(){
+			if(this.searchTerm) {
+				this.$emit('search', this.searchTerm);
 			}
 		},
 	},
 
+	watch: {
+		'searchTermProp'(value){
+			this.searchTerm = value;
+		},
+	},
 
 	mounted() {
 		this.searchTerm = this.searchTermProp;
