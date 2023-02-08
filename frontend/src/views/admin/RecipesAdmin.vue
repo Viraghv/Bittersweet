@@ -7,10 +7,12 @@
 			<div class="filters-container">
 				<div class="left">
 					<Multiselect class="search-by-multiselect" v-model="selectedSearchBy" :options="searchByOptions" :searchable="false" :can-clear="false" :can-deselect="false"/>
-					<input class="searchbar" type="text" v-model="searchTerm" :placeholder="searchbarPlaceholder" @keydown.enter="searchForRecipe">
-					<button type="button" class="search-button" @click="searchForRecipe">
-						<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
-					</button>
+					<div class="searchbar-container">
+						<input class="searchbar" type="text" v-model="searchTerm" :placeholder="searchbarPlaceholder" @keydown.enter="searchForRecipe">
+						<button type="button" class="search-button" @click="searchForRecipe">
+							<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
+						</button>
+					</div>
 				</div>
 				<div class="right">
 					<label class="sort-label" for="sort-input">Sort by:</label>
@@ -20,18 +22,18 @@
 			<div class="recipes-table-container">
 				<table class="recipes-table">
 					<tr class="header-row">
-						<th class="first-header">ID</th>
-						<th>Name</th>
-						<th>Uploaded</th>
-						<th>Last modified</th>
-						<th class="last-header" colspan="2">Uploaded by</th>
+						<th class="first-header id-th">ID</th>
+						<th class="name-th">Name</th>
+						<th class="uploaded-th">Uploaded</th>
+						<th class="last-modified-th">Last modified</th>
+						<th class="last-header uploaded-by-th" colspan="2">Uploaded by</th>
 					</tr>
 					<tr v-for="(recipe, index) in recipes" :key="index">
-						<td>{{recipe.id}}</td>
-						<td>{{recipe.name}}</td>
-						<td>{{new Date(recipe.uploaded.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
-						<td>{{new Date(recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
-						<td>{{recipe.user.length < 30 ? recipe.user : recipe.user.substring(0, 30) + '...' }}</td>
+						<td class="id-td">{{recipe.id}}</td>
+						<td class="name-td">{{recipe.name}}</td>
+						<td class="uploaded-td">{{new Date(recipe.uploaded.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
+						<td class="last-modified-td">{{new Date(recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
+						<td class="uploaded-by-td">{{recipe.user.length < 30 ? recipe.user : recipe.user.substring(0, 30) + '...' }}</td>
 
 						<td class="options-icon-cell">
 							<button class="options-btn" :id="'options-icon' + index" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 10">
@@ -311,45 +313,49 @@ export default {
 					border-radius: 10px;
 				}
 
-				.searchbar {
-					width: 300px;
-					border-left: solid 1px var(--lightgrey);
-					border-top: solid 1px var(--lightgrey);
-					border-bottom: solid 1px var(--lightgrey);
-					border-right: none;
-					border-top-left-radius: 10px;
-					border-bottom-left-radius: 10px;
-					padding-left: 20px;
-					padding-right: 20px;
-
-					&:focus {
-						outline: none;
-					}
-
-				}
-
-				.search-button {
-					width: 50px;
-					height: 3rem;
-					border-left: none;
-					border-radius: 0 10px 10px 0;
-					border-right: solid 1px var(--lightgrey);
-					border-top: solid 1px var(--lightgrey);
-					border-bottom: solid 1px var(--lightgrey);
-					background-color: var(--yellow);
-
+				.searchbar-container {
 					display: flex;
-					align-items: center;
-					justify-content: center;
 
-					margin-left: -20px;
+					.searchbar {
+						width: 300px;
+						border-left: solid 1px var(--lightgrey);
+						border-top: solid 1px var(--lightgrey);
+						border-bottom: solid 1px var(--lightgrey);
+						border-right: none;
+						border-top-left-radius: 10px;
+						border-bottom-left-radius: 10px;
+						padding-left: 20px;
+						padding-right: 20px;
 
-					&:hover {
-						box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+						&:focus {
+							outline: none;
+						}
+
 					}
 
-					.search-icon{
-						width: 20px;
+					.search-button {
+						width: 50px;
+						height: 3rem;
+						border-left: none;
+						border-radius: 0 10px 10px 0;
+						border-right: solid 1px var(--lightgrey);
+						border-top: solid 1px var(--lightgrey);
+						border-bottom: solid 1px var(--lightgrey);
+						background-color: var(--yellow);
+
+						display: flex;
+						align-items: center;
+						justify-content: center;
+
+						margin-left: -20px;
+
+						&:hover {
+							box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+						}
+
+						.search-icon{
+							width: 20px;
+						}
 					}
 				}
 
@@ -603,6 +609,33 @@ export default {
 				margin: 0;
 			}
 		}
+	}
+}
+
+@media screen and (max-width: 785px){
+	.content {
+		flex-direction: column;
+
+		.admin-navbar-container {
+			width: 100%;
+			margin-bottom: 30px;
+		}
+
+		.main-container {
+			width: 100%;
+			margin-left: 0;
+
+			.left {
+				flex-direction: column;
+				gap: 10px !important;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 520px){
+	.last-modified-th, .last-modified-td {
+		display: none;
 	}
 }
 

@@ -1,6 +1,6 @@
 <template>
 	<div class="searchbar-header">
-		<div class="search-container col-xxl-4 col-xl-5 col-lg-6 col-md-7 col-sm-8 col-9">
+		<div class="search-container col-xxl-4 col-xl-5 col-lg-6 col-md-7 col-sm-9 col-9">
 			<input type="text" class="searchbar" placeholder="Search for a recipe..." v-model="searchTerm"
 				   @keydown.enter="emitSearch"/>
 			<button type="button" class="search-button" @click="emitSearch">
@@ -101,6 +101,15 @@ export default {
 				}
 			}
 		}
+	}
 
+	@media screen and (max-width: 767px){
+		.search-container {
+			margin-left: 0 !important;
+		}
+
+		.searchbar-header {
+			justify-content: center;
+		}
 	}
 </style>

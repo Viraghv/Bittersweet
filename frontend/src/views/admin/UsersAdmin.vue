@@ -7,10 +7,12 @@
 			<div class="filters-container">
 				<div class="left">
 					<Multiselect class="search-by-multiselect" v-model="selectedSearchBy" :options="searchByOptions" :searchable="false" :can-clear="false" :can-deselect="false"/>
-					<input class="searchbar" type="text" v-model="searchTerm" :placeholder="searchbarPlaceholder" @keydown.enter="searchForUser">
-					<button type="button" class="search-button" @click="searchForUser">
-						<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
-					</button>
+					<div class="searchbar-container">
+						<input class="searchbar" type="text" v-model="searchTerm" :placeholder="searchbarPlaceholder" @keydown.enter="searchForUser">
+						<button type="button" class="search-button" @click="searchForUser">
+							<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
+						</button>
+					</div>
 				</div>
 				<div class="right">
 					<label class="sort-label" for="sort-input">Sort by:</label>
@@ -20,18 +22,18 @@
 			<div class="users-table-container">
 				<table class="users-table">
 					<tr class="header-row">
-						<th class="first-header">ID</th>
-						<th>Username</th>
-						<th>Email</th>
-						<th>Joined</th>
-						<th class="last-header" colspan="2">Status</th>
+						<th class="first-header id-th">ID</th>
+						<th class="username-th">Username</th>
+						<th class="email-th">Email</th>
+						<th class="joined-th">Joined</th>
+						<th class="last-header status-th" colspan="2">Status</th>
 					</tr>
 					<tr v-for="(user, index) in users" :key="index">
-						<td>{{user.id}}</td>
-						<td>{{user.username.length < 30 ? user.username : user.username.substring(0, 30) + '...' }}</td>
-						<td>{{user.email.length < 30 ? user.email : user.email.substring(0, 30) + '...' }}</td>
-						<td>{{new Date(user.joined.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
-						<td>
+						<td class="id-td">{{user.id}}</td>
+						<td class="username-td">{{user.username.length < 30 ? user.username : user.username.substring(0, 30) + '...' }}</td>
+						<td class="email-td">{{user.email.length < 30 ? user.email : user.email.substring(0, 30) + '...' }}</td>
+						<td class="joined-td">{{new Date(user.joined.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
+						<td class="status-td">
 							<div class="admin-badge" v-if="user.emailVerified && user.admin">
 								<span>Admin</span>
 							</div>
@@ -834,47 +836,52 @@ export default {
 						border-radius: 10px;
 					}
 
-					.searchbar {
-						width: 300px;
-						border-left: solid 1px var(--lightgrey);
-						border-top: solid 1px var(--lightgrey);
-						border-bottom: solid 1px var(--lightgrey);
-						border-right: none;
-						border-top-left-radius: 10px;
-						border-bottom-left-radius: 10px;
-						padding-left: 20px;
-						padding-right: 20px;
-
-						&:focus {
-							outline: none;
-						}
-
-					}
-
-					.search-button {
-						width: 50px;
-						height: 3rem;
-						border-left: none;
-						border-radius: 0 10px 10px 0;
-						border-right: solid 1px var(--lightgrey);
-						border-top: solid 1px var(--lightgrey);
-						border-bottom: solid 1px var(--lightgrey);
-						background-color: var(--yellow);
-
+					.searchbar-container {
 						display: flex;
-						align-items: center;
-						justify-content: center;
 
-						margin-left: -20px;
+						.searchbar {
+							width: 300px;
+							border-left: solid 1px var(--lightgrey);
+							border-top: solid 1px var(--lightgrey);
+							border-bottom: solid 1px var(--lightgrey);
+							border-right: none;
+							border-top-left-radius: 10px;
+							border-bottom-left-radius: 10px;
+							padding-left: 20px;
+							padding-right: 20px;
 
-						&:hover {
-							box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+							&:focus {
+								outline: none;
+							}
+
 						}
 
-						.search-icon{
-							width: 20px;
+						.search-button {
+							width: 50px;
+							height: 3rem;
+							border-left: none;
+							border-radius: 0 10px 10px 0;
+							border-right: solid 1px var(--lightgrey);
+							border-top: solid 1px var(--lightgrey);
+							border-bottom: solid 1px var(--lightgrey);
+							background-color: var(--yellow);
+
+							display: flex;
+							align-items: center;
+							justify-content: center;
+
+							margin-left: -20px;
+
+							&:hover {
+								box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+							}
+
+							.search-icon {
+								width: 20px;
+							}
 						}
 					}
+
 
 					.sort-label {
 						white-space: nowrap;
@@ -1296,9 +1303,41 @@ export default {
 		}
 	}
 
+	@media screen and (max-width: 785px){
+		.content {
+			flex-direction: column;
+
+			.admin-navbar-container {
+				width: 100%;
+				margin-bottom: 30px;
+			}
+
+			.main-container {
+				width: 100%;
+				margin-left: 0;
+
+				.joined-td, .joined-th {
+					display: none;
+				}
+
+				.left {
+					flex-direction: column;
+					gap: 10px !important;
+				}
+			}
+		}
+	}
+
+	@media screen and (max-width: 470px){
+		.email-th, .email-td {
+			display: none;
+		}
+	}
+
 	@media (hover: none) {
 		.options-icon {
 			display: block !important;
 		}
 	}
+
 </style>

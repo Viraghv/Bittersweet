@@ -61,6 +61,32 @@
 					<img class="recipe-image" :src="'data:image/' + recipe.imageExt + ';base64,'+ recipe.image" alt="recipe-image" v-if="recipe.imageUrl && recipe.imageUrl !== 'default'" />
 					<img class="recipe-image" src='/src/assets/default_recipe_photo.png' alt="recipe-image" v-else>
 				</div>
+				<div class="ingredients-container">
+					<form>
+						<div class="ingredients-header">
+							<h3 class="ingredients-header-text">Ingredients</h3>
+							<div class="check-all-container" v-if="userStore.loggedIn">
+								<label for="check-all">All</label>
+								<input class="check-all" type="checkbox" id="check-all" @change="changeAll">
+							</div>
+						</div>
+						<div class="ingredient-list-container">
+							<ul>
+								<li class="ingredient-list-item"  v-for="(ingredient, index) in recipe.ingredients" :key="index">
+									<div class="ingredient">
+										<label :for="'check-ingredient' + index">
+											<span class="amount">{{ingredient.amount ? ingredient.amount + " " : ""}}</span>
+											<span class="unit">{{ingredient.unit ? ingredient.unit + " " : ""}}</span>
+											<span class="name">{{ingredient.name}}</span>
+										</label>
+										<input class="checkbox-input" type="checkbox" :id="'check-ingredient' + index" v-model="selectedIngredients" :value="ingredient" v-show="userStore.loggedIn">
+									</div>
+								</li>
+							</ul>
+						</div>
+						<button class="add-shoppinglist-btn" type="button" @click="addToShoppingList" v-show="userStore.loggedIn">+ Shopping list</button >
+					</form>
+				</div>
 				<div class="steps-header-container">
 					<h3 class="steps-header">Steps</h3>
 				</div>
@@ -72,6 +98,15 @@
 						<div class="content-container">
 							<p class="content">{{step.content}}</p>
 						</div>
+					</div>
+				</div>
+				<div class="allergens-header" v-show="recipe.allergens.length !== 0">
+					<img class="warning-icon" src="@/assets/icons/warning.png" alt="warning"/>
+					<span class="allergens-text">Allergens</span>
+				</div>
+				<div class="allergens" v-show="recipe.allergens.length !== 0">
+					<div class="allergen" v-for="(allergen, index) in recipe.allergens" :key="index">
+						<span>{{allergen}}</span>
 					</div>
 				</div>
 			</div>
@@ -934,6 +969,8 @@ export default {
 			.infos {
 				display: flex;
 				justify-content: space-evenly;
+				flex-wrap: wrap;
+				gap: 10px;
 
 				.icon {
 					height: 2rem;
@@ -971,6 +1008,91 @@ export default {
 						min-height: 200px;
 						object-fit: cover;
 						border-radius: 20px;
+					}
+				}
+
+				.ingredients-container {
+					background-color: var(--lightgreen);
+					width: 100%;
+					border-radius: 20px;
+					border: 1px solid var(--lightgrey);
+					padding-bottom: 20px;
+					margin-top: 35px;
+					display: none;
+
+					form {
+						display: flex;
+						flex-direction: column;
+					}
+
+					.ingredients-header {
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+						background-color: var(--darkgreen);
+						padding: 25px 40px 15px 40px;
+						border-top-left-radius: 20px;
+						border-top-right-radius: 20px;
+
+						.ingredients-header-text {
+							margin: 0;
+						}
+
+						.check-all-container {
+							display: flex;
+							align-items: flex-start;
+
+							label {
+								font-size: 20px;
+							}
+
+							input.check-all {
+								margin-left: 10px;
+								width: 25px;
+								height: 25px;
+								accent-color: var(--yellow);
+
+								&:hover {
+									cursor: pointer;
+								}
+							}
+
+						}
+					}
+
+					.ingredient-list-container {
+						padding: 20px 40px 0 40px;
+
+						.ingredient {
+							display: flex;
+							justify-content: space-between;
+							margin-bottom: 20px;
+
+							label {
+
+							}
+
+							.checkbox-input {
+								width: 25px;
+								height: 25px;
+								min-width: 25px;
+								min-height: 25px;
+								accent-color: var(--yellow);
+								margin-left: 10px;
+
+								&:hover {
+									cursor: pointer;
+								}
+							}
+						}
+					}
+
+					.add-shoppinglist-btn {
+						align-self: center;
+						background-color: var(--yellow);
+						border: 1px solid var(--lightgrey);
+						border-radius: 20px;
+						padding: 5px 30px;
 					}
 				}
 
@@ -1020,6 +1142,41 @@ export default {
 								margin: 0;
 							}
 						}
+					}
+				}
+
+				.allergens-header {
+					//display: flex;
+					justify-content: center;
+					align-items: center;
+					width: 100%;
+					background-color: var(--yellow);
+					font-size: 1.5rem;
+					padding: 20px;
+					margin-top: 25px;
+					border-radius: 20px;
+					display: none;
+
+					.warning-icon {
+						width: 50px;
+						margin-right: 20px;
+					}
+				}
+
+				.allergens {
+					width: 90%;
+					//display: flex;
+					flex-wrap: wrap;
+					gap: 15px;
+					margin-top: 17px;
+					display: none;
+
+					.allergen {
+						display: inline-block;
+						background-color: var(--lightgreen);
+						border-radius: 20px;
+						border: 1px solid var(--lightgrey);
+						padding: 5px 20px;
 					}
 				}
 			}
@@ -1626,6 +1783,87 @@ export default {
 		}
 	}
 
+	@media screen and (max-width: 930px){
+		.column-right {
+			display: none !important;
+		}
 
+		.column-left {
+			width: 100% !important;
+
+			.ingredients-container {
+				display: block !important;
+			}
+
+			.recipe-image-container {
+				width: 60vw !important;
+				height: 40vw !important;
+
+				.recipe-image {
+					width: 60vw !important;
+					height: 40vw !important;
+				}
+			}
+
+			.allergens-header, .allergens {
+				display: flex !important;
+			}
+		}
+	}
+
+	@media screen and (max-width: 650px){
+		.comments-header {
+			flex-direction: column;
+			gap: 10px;
+
+			.comment-action-btns {
+				justify-content: right;
+			}
+		}
+	}
+
+	@media screen and (max-width: 575px){
+		.content {
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+
+		.recipe-header {
+			flex-direction: column;
+		}
+
+		.favourite-container {
+			justify-content: center !important;
+		}
+
+		.user-description-container {
+			flex-direction: column;
+		}
+
+		.user-info {
+			justify-content: center;
+			padding-top: 40px !important;
+			padding-bottom: 40px !important;
+
+			.pfp-container {
+				width: 100px !important;
+				height: 100px !important;
+
+				.pfp {
+					width: 100px !important;
+					height: 100px !important;
+				}
+			}
+		}
+
+		.description-container {
+			padding-top: 50px !important;
+			padding-bottom: 50px !important;
+		}
+
+		.average-rating-container {
+			flex-direction: column;
+		}
+	}
 
 </style>

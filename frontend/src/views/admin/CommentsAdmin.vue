@@ -7,10 +7,12 @@
 			<div class="filters-container">
 				<div class="left">
 					<Multiselect class="search-by-multiselect" v-model="selectedSearchBy" :options="searchByOptions" :searchable="false" :can-clear="false" :can-deselect="false"/>
-					<input class="searchbar" type="text" v-model="searchTerm" :placeholder="searchbarPlaceholder" @keydown.enter="searchForComment">
-					<button type="button" class="search-button" @click="searchForComment">
-						<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
-					</button>
+					<div class="searchbar-container">
+						<input class="searchbar" type="text" v-model="searchTerm" :placeholder="searchbarPlaceholder" @keydown.enter="searchForComment">
+						<button type="button" class="search-button" @click="searchForComment">
+							<img class="search-icon" src="@/assets/icons/magnifying-glass_white.png" alt="Search">
+						</button>
+					</div>
 				</div>
 				<div class="right">
 					<label class="sort-label" for="sort-input">Sort by:</label>
@@ -20,20 +22,20 @@
 			<div class="comments-table-container">
 				<table class="comments-table">
 					<tr class="header-row">
-						<th class="first-header">ID</th>
-						<th>Rating</th>
-						<th>Content</th>
-						<th>Uploaded</th>
-						<th>User</th>
-						<th class="last-header" colspan="2">RecipeID</th>
+						<th class="first-header id-th">ID</th>
+						<th class="rating-th">Rating</th>
+						<th class="content-th">Content</th>
+						<th class="uploaded-th">Uploaded</th>
+						<th class="user-th">User</th>
+						<th class="last-header recipe-id-th" colspan="2">RecipeID</th>
 					</tr>
 					<tr v-for="(comment, index) in comments" :key="index">
-						<td>{{comment.id}}</td>
-						<td>{{comment.rating}}</td>
-						<td>{{comment.content.length < 200 ? comment.content : comment.content.substring(0, 200) + '...' }}</td>
-						<td>{{new Date(comment.uploaded.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
-						<td>{{comment.user.length < 30 ? comment.user : comment.user.substring(0, 30) + '...' }}</td>
-						<td>{{comment.recipeId}}</td>
+						<td class="id-td">{{comment.id}}</td>
+						<td class="rating-td">{{comment.rating}}</td>
+						<td class="content-td">{{comment.content.length < 200 ? comment.content : comment.content.substring(0, 200) + '...' }}</td>
+						<td class="uploaded-td">{{new Date(comment.uploaded.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
+						<td class="user-td">{{comment.user.length < 30 ? comment.user : comment.user.substring(0, 30) + '...' }}</td>
+						<td class="recipe-id-td">{{comment.recipeId}}</td>
 
 						<td class="options-icon-cell">
 							<button class="options-btn" :id="'options-icon' + index" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 10">
@@ -401,46 +403,51 @@ export default {
 					border-radius: 10px;
 				}
 
-				.searchbar {
-					width: 300px;
-					border-left: solid 1px var(--lightgrey);
-					border-top: solid 1px var(--lightgrey);
-					border-bottom: solid 1px var(--lightgrey);
-					border-right: none;
-					border-top-left-radius: 10px;
-					border-bottom-left-radius: 10px;
-					padding-left: 20px;
-					padding-right: 20px;
-
-					&:focus {
-						outline: none;
-					}
-
-				}
-
-				.search-button {
-					width: 50px;
-					height: 3rem;
-					border-left: none;
-					border-radius: 0 10px 10px 0;
-					border-right: solid 1px var(--lightgrey);
-					border-top: solid 1px var(--lightgrey);
-					border-bottom: solid 1px var(--lightgrey);
-					background-color: var(--yellow);
-
+				.searchbar-container {
 					display: flex;
-					align-items: center;
-					justify-content: center;
 
-					margin-left: -20px;
+					.searchbar {
+						width: 300px;
+						border-left: solid 1px var(--lightgrey);
+						border-top: solid 1px var(--lightgrey);
+						border-bottom: solid 1px var(--lightgrey);
+						border-right: none;
+						border-top-left-radius: 10px;
+						border-bottom-left-radius: 10px;
+						padding-left: 20px;
+						padding-right: 20px;
 
-					&:hover {
-						box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+						&:focus {
+							outline: none;
+						}
+
 					}
 
-					.search-icon{
-						width: 20px;
+					.search-button {
+						width: 50px;
+						height: 3rem;
+						border-left: none;
+						border-radius: 0 10px 10px 0;
+						border-right: solid 1px var(--lightgrey);
+						border-top: solid 1px var(--lightgrey);
+						border-bottom: solid 1px var(--lightgrey);
+						background-color: var(--yellow);
+
+						display: flex;
+						align-items: center;
+						justify-content: center;
+
+						margin-left: -20px;
+
+						&:hover {
+							box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1);
+						}
+
+						.search-icon{
+							width: 20px;
+						}
 					}
+
 				}
 
 				.sort-label {
@@ -771,6 +778,33 @@ export default {
 
 			.search-by-multiselect, .sort-input {
 				margin: 0;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 1100px){
+	.content-th, .content-td {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 785px){
+	.content {
+		flex-direction: column;
+
+		.admin-navbar-container {
+			width: 100%;
+			margin-bottom: 30px;
+		}
+
+		.main-container {
+			width: 100%;
+			margin-left: 0;
+
+			.left {
+				flex-direction: column;
+				gap: 10px !important;
 			}
 		}
 	}

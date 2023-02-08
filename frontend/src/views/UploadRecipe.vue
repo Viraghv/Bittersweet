@@ -42,11 +42,14 @@
 
 				<h3 class="ingredients-header">Ingredients</h3>
 				<ul class="ingredient-list">
-					<li v-for="(ingredient, index) in recipe.ingredients" :key="index">
+					<li class="ingredient-list-li" v-for="(ingredient, index) in recipe.ingredients" :key="index">
 						<div class="ingredient-list-item">
-							<input class="ingredient-amount-input" type="number" placeholder="Amount" v-model="ingredient.amount" >
-							<Multiselect class="ingredient-unit-input" v-model="ingredient.unit" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
-							<input class="ingredient-name-input" type="text" placeholder="Ingredient name" v-model="ingredient.name">
+							<div class="ingredient-inputs-container">
+								<input class="ingredient-amount-input" type="number" placeholder="Amount" v-model="ingredient.amount" >
+								<Multiselect class="ingredient-unit-input" v-model="ingredient.unit" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
+								<input class="ingredient-name-input" type="text" placeholder="Ingredient" v-model="ingredient.name">
+							</div>
+
 							<img class="delete-ingredient-button" src="@/assets/icons/close_grey.png" alt="" @click="deleteIngredient(index)">
 						</div>
 					</li>
@@ -970,6 +973,13 @@ export default {
 					width: 100%;
 					margin-bottom: 5px;
 
+					.ingredient-inputs-container {
+						width: 100%;
+						display: flex;
+						justify-content: space-between;
+						align-items: center;
+					}
+
 					.ingredient-name-input, .ingredient-amount-input, .ingredient-unit-input, .step-description-input {
 						border-radius: 10px;
 						border-color: transparent;
@@ -981,6 +991,10 @@ export default {
 
 						&:focus {
 							outline: var(--darkgreen) solid 3px;
+						}
+
+						&.small-screen {
+							display: none;
 						}
 					}
 
@@ -1216,6 +1230,23 @@ export default {
 				width: 100%;
 				padding: 0 5%;
 			}
+		}
+	}
+
+	@media screen and (max-width: 650px){
+		.ingredient-list-item {
+			margin-bottom: 10px !important;
+
+			.ingredient-amount-input, .ingredient-unit-input, .ingredient-name-input {
+				width: 100% !important;
+				margin-left: 0 !important;
+			}
+
+			.ingredient-inputs-container {
+				flex-direction: column;
+				gap: 5px;
+			}
+
 		}
 	}
 

@@ -733,14 +733,15 @@ export default {
 			padding-bottom: 5px !important;
 		}
 
-		.filter-dropdown {
-			width: 100vw !important;
-		}
+		//.filter-dropdown {
+		//	width: 95vw !important;
+		//}
 	}
 
 	@media screen and (max-width: 608px){
 		.line-one, .line-two, .line-three, .line-four {
 			flex-direction: column;
+			align-items: center;
 		}
 
 		.sort-filter-container {
@@ -759,6 +760,18 @@ export default {
 				padding-top: 5px !important;
 				padding-bottom: 5px !important;
 			}
+		}
+	}
+
+	@media screen and (max-width: 450px){
+		.recipe_cards {
+			grid-template-columns: repeat(auto-fill, 350px) !important;
+		}
+	}
+
+	@media screen and (max-width: 575px){
+		.recipes-found-title, .sort-filter-container {
+			margin-left: 10px;
 		}
 	}
 </style>

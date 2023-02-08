@@ -293,6 +293,7 @@ export default {
 				display: flex;
 				justify-content: right;
 				margin-top: 20px;
+				margin-right: 10px;
 
 				.view-all-link {
 					color: var(--linkyellow);
@@ -314,6 +315,22 @@ export default {
 @media screen and (max-width: 500px){
 	.active-user-count, .recipes-count {
 		width: 100% !important;
+	}
+}
+
+@media screen and (max-width: 785px){
+	.content {
+		flex-direction: column;
+
+		.admin-navbar-container {
+			width: 100%;
+			margin-bottom: 30px;
+		}
+
+		.main-container {
+			width: 100%;
+			margin-left: 0;
+		}
 	}
 }
 </style>

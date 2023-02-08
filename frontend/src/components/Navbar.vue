@@ -40,6 +40,15 @@
 					<img class="pfp" src="@/assets/default_pfp.png" alt="pfp" v-else>
 				</div>
 				<ul class="profile-dropdown-list dropdown-menu">
+					<li><router-link class="dropdown-upload-recipe-button dropdown-item" :to="{name: 'UploadRecipe'}">
+						<img class="dropdown-addIcon" src="@/assets/icons/add_icon_black.png" alt="add">
+						<span>Upload recipe</span>
+					</router-link></li>
+					<li><router-link class="dropdown-admin-button dropdown-item" :to="{name: 'UsersAdmin'}">
+						<img class="dropdown-lockIcon" src="@/assets/icons/lock_black.png" alt="lock">
+						<span>Admin</span>
+					</router-link></li>
+					<li><hr class="dropdown-divider mx-auto extra-divider"></li>
 					<li><router-link class="dropdown-item" :to="{name: 'WeeklyMenu', params: {nextWeek: 0}}">
 						<img class="calendarIcon" src="@/assets/icons/calendar.png" alt="calendar">
 						Weekly menu
@@ -546,9 +555,13 @@ export default {
 		-webkit-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
 		-moz-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
 
-		.calendarIcon, .heartIcon, .shoppingListIcon, .profileIcon, .logoutIcon {
-			height: 1.3rem;
+		.calendarIcon, .heartIcon, .shoppingListIcon, .profileIcon, .logoutIcon, .dropdown-addIcon, .dropdown-lockIcon {
+			width: 1.3rem;
 			margin-right: 5%;
+		}
+
+		.dropdown-upload-recipe-button, .dropdown-admin-button, .extra-divider {
+			display: none;
 		}
 
 		.dropdown-item{
@@ -765,7 +778,20 @@ export default {
 			}
 		}
 	}
-
-
 }
+
+@media screen and (max-width: 1000px){
+	.buttons {
+		margin-right: 5% !important;
+
+		.admin-button, .upload-recipe-button {
+			display: none !important;
+		}
+
+		.dropdown-upload-recipe-button, .dropdown-admin-button, .extra-divider {
+			display: block !important;
+		}
+	}
+}
+
 </style>

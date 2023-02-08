@@ -134,4 +134,16 @@ export default {
 			margin-top: 30px;
 		}
 	}
+
+	@media screen and (max-width: 575px){
+		.home-title {
+			margin-left: 10px;
+		}
+	}
+
+	@media screen and (max-width: 450px){
+		.recipe_cards {
+			grid-template-columns: repeat(auto-fill, 350px) !important;
+		}
+	}
 </style>

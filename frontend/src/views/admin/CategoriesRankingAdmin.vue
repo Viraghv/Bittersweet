@@ -155,4 +155,20 @@ export default {
 		}
 	}
 }
+
+@media screen and (max-width: 785px){
+	.content {
+		flex-direction: column;
+
+		.admin-navbar-container {
+			width: 100%;
+			margin-bottom: 50px;
+		}
+
+		.main-container {
+			width: 100%;
+			margin-left: 0;
+		}
+	}
+}
 </style>

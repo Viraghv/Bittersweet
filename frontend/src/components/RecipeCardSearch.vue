@@ -8,7 +8,7 @@
 			<p class="type-name">{{ type }}</p>
 		</div>
 		<div class="recipe-title-container">
-			<p class="recipe-title">{{title.length <= 30 ? title : title.substring(0,30) + '...'}}</p>
+			<p class="recipe-title">{{title.length <= 25 ? title : title.substring(0,25) + '...'}}</p>
 		</div>
 		<div class="recipe-info-container">
 			<div class="difficulty-info-container">
@@ -164,6 +164,29 @@ export default {
 				}
 			}
 
+		}
+	}
+
+	@media screen and (max-width: 450px){
+		.recipe-card-search {
+			width: 350px;
+			height: 350px;
+			border-bottom-left-radius: 30px;
+			border-bottom-right-radius: 30px;
+
+			.image-container {
+				width: 350px;
+				height: 200px;
+
+				.recipe-image {
+					width: 350px;
+					height: 200px;
+				}
+			}
+
+			.recipe-info-container {
+				width: 350px;
+			}
 		}
 	}
 </style>
