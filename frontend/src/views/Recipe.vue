@@ -1824,8 +1824,8 @@ export default {
 
 	@media screen and (max-width: 575px){
 		.content {
-			margin-left: 5px;
-			margin-right: 5px;
+			margin-left: 10px;
+			margin-right: 10px;
 		}
 
 		.recipe-header {
@@ -1863,6 +1863,18 @@ export default {
 
 		.average-rating-container {
 			flex-direction: column;
+		}
+	}
+
+	@media (hover: none) {
+		.modal-header {
+			.warning-icon {
+				display: none !important;
+			}
+		}
+
+		.modal {
+			margin-top: 0;
 		}
 	}
 

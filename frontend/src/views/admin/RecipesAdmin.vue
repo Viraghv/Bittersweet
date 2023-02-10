@@ -402,6 +402,10 @@ export default {
 
 				}
 
+				.uploaded-by-td {
+					word-break: break-all;
+				}
+
 				th, td {
 					padding: 15px 10px;
 				}
@@ -633,8 +637,15 @@ export default {
 	}
 }
 
+@media screen and (max-width: 575px){
+	.content {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+}
+
 @media screen and (max-width: 520px){
-	.last-modified-th, .last-modified-td {
+	.last-modified-th, .last-modified-td, .uploaded-th, .uploaded-by-td {
 		display: none;
 	}
 }
@@ -642,6 +653,16 @@ export default {
 @media (hover: none) {
 	.options-icon {
 		display: block !important;
+	}
+
+	.modal-header {
+		.warning-icon {
+			display: none !important;
+		}
+	}
+
+	.modal {
+		margin-top: 0;
 	}
 }
 </style>

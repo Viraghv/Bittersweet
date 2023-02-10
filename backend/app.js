@@ -17,7 +17,7 @@ const app = express();
 app.use(cookieParser());
 
 let corsOptions = {
-    origin: process.env.CLIENT_REQUEST_URL,
+    origin: true,
     methods: "GET, POST, PUT, DELETE",
     credentials: true,
     exposedHeaders: ["set-cookie", "sessionToken"],

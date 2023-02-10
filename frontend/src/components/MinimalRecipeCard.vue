@@ -83,8 +83,8 @@ export default {
 				justify-content: right;
 				align-self: flex-start;
 				margin-left: auto;
-				padding-top: 15px;
-				padding-right: 25px;
+				margin-top: 15px;
+				margin-right: 25px;
 				gap: 15px;
 
 				.add-icon, .delete-icon, .edit-icon {
@@ -124,6 +124,8 @@ export default {
 		}
 
 		.info-container {
+			margin-right: 10px;
+
 			.name {
 				font-size: 1.3rem;
 			}
@@ -139,14 +141,43 @@ export default {
 
 	}
 
+	@media screen and (max-width: 575px){
+		.recipe-image-container {
+			width: 100px !important;
+			height: 100px !important;
+
+			.recipe-image {
+				width: 100px !important;
+				height: 100px !important;
+			}
+		}
+
+		.info-container {
+			.name {
+				font-size: 1.1rem !important;
+			}
+			.uploaded {
+				font-size: 0.7rem !important;
+			}
+		}
+
+		.add-icon, .delete-icon, .edit-icon {
+			width: 15px !important;
+		}
+
+		.action-buttons {
+			flex-direction: column;
+		}
+	}
+
 	@media (hover: none) {
 		.action-buttons {
 			display: flex;
 			justify-content: right;
 			align-self: flex-start;
 			margin-left: auto;
-			padding-top: 15px;
-			padding-right: 25px;
+			margin-top: 15px;
+			margin-right: 25px;
 			gap: 15px;
 
 			.add-icon, .delete-icon, .edit-icon {

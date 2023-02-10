@@ -28,18 +28,18 @@
 				<h2>Most active users</h2>
 				<table class="users-ranking-table">
 					<tr class="header-row">
-						<th class="first-header rank-cell">Rank</th>
-						<th>Username</th>
-						<th>Joined</th>
-						<th>Recipes</th>
-						<th class="last-header">Comments</th>
+						<th class="first-header rank-cell rank-th">Rank</th>
+						<th class="username-th">Username</th>
+						<th class="joined-th">Joined</th>
+						<th class="recipes-th">Recipes</th>
+						<th class="last-header comments-th">Comments</th>
 					</tr>
 					<tr v-for="index in (rankedUsers.length < 5 ? rankedUsers.length : 5)" :key="index">
-						<td class="rank-cell"><b>{{index}}</b></td>
-						<td>{{rankedUsers[index-1].username.length < 30 ? rankedUsers[index-1].username : rankedUsers[index-1].username.substring(0, 30) + '...' }}</td>
-						<td>{{new Date(rankedUsers[index-1].joined.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
-						<td>{{rankedUsers[index-1].recipeCount}}</td>
-						<td>{{rankedUsers[index-1].commentsCount}}</td>
+						<td class="rank-cell rank-td"><b>{{index}}</b></td>
+						<td class="username-td">{{rankedUsers[index-1].username.length < 30 ? rankedUsers[index-1].username : rankedUsers[index-1].username.substring(0, 30) + '...' }}</td>
+						<td class="joined-td">{{new Date(rankedUsers[index-1].joined.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
+						<td class="recipes-td">{{rankedUsers[index-1].recipeCount}}</td>
+						<td class="comments-td">{{rankedUsers[index-1].commentsCount}}</td>
 					</tr>
 				</table>
 				<p class="no-results-text" v-if="rankedUsers.length === 0">No results</p>
@@ -51,14 +51,14 @@
 				<h2>Most popular categories</h2>
 				<table class="categories-ranking-table">
 					<tr class="header-row">
-						<th class="first-header rank-cell">Rank</th>
-						<th>Category</th>
-						<th>Number of recipes</th>
+						<th class="first-header rank-cell rank-th">Rank</th>
+						<th class="category-th">Category</th>
+						<th class="last-header number-of-recipes-th">Number of recipes</th>
 					</tr>
 					<tr v-for="index in (rankedCategories.length < 5 ? rankedCategories.length : 5)" :key="index">
-						<td class="rank-cell"><b>{{index}}</b></td>
-						<td>{{rankedCategories[index-1].name}}</td>
-						<td>{{rankedCategories[index-1]._count.recipes}}</td>
+						<td class="rank-cell rank-td"><b>{{index}}</b></td>
+						<td class="category-td">{{rankedCategories[index-1].name}}</td>
+						<td class="number-of-recipes-td">{{rankedCategories[index-1]._count.recipes}}</td>
 					</tr>
 				</table>
 				<p class="no-results-text" v-if="rankedCategories.length === 0">No results</p>
@@ -257,6 +257,10 @@ export default {
 					max-width: 10vw;
 				}
 
+				.category-td {
+					word-break: break-all;
+				}
+
 				th, td {
 					padding: 15px 10px;
 				}
@@ -331,6 +335,29 @@ export default {
 			width: 100%;
 			margin-left: 0;
 		}
+	}
+}
+
+@media screen and (max-width: 575px){
+	.content {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+
+	.joined-th, .joined-td {
+		display: none;
+	}
+}
+
+@media (hover: none) {
+	.modal-header {
+		.warning-icon {
+			display: none !important;
+		}
+	}
+
+	.modal {
+		margin-top: 0;
 	}
 }
 </style>

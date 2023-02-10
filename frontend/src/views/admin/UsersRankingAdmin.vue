@@ -7,18 +7,18 @@
 			<h2>Users ranked by activity</h2>
 			<table class="users-ranking-table">
 				<tr class="header-row">
-					<th class="first-header rank-cell">Rank</th>
-					<th>Username</th>
-					<th>Joined</th>
-					<th>Recipes</th>
-					<th class="last-header">Comments</th>
+					<th class="first-header rank-cell rank-th">Rank</th>
+					<th class="username-th">Username</th>
+					<th class="joined-th">Joined</th>
+					<th class="recipes-th">Recipes</th>
+					<th class="last-header comments-th">Comments</th>
 				</tr>
 				<tr v-for="(user, index) in rankedUsers" :key="index">
-					<td class="rank-cell"><b>{{(currentPage-1)*25 + index+1}}</b></td>
-					<td>{{user.username.length < 30 ? user.username : user.username.substring(0, 30) + '...' }}</td>
-					<td>{{new Date(user.joined.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
-					<td>{{user.recipeCount}}</td>
-					<td>{{user.commentsCount}}</td>
+					<td class="rank-cell rank-td"><b>{{(currentPage-1)*25 + index+1}}</b></td>
+					<td class="username-td">{{user.username.length < 30 ? user.username : user.username.substring(0, 30) + '...' }}</td>
+					<td class="joined-td">{{new Date(user.joined.split(" ")[0]).toLocaleDateString("en-GB")}}</td>
+					<td class="recipes-td">{{user.recipeCount}}</td>
+					<td class="comments-td">{{user.commentsCount}}</td>
 				</tr>
 			</table>
 			<p class="no-results-text" v-if="rankedUsers.length === 0">No results</p>
@@ -174,6 +174,29 @@ export default {
 			width: 100%;
 			margin-left: 0;
 		}
+	}
+}
+
+@media screen and (max-width: 575px){
+	.content {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+
+	.joined-th, .joined-td {
+		display: none;
+	}
+}
+
+@media (hover: none) {
+	.modal-header {
+		.warning-icon {
+			display: none !important;
+		}
+	}
+
+	.modal {
+		margin-top: 0;
 	}
 }
 </style>

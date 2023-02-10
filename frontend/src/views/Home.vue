@@ -136,8 +136,9 @@ export default {
 	}
 
 	@media screen and (max-width: 575px){
-		.home-title {
+		.content {
 			margin-left: 10px;
+			margin-right: 10px;
 		}
 	}
 

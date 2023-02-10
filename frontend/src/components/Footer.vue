@@ -77,6 +77,10 @@ export default {
 		.logo {
 			display: none;
 		}
+
+		.flaticon-logo, .freepik-logo, .allrecipes-logo {
+			height: 20px !important;
+		}
 	}
 }
 </style>

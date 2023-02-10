@@ -99,6 +99,10 @@ export default {
 				 }
 			 }
 
+			 .item-name {
+				 word-break: break-all;
+			 }
+
 			 .options-btn {
 				 padding: 0;
 				 background-color: transparent;

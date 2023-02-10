@@ -18,19 +18,19 @@
 					<table class="user-info-table">
 						<tr>
 							<th>First name:</th>
-							<td>{{userStore.user?.firstname ? userStore.user?.firstname : "-"}}</td>
+							<td class="first-name-td">{{userStore.user?.firstname ? userStore.user?.firstname : "-"}}</td>
 						</tr>
 						<tr>
 							<th>Last name:</th>
-							<td>{{userStore.user?.lastname ? userStore.user?.lastname : "-"}}</td>
+							<td  class="last-name-td">{{userStore.user?.lastname ? userStore.user?.lastname : "-"}}</td>
 						</tr>
 						<tr>
 							<th>Email:</th>
-							<td>{{userStore.user?.email}}</td>
+							<td class="email-td">{{userStore.user?.email}}</td>
 						</tr>
 						<tr>
 							<th>Member since:</th>
-							<td>{{formattedMemberSinceDate}}</td>
+							<td class="member-since-td">{{formattedMemberSinceDate}}</td>
 						</tr>
 					</table>
 				</div>
@@ -804,15 +804,15 @@ export default {
 							justify-content: center;
 							align-items: center;
 
-							width: 200px;
-							height: 200px;
+							width: 180px;
+							height: 180px;
 
 							background-color: white;
 							border-radius: 100px;
 
 							.pfp {
-								width: 200px;
-								height: 200px;
+								width: 180px;
+								height: 180px;
 
 								object-fit: cover;
 								border-radius: 100px;
@@ -825,11 +825,11 @@ export default {
 						margin-left: 25px;
 
 						.username {
-							font-size: 2rem;
+							font-size: 1.5rem;
 						}
 
 						.recipe-count {
-							font-size: 0.9rem;
+							font-size: 0.8rem;
 							white-space: nowrap;
 						}
 					}
@@ -859,6 +859,10 @@ export default {
 
 							td {
 								text-align: right;
+							}
+
+							.email-td, .first-name-td, .last-name-td {
+								word-break: break-all;
 							}
 						}
 					}
@@ -974,7 +978,7 @@ export default {
 				margin-bottom: 40px;
 
 				.sort-input {
-					width: 270px;
+					width: 250px;
 					margin: 0 0 0 15px;
 				}
 			}
@@ -1087,6 +1091,7 @@ export default {
 					align-items: center;
 					justify-content: space-evenly;
 					margin-bottom: 15px;
+					gap: 10px;
 
 					.pfp-preview-container {
 						display: flex;
@@ -1323,6 +1328,23 @@ export default {
 		}
 	}
 
+	@media screen and (max-width: 575px){
+		.content {
+			margin-left: 10px;
+			margin-right: 10px;
+		}
+
+		.pfp-container {
+			width: 150px !important;
+			height: 150px !important;
+
+			.pfp {
+				width: 150px !important;
+				height: 150px !important;
+			}
+		}
+	}
+
 	@media screen and (max-width: 500px){
 		.difficulty-container, .cost-container, .diet-container {
 			flex-direction: column;
@@ -1335,6 +1357,18 @@ export default {
 			.difficulty-input, .cost-input, .diet-input {
 				width: 100% !important;
 			}
+		}
+	}
+
+	@media (hover: none) {
+		.modal-header {
+			.warning-icon {
+				display: none !important;
+			}
+		}
+
+		.modal {
+			margin-top: 0;
 		}
 	}
 

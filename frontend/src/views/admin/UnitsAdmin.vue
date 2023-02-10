@@ -410,4 +410,23 @@ export default {
 			}
 		}
 	}
+
+	@media screen and (max-width: 575px){
+		.content {
+			margin-left: 10px;
+			margin-right: 10px;
+		}
+	}
+
+	@media (hover: none) {
+		.modal-header {
+			.warning-icon {
+				display: none !important;
+			}
+		}
+
+		.modal {
+			margin-top: 0;
+		}
+	}
 </style>

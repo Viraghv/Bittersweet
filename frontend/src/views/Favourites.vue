@@ -298,6 +298,8 @@ export default {
 		},
 
 		async initAllFavourites(page){
+			window.scrollTo(0,0);
+
 			try {
 				const response = await this.axios.get(`/favourite/allUserFavouriteCards/${this.selectedSortTypeAll}/${page}`)
 				this.allFavourites = response.data;
@@ -366,6 +368,8 @@ export default {
 		},
 
 		async initGroupRecipes(page){
+			window.scrollTo(0,0);
+
 			try {
 				const response = await this.axios.get(`/user/groups/getAllRecipeCards/${this.selectedSortTypeGroups}/${Number(this.selectedUserGroup)}/${page}`)
 				this.groupRecipes = response.data;
@@ -691,7 +695,7 @@ export default {
 				margin-bottom: 40px;
 
 				.all-sort-input, .group-sort-input {
-					width: 270px;
+					width: 260px;
 					margin: 0 0 0 15px;
 				}
 			}
@@ -750,6 +754,11 @@ export default {
 
 			.group-sort-container {
 				margin-bottom: 0;
+
+				.group-sort-label {
+					display: block;
+					white-space: nowrap;
+				}
 			}
 
 			.create-group-button {
@@ -757,33 +766,12 @@ export default {
 				border: 1px solid var(--lightgrey);
 				border-radius: 20px;
 				padding: 3px 0;
-				width: 25%;
+				width: 150px;
 				margin-left: 20px;
 
 				&:hover {
 					opacity: 0.8;
 				}
-			}
-		}
-	}
-
-	@media screen and (max-width: 1631px) {
-		.groups-header {
-			display: flex;
-			flex-direction: column;
-			justify-content: left;
-
-			.groups-header-left, .groups-header-right{
-				width: 100%;
-				justify-content: left;
-
-				.create-group-button {
-					width: 20%;
-				}
-			}
-
-			.groups-header-left {
-				margin-bottom: 10px;
 			}
 		}
 	}
@@ -916,6 +904,62 @@ export default {
 
 		&.create-group-alert, &.edit-group-alert {
 			padding-bottom: 5px;
+		}
+	}
+
+	@media screen and (max-width: 1725px) {
+		.groups-header {
+			display: flex;
+			flex-direction: column;
+			justify-content: left;
+
+			.groups-header-left, .groups-header-right{
+				width: 100%;
+				justify-content: left;
+			}
+
+			.groups-header-left {
+				margin-bottom: 20px;
+			}
+		}
+	}
+
+	@media screen and (max-width: 575px){
+		.content {
+			margin-left: 10px;
+			margin-right: 10px;
+		}
+
+		.all-sort-container, .group-sort-container {
+			flex-direction: column;
+			align-items: flex-start !important;
+
+			.all-sort-input, .group-sort-input {
+				margin-left: 0 !important;
+			}
+		}
+
+		.groups-header-right {
+			flex-direction: column;
+			align-items: flex-start !important;
+
+			.create-group-button {
+				margin-left: 0 !important;
+				margin-top: 10px;
+			}
+
+		}
+	}
+
+	@media (hover: none) {
+		.modal-header {
+			.warning-icon {
+				display: none !important;
+			}
+		}
+
+		.modal {
+			margin-top: 0;
 		}
 	}
 </style>

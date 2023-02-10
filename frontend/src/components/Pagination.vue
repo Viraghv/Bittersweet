@@ -2,7 +2,7 @@
 	<vue-awesome-paginate
 		:total-items="totalItems"
 		:items-per-page="itemsPerPage"
-		:max-pages-shown="5"
+		:max-pages-shown="3"
 		v-model="currentPage"
 		:on-click="onClickHandler"
 		back-button-class="back-btn"
@@ -119,6 +119,20 @@ export default {
 			background-color:  var(--darkgreen);
 		}
 
+	}
+
+	@media screen and (max-width: 450px) {
+		.paginate-buttons {
+			height: 40px;
+			width: 40px;
+		}
+
+		.white {
+			.paginate-buttons {
+				height: 40px;
+				width: 40px;
+			}
+		}
 	}
 
 </style>

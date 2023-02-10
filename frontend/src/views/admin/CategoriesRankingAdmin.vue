@@ -7,14 +7,14 @@
 			<h2>Categories ranked by popularity</h2>
 			<table class="categories-ranking-table">
 				<tr class="header-row">
-					<th class="first-header rank-cell">Rank</th>
-					<th>Category</th>
-					<th>Number of recipes</th>
+					<th class="first-header rank-cell  rank-th">Rank</th>
+					<th class="category-th">Category</th>
+					<th class="last-header number-of-recipes-th">Number of recipes</th>
 				</tr>
 				<tr v-for="(category, index) in rankedCategories" :key="index">
-					<td class="rank-cell"><b>{{(currentPage-1)*25 + index+1}}</b></td>
-					<td>{{category.name}}</td>
-					<td>{{category._count.recipes}}</td>
+					<td class="rank-cell rank-td"><b>{{(currentPage-1)*25 + index+1}}</b></td>
+					<td class="category-td">{{category.name}}</td>
+					<td class="number-of-recipes-td">{{category._count.recipes}}</td>
 				</tr>
 			</table>
 			<p class="no-results-text" v-if="rankedCategories.length === 0">No results</p>
@@ -116,6 +116,10 @@ export default {
 				max-width: 10vw;
 			}
 
+			.category-td {
+				word-break: break-all;
+			}
+
 			th, td {
 				padding: 15px 10px;
 			}
@@ -169,6 +173,25 @@ export default {
 			width: 100%;
 			margin-left: 0;
 		}
+	}
+}
+
+@media screen and (max-width: 575px){
+	.content {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+}
+
+@media (hover: none) {
+	.modal-header {
+		.warning-icon {
+			display: none !important;
+		}
+	}
+
+	.modal {
+		margin-top: 0;
 	}
 }
 </style>

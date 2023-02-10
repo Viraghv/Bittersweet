@@ -941,7 +941,7 @@ export default {
 				font-family: Gotu,serif;
 				margin-top: 10px;
 				margin-bottom: 10px;
-				height: 10vh;
+				height: 150px;
 
 				&:focus {
 					outline: var(--darkgreen) solid 3px;
@@ -1002,6 +1002,7 @@ export default {
 						width: 95%;
 						margin-left: 10px;
 						height: 4rem;
+						min-height: 100px;
 					}
 
 					.ingredient-name-input {
@@ -1247,6 +1248,25 @@ export default {
 				gap: 5px;
 			}
 
+		}
+	}
+
+	@media screen and (max-width: 575px){
+		.content {
+			margin-left: 10px;
+			margin-right: 10px;
+		}
+	}
+
+	@media (hover: none) {
+		.modal-header {
+			.warning-icon {
+				display: none !important;
+			}
+		}
+
+		.modal {
+			margin-top: 0;
 		}
 	}
 

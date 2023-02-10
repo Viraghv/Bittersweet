@@ -34,6 +34,22 @@
 				</router-link>
 			</button>
 
+			<div class="options-dropdown  dropdown dropdown-menu-end" v-if="!userStore.loggedIn">
+				<div class="options-button-container" data-bs-toggle="dropdown" data-bs-offset="16,15">
+					<img class="options-icon" src="@/assets/icons/dots_white.png" alt="options">
+				</div>
+				<ul class="options-dropdown-list dropdown-menu">
+					<li><button type="button" class="login-button-dropdown dropdown-item" data-bs-toggle="modal" data-bs-target="#login-modal" v-if="!userStore.loggedIn">
+						<img class="loginIcon" src="@/assets/icons/log-in.png" alt="login">
+						<span>Log in</span>
+					</button></li>
+					<li><button type="button" class="signup-button-dropdown dropdown-item" data-bs-toggle="modal" data-bs-target="#signup-modal" v-if="!userStore.loggedIn">
+						<img class="signUpIcon" src="@/assets/icons/add-user.png" alt="signup">
+						<span>Sign up</span>
+					</button></li>
+				</ul>
+			</div>
+
 			<div class="profile-dropdown  dropdown dropdown-menu-end" v-if="userStore.loggedIn">
 				<div class="profile-button pfp-container" data-bs-toggle="dropdown" data-bs-offset="10,15">
 					<img class="pfp" :src="'data:image/' + userStore.user.pfpExt + ';base64,'+ userStore.user.pfp" alt="pfp" v-if="userStore.user && userStore.user.profilepicture" />
@@ -44,7 +60,7 @@
 						<img class="dropdown-addIcon" src="@/assets/icons/add_icon_black.png" alt="add">
 						<span>Upload recipe</span>
 					</router-link></li>
-					<li><router-link class="dropdown-admin-button dropdown-item" :to="{name: 'UsersAdmin'}">
+					<li v-if="userStore.loggedIn && admin"><router-link class="dropdown-admin-button dropdown-item" :to="{name: 'UsersAdmin'}">
 						<img class="dropdown-lockIcon" src="@/assets/icons/lock_black.png" alt="lock">
 						<span>Admin</span>
 					</router-link></li>
@@ -452,7 +468,6 @@ export default {
 	z-index: 200;
 
 	.logo{
-		width: 175px;
 		margin-left: 10%;
 		height: 40px;
 	}
@@ -477,6 +492,7 @@ export default {
 		.signup-button {
 			font-weight: bold;
 			margin-left: 10%;
+			color: black;
 		}
 
 		.loginIcon, .signUpIcon, .addIcon {
@@ -518,7 +534,51 @@ export default {
 		}
 	}
 
+	.options-button-container {
+		display: none;
 
+		.options-icon {
+			width: 25px;
+		}
+
+		&:hover {
+			cursor: pointer;
+		}
+	}
+
+	.options-dropdown-list{
+		background-color: var(--lightgreen);
+		padding: 20px 20px 10px 20px;
+		width: 250px;
+		border-radius: 20px;
+		border-color: transparent;
+		box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+		-webkit-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+		-moz-box-shadow: 6px 6px 4px 0 rgba(0,0,0,0.23);
+
+		.loginIcon, .signUpIcon {
+			width: 1.3rem;
+			margin-right: 5%;
+		}
+
+		.dropdown-item{
+			margin-bottom: 5%;
+			border-radius: 10px;
+
+			&:hover {
+				background-color: var(--darkgreen);
+			}
+
+			&:active {
+				color: black;
+			}
+		}
+
+		.login-button-dropdown, .signup-button-dropdown {
+			color: var(--bs-dropdown-link-color);
+			display: flex;
+		}
+	}
 
 	.pfp-container {
 		display: flex;
@@ -547,7 +607,7 @@ export default {
 
 	.profile-dropdown-list{
 		background-color: var(--lightgreen);
-		padding: 20px;
+		padding: 20px 20px 10px 20px;
 		width: 250px;
 		border-radius: 20px;
 		border-color: transparent;
@@ -784,13 +844,36 @@ export default {
 	.buttons {
 		margin-right: 5% !important;
 
-		.admin-button, .upload-recipe-button {
+		.admin-button, .upload-recipe-button, .login-button, .signup-button {
 			display: none !important;
+		}
+
+		.options-button-container {
+			display: block;
 		}
 
 		.dropdown-upload-recipe-button, .dropdown-admin-button, .extra-divider {
 			display: block !important;
 		}
+	}
+}
+
+@media screen and (max-width: 575px){
+	.logo{
+		height: 35px !important;
+	}
+}
+
+
+@media (hover: none) {
+	.modal-header {
+		.warning-icon {
+			display: none !important;
+		}
+	}
+
+	.modal {
+		margin-top: 0;
 	}
 }
 

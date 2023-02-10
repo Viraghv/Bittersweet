@@ -926,6 +926,10 @@ export default {
 
 					}
 
+					.username-td, .email-td {
+						word-break: break-all;
+					}
+
 					th, td {
 						padding: 15px 10px;
 					}
@@ -1276,7 +1280,7 @@ export default {
 
 		.action-btn {
 			background-color: var(--yellow);
-			margin-right: 40px;
+			margin-right: 20px;
 		}
 
 		.cancel-btn {
@@ -1328,6 +1332,13 @@ export default {
 		}
 	}
 
+	@media screen and (max-width: 575px){
+		.content {
+			margin-left: 10px;
+			margin-right: 10px;
+		}
+	}
+
 	@media screen and (max-width: 470px){
 		.email-th, .email-td {
 			display: none;
@@ -1337,6 +1348,16 @@ export default {
 	@media (hover: none) {
 		.options-icon {
 			display: block !important;
+		}
+
+		.modal-header {
+			.warning-icon {
+				display: none !important;
+			}
+		}
+
+		.modal {
+			margin-top: 0;
 		}
 	}
 

@@ -26,3 +26,18 @@ $modal-content-bg: var(--darkgreen);
   --ms-option-bg-selected-pointed: var(--yellow);
   --ms-placeholder-color: grey;
 }
+
+@font-face {
+  font-family: "Gotu";
+  src: local("Gotu"),
+       url("/src/assets/fonts/Gotu 400.ttf")
+       format("TrueType");
+}
+
+@font-face {
+  font-family: "ABeeZee Regular";
+  src: local("ABeeZee Regular"),
+  url("/src/assets/fonts/ABeeZee-Regular.ttf")
+  format("TrueType");
+}
+
