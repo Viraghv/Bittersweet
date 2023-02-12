@@ -131,4 +131,15 @@ export default {
 		}
 	}
 
+
+  @media screen and (max-width: 575px){
+    .stars > span {
+      width: 1em !important;
+      font-size: 25px;
+    }
+
+    .content {
+      font-size: 0.8rem;
+    }
+  }
 </style>

@@ -689,10 +689,12 @@ export default {
 		.generate-btn, .add-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn  {
 			background-color: var(--yellow);
 			margin-right: 40px;
+      width: fit-content;
 		}
 
 		.cancel-btn {
 			background-color: var(--lightgreen);
+      width: fit-content;
 		}
 
 		.addAllToShoppingListLoader {
@@ -716,6 +718,18 @@ export default {
 			margin-right: 10px;
 		}
 	}
+
+  @media screen and (max-width: 465px){
+    .dont-recommend {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dont-recommend-btn {
+      margin-right: 0 !important;
+    }
+  }
 
 	@media (hover: none) {
 		.modal-header {

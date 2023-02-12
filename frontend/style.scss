@@ -41,3 +41,9 @@ $modal-content-bg: var(--darkgreen);
   format("TrueType");
 }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 0 !important;
+}
+

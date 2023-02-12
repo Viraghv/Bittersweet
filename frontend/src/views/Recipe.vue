@@ -1783,6 +1783,20 @@ export default {
 		}
 	}
 
+  @media screen and (max-width: 1300px){
+    .recipe-header {
+      flex-direction: column;
+
+      .recipe-title {
+        text-align: center;
+      }
+    }
+
+    .favourite-container {
+      justify-content: center !important;
+    }
+  }
+
 	@media screen and (max-width: 930px){
 		.column-right {
 			display: none !important;
@@ -1828,14 +1842,6 @@ export default {
 			margin-right: 10px;
 		}
 
-		.recipe-header {
-			flex-direction: column;
-		}
-
-		.favourite-container {
-			justify-content: center !important;
-		}
-
 		.user-description-container {
 			flex-direction: column;
 		}
@@ -1855,6 +1861,11 @@ export default {
 				}
 			}
 		}
+
+    .stars > span {
+      width: 1em !important;
+      font-size: 35px;
+    }
 
 		.description-container {
 			padding-top: 50px !important;
