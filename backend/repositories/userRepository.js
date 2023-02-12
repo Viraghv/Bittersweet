@@ -908,3 +908,21 @@ module.exports.getRankedUsers = async () => {
         await prisma.$disconnect();
     }
 }
+
+module.exports.deleteOldUnverifiedUsers = async () => {
+    try {
+        return await prisma.User.deleteMany({
+            where: {
+                emailVerified: false,
+                joined: {
+                    lte: new Date(Date.now() - 15 * 60000), //15 minutes ago
+                }
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}

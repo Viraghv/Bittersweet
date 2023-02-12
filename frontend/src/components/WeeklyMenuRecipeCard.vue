@@ -117,6 +117,7 @@ export default {
 		padding: 0;
 		background-color: var(--lightgreen);
 		width: 100%;
+		height: 150px;
 
 		.no-recipe {
 			display: flex;
@@ -145,7 +146,7 @@ export default {
 		.meal-container {
 			background-color: var(--darkgreen);
 			width: 50px;
-			height: 150px;
+			height: 100%;
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -175,6 +176,7 @@ export default {
 			justify-content: left;
 			align-items: center;
 			width: 100%;
+			height: 100%;
 
 			&:hover {
 				cursor: pointer;
@@ -314,7 +316,7 @@ export default {
 		}
 	}
 
-	@media screen and (max-width: 1355px){
+	@media screen and (max-width: 1525px){
 		.info-container {
 			flex-direction: column;
 			gap: 10px;
@@ -327,6 +329,37 @@ export default {
 	@media screen and (max-width: 820px){
 		.info-container {
 			display: none !important;
+		}
+	}
+
+	@media screen and (max-width: 500px){
+		.calories {
+			display: none !important;
+		}
+
+		.mycontainer {
+			height: 100px;
+		}
+
+		.recipe-image-container {
+			background-color: var(--lightgreen);
+			width: 100px !important;
+			height: 100px !important;
+			margin-right: 30px;
+
+			.recipe-image {
+				width: 100px !important;
+				height: 100px !important;
+				object-fit: cover;
+			}
+		}
+
+		.name-container {
+			font-size: 1rem !important;
+		}
+
+		.action-buttons {
+			height: 100px !important;
 		}
 	}
 

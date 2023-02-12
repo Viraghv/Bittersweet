@@ -65,7 +65,7 @@ module.exports.register = async (userData) => {
                 expiresIn: 15 * 60,  //15 minutes
             },
             (err, emailToken) => {
-                const url = `http://bittersweet.local/verification/${emailToken}`;
+                const url = `${process.env.CLIENT_REQUEST_URL}/verification/${emailToken}`;
 
                 transporter.sendMail({
                     to: user.email,
@@ -632,7 +632,12 @@ module.exports.changePasswordOfUserAdmin = async (passwordData, userId) => {
 
 module.exports.setVerified = async (verified, userId) => {
     try {
-        return await userRepository.setVerified(verified, userId)
+        const response = await userRepository.setVerified(verified, userId);
+
+        if(Boolean(verified)) {
+            await weeklyMenuService.generateWeekForUser(userId, 0);
+            await weeklyMenuService.generateWeekForUser(userId, 1);
+        }
     } catch (exception){
         throw exception
     }
@@ -669,6 +674,15 @@ module.exports.getRankedUsers = async (page) => {
 
 
     return rankedUsers;
+}
+
+module.exports.deleteOldUnverifiedUsers = async () => {
+    try {
+        await userRepository.deleteOldUnverifiedUsers();
+        console.log("Unverified users deleted.")
+    } catch (error) {
+        throw error;
+    }
 }
 
 function makePassword(length) {

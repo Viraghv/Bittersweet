@@ -116,7 +116,8 @@
 					<div class="signup-alert alert alert-success" v-if="showSignupSuccessMsg">
 						<strong>Signup successful!</strong><br>
 						<span class="signup-success-text">To log in, please verify your email by clicking the link in the email we sent to your given address!</span><br>
-						<span class="signup-success-text">The link expires in <strong>15 minutes</strong>!</span>
+						<span class="signup-success-text">The link expires in <strong>15 minutes</strong>!</span><br>
+						<span class="signup-success-text">If you haven't received an email, or missed the verification, try signing up again in <strong>30 minutes</strong>.</span>
 					</div>
 					<div class="signup-alert alert alert-danger" v-if="signupErrorMsgs.length !== 0">
 						<strong>Signup failed!</strong><br>

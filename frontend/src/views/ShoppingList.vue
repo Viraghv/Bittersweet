@@ -1,7 +1,7 @@
 <template>
-	<div class="content col-xxl-5 col-xl-9 col-lg-10 col-md-11 col-sm-11">
+	<div class="content col-xxl-5 col-xl-7 col-lg-9 col-md-11 col-sm-11">
 		<h1 class="title-text">Shopping list</h1>
-		<div class="shooping-list-header">
+		<div class="shopping-list-header">
 			<input type="text" class="searchbar" v-model="searchInput" placeholder="Search for category..."/>
 			<button class="delete-crossed-button"
 					data-bs-toggle="modal"
@@ -38,9 +38,11 @@
 					</div>
 					<div class="new-items-container">
 						<div class="new-item" v-for="(item, index) in addedNewItems[category.id]" :key="index">
-							<input class="item-amount-input" type="number" placeholder="Amount" v-model="item.amount" >
-							<Multiselect class="item-unit-input" v-model="item.unitId" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
-							<input class="item-name-input" type="text" placeholder="Item name" v-model="item.name">
+							<div class="new-item-inputs-container">
+								<input class="item-amount-input" type="number" placeholder="Amount" v-model="item.amount" >
+								<Multiselect class="item-unit-input" v-model="item.unitId" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
+								<input class="item-name-input" type="text" placeholder="Item name" v-model="item.name">
+							</div>
 							<img class="delete-item-button" src="@/assets/icons/close_grey.png" alt="delete-icon" @click="deleteItem(category.id, index)">
 						</div>
 						<div class="upload-alert-container">
@@ -107,7 +109,7 @@
 
 				<div class="edit-category">
 					<label class="edit-category-label" for="edit-category">Category name:</label>
-					<form class="edit-category-form">
+					<div class="edit-category-form">
 						<input class="edit-category-input" name="edit-category" v-model="newCategoryName"/>
 
 						<div class="edit-category-alert alert alert-danger" v-if="newCategoryErrors.length !== 0">
@@ -118,7 +120,7 @@
 						</div>
 
 						<button class="edit-category-button" type="button" @click="editCategory">Edit category</button><br>
-					</form>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -445,7 +447,7 @@ export default {
 			margin-bottom: 50px;
 		}
 
-		.shooping-list-header {
+		.shopping-list-header {
 			display: flex;
 			justify-content: space-between;
 			margin-bottom: 30px;
@@ -485,7 +487,10 @@ export default {
 				&:hover {
 					.category-header {
 						.icons-container {
-							display: block;
+							.edit-icon, .delete-icon {
+								display: block;
+							}
+
 						}
 					}
 				}
@@ -493,17 +498,22 @@ export default {
 				.category-header {
 					display: flex;
 					justify-content: space-between;
+					gap: 15px;
 					background-color: var(--darkgreen);
 					border-top-left-radius: 20px;
 					border-top-right-radius: 20px;
 					font-size: 1.3rem;
-					padding: 1.5% 3% 1.2% 3%;
+					padding: 15px 25px 10px 25px;
 
 					.icons-container {
-						display: none;
+						display: flex;
+						align-items: center;
+						min-width: 55px;
 
 						.edit-icon, .delete-icon {
+							display: none;
 							width: 20px;
+							height: 20px;
 
 							&:hover {
 								cursor: pointer;
@@ -542,8 +552,10 @@ export default {
 						.checkbox-input {
 							width: 25px;
 							height: 25px;
+							min-width: 25px;
+							min-height: 25px;
 							accent-color: var(--yellow);
-							margin-right: 2%;
+							margin-right: 15px;
 
 							&:hover {
 								cursor: pointer;
@@ -560,12 +572,20 @@ export default {
 							display: flex;
 							justify-content: space-between;
 							align-items: center;
-							gap: 5px;
+							gap: 10px;
 							width: 100%;
 							margin-bottom: 10px;
 
 							&:first-child {
 								margin-top: 20px;
+							}
+
+							.new-item-inputs-container {
+								width: 100%;
+								display: flex;
+								justify-content: space-between;
+								align-items: center;
+								gap: 5px;
 							}
 
 							.item-name-input, .item-amount-input, .item-unit-input{
@@ -652,7 +672,7 @@ export default {
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					padding: 1%;
+					padding: 10px;
 
 					&:hover {
 						opacity: 0.8;
@@ -822,15 +842,51 @@ export default {
 		}
 	}
 
+	@media screen and (max-width: 690px){
+		.new-item {
+			margin-bottom: 15px !important;
+
+			.item-amount-input, .item-unit-input, .item-name-input {
+				width: 100% !important;
+				margin-left: 0 !important;
+			}
+
+			.new-item-inputs-container {
+				flex-direction: column !important;
+				gap: 5px !important;
+			}
+		}
+	}
+
 	@media screen and (max-width: 575px){
 		.content {
 			margin-left: 10px;
 			margin-right: 10px;
+
+			.edit-icon, .delete-icon {
+				width: 18px !important;
+				height: 18px !important;
+			}
+
+			.shopping-list-header {
+				flex-direction: column;
+
+				.searchbar {
+					width: 100%;
+					margin-bottom: 15px;
+				}
+
+				.delete-crossed-button {
+					margin: 0 0 0 auto;
+					padding: 10px 20px;
+					width: 100%;
+				}
+			}
 		}
 	}
 
 	@media (hover: none) {
-		.icons-container {
+		.edit-icon, .delete-icon {
 			display: block !important;
 		}
 

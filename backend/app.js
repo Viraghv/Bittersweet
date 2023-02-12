@@ -38,6 +38,9 @@ app.use('/shoppingList', shoppingListRouter);
 app.use('/weeklyMenu', weeklyMenuRouter);
 
 const weeklyMenuService = require("./services/weeklyMenuService");
+const userService = require("./services/userService");
+
 schedule.scheduleJob('0 0 * * MON', weeklyMenuService.generateWeeklyMenuScheduled);
+schedule.scheduleJob('*/15 * * * *', userService.deleteOldUnverifiedUsers);
 
 module.exports = app;
