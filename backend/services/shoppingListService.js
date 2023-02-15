@@ -13,6 +13,7 @@ module.exports.getUserListById = async (userId) => {
     return shoppingList;
 }
 
+
 module.exports.addCategory = async (name, userId) => {
     let category;
 
@@ -60,6 +61,15 @@ module.exports.setItemDoneById = async (categoryId, done, userId) => {
 module.exports.deleteCategoryById = async (categoryId, userId) => {
     try {
         await shoppingListRepository.deleteCategoryById(categoryId, userId);
+    } catch (exception) {
+        console.log(exception);
+        throw exception
+    }
+}
+
+module.exports.deleteAllCategoriesOfUser = async (userId) => {
+    try {
+        await shoppingListRepository.deleteAllCategoriesOfUser(userId);
     } catch (exception) {
         console.log(exception);
         throw exception

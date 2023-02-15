@@ -13,6 +13,7 @@ router.post('/edit/category/:id', authMiddleware, shoppingListController.editCat
 router.post('/edit/item/setDone/:id', authMiddleware, shoppingListController.setItemDoneById)
 
 router.get('/delete/category/:id', authMiddleware, shoppingListController.deleteCategoryById);
+router.get('/delete/all/category', authMiddleware, shoppingListController.deleteAllCategoriesOfCurrentUser);
 router.get('/delete/items/allDone', authMiddleware, shoppingListController.deleteAllDoneItemsOfUser);
 
 module.exports = router;

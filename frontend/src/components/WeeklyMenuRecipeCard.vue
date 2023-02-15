@@ -1,14 +1,17 @@
 <template>
-	<div class="mycontainer" :class="item?.meal === 0 ? 'dessert' : ''">
-		<div class="no-recipe" v-if="item?.recipe === null">
+	<div class="mycontainer" :class="item?.meal === 4 || item?.meal === 5 ? 'dessert' : ''">
+		<div class="no-recipe" v-if="item?.recipe === null && !item?.unsetByUser">
 			<span>Sorry, we have no recipe to recommend here.</span>
+		</div>
+		<div class="no-recipe" v-if="item?.recipe === null && item?.unsetByUser">
+			<span>You have removed this meal for the week.</span>
 		</div>
 		<div class="image-info-container" @click="navigateToRecipePage" v-if="item?.recipe">
 			<div class="meal-container">
 				<span class="meal" v-if="item?.meal === 1">breakfast</span>
 				<span class="meal" v-else-if="item?.meal === 2">lunch</span>
 				<span class="meal" v-else-if="item?.meal === 3">dinner</span>
-				<span class="meal" v-else-if="item?.meal === 0">dessert</span>
+				<span class="meal" v-else-if="item?.meal === 4 || item?.meal === 5">dessert</span>
 			</div>
 			<div class="recipe-image-container">
 				<img class="recipe-image" :src="'data:image/' + item?.recipe.photoExt + ';base64,'+ item?.recipe.photoImage" alt="recipe-image" v-if="item?.recipe.photoImage" />
@@ -47,26 +50,35 @@
 				</div>
 			</div>
 		</div>
-		<div class="action-buttons" v-if="item?.recipe">
-			<button class="options-btn" id="options-icon" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 10">
+		<div class="action-buttons" v-if="item?.recipe || item?.unsetByUser">
+			<button class="options-btn" id="options-icon" data-bs-toggle="dropdown"  aria-expanded="false" data-bs-offset="20, 25">
 				<img class="options-icon" src="@/assets/icons/dots_grey.png" alt="options-icon">
 			</button>
 			<ul class="dropdown-menu dropdown-menu-end options-dropdown" aria-labelledby="options-icon">
-				<li class="dropdown-item" @click="emitGenerate">
+				<li class="dropdown-item" @click="emitGenerate" v-if="!item?.unsetByUser">
 					<img class="generate-icon" src="@/assets/icons/sync.png" alt="generate">
 					Generate different recipe
 				</li>
-				<li class="dropdown-item" @click="emitDontRecommend">
+				<li class="dropdown-item" @click="emitDontRecommend" v-if="!item?.unsetByUser">
 					<img class="block-icon" src="@/assets/icons/blocked.png" alt="block">
 					Don't recommend
 				</li>
-				<li class="dropdown-item" @click="emitAddToList">
+				<li class="dropdown-item" @click="emitAddToList" v-if="!item?.unsetByUser">
 					<img class="add-shopping-list-icon" src="@/assets/icons/plus.png" alt="add">
 					Add to shopping list
 				</li>
+				<li class="dropdown-item" @click="emitRemove" v-if="!item?.unsetByUser">
+					<img class="remove-meal-icon" src="@/assets/icons/close.png" alt="remove">
+					Remove meal
+				</li>
+
+				<li class="dropdown-item" @click="emitGenerateByMeal" v-if="item?.unsetByUser">
+					<img class="generate-icon" src="@/assets/icons/sync.png" alt="generate">
+					Generate recipe
+				</li>
 			</ul>
 
-			<span class="calories" v-if="item?.recipe.calories">{{item?.recipe.calories}} kcal</span>
+			<span class="calories" v-if="item?.recipe?.calories">{{item?.recipe.calories}} kcal</span>
 		</div>
 	</div>
 </template>
@@ -93,6 +105,10 @@ export default {
 			});
 		},
 
+		emitGenerateByMeal(){
+			this.$emit('generateByMeal', this.item);
+		},
+
 		emitDontRecommend(){
 			this.$emit('dontRecommend', this.item.recipe.id);
 		},
@@ -102,6 +118,10 @@ export default {
 				categoryName: this.item.recipe.name,
 				items: this.item.recipe.ingredients,
 			});
+		},
+
+		emitRemove(){
+			this.$emit('remove', this.item);
 		},
 	},
 }
@@ -271,6 +291,12 @@ export default {
 				.generate-icon, .block-icon, .add-shopping-list-icon {
 					height: 1.3rem;
 					margin-right: 5%;
+				}
+
+				.remove-meal-icon {
+					height: 1.2rem;
+					margin-right: 5%;
+					margin-top: -2px;
 				}
 
 				.dropdown-item{

@@ -985,7 +985,12 @@ module.exports.addUnit = async (unitName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "Unit_name_key") {
+            throw new InternalServerError(["This unit already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this unit."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1004,7 +1009,12 @@ module.exports.editUnit = async (unitId, unitName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "Unit_name_key") {
+            throw new InternalServerError(["This unit already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this unit."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1036,7 +1046,12 @@ module.exports.addCategory = async (categoryName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "RecipeCategory_name_key") {
+            throw new InternalServerError(["This category already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this category."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1055,7 +1070,12 @@ module.exports.editCategory = async (categoryId, categoryName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "RecipeCategory_name_key") {
+            throw new InternalServerError(["This category already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this category."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1087,7 +1107,12 @@ module.exports.addDiet = async (dietName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "Diet_name_key") {
+            throw new InternalServerError(["This diet already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this diet."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1106,7 +1131,12 @@ module.exports.editDiet = async (dietId, dietName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "Diet_name_key") {
+            throw new InternalServerError(["This diet already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this diet."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1136,7 +1166,12 @@ module.exports.addAllergen = async (allergenName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "Allergen_name_key") {
+            throw new InternalServerError(["This allergen already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this allergen."));
     } finally {
         await prisma.$disconnect();
     }
@@ -1155,7 +1190,12 @@ module.exports.editAllergen = async (allergenId, allergenName) => {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+
+        if(error.meta.target === "Allergen_name_key") {
+            throw new InternalServerError(["This allergen already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this allergen."));
     } finally {
         await prisma.$disconnect();
     }

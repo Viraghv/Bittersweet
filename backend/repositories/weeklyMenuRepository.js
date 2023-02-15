@@ -27,7 +27,7 @@ module.exports.setItemsOfWeek = async (userId, nextWeek, items) => {
     }
 }
 
-module.exports.updateOneForUser = async (userId, itemId, recipeId) => {
+module.exports.updateOneForUserByItemId = async (userId, itemId, recipeId) => {
     try {
         return prisma.WeeklyMenuItem.updateMany({
             where: {
@@ -45,6 +45,29 @@ module.exports.updateOneForUser = async (userId, itemId, recipeId) => {
         await prisma.$disconnect();
     }
 }
+
+module.exports.setOneOfCurrentUserByMeal = async (userId, itemData) => {
+    try {
+        return prisma.WeeklyMenuItem.updateMany({
+            where: {
+                userId: userId,
+                nextWeek: Boolean(itemData.nextWeek),
+                day: itemData.day !== null ? Number(itemData.day) : null,
+                meal: Number(itemData.meal),
+            },
+            data: {
+                recipeId: itemData.recipeId ? Number(itemData.recipeId) : null,
+                unsetByUser: Boolean(itemData.unsetByUser),
+            }
+        });
+
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
 
 module.exports.setDontRecommendForUser = async (userId, recipeId) => {
     try {
@@ -153,6 +176,7 @@ module.exports.getRecipeCardsOfUser = async (userId, nextWeek) => {
                 id: true,
                 day: true,
                 meal: true,
+                unsetByUser: true,
                 recipe: {
                     select: {
                         id: true,

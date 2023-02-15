@@ -41,16 +41,22 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.monday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="tuesday-container menu-section">
@@ -58,16 +64,22 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.tuesday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="wednesday-container menu-section">
@@ -75,16 +87,22 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.wednesday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="thursday-container menu-section">
@@ -92,16 +110,22 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.thursday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="friday-container menu-section">
@@ -109,16 +133,22 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.friday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="saturday-container menu-section">
@@ -126,16 +156,22 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.saturday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="sunday-container menu-section">
@@ -143,29 +179,39 @@
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.breakfast"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.lunch"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.sunday.dinner"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 			<div class="desserts-container menu-section">
-				<h2 class="section-title">DESSERT RECOMMANDATIONS</h2>
+				<h2 class="section-title">DESSERT RECOMMENDATIONS</h2>
 				<div class="recipe-cards-container">
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.desserts[0]"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 					<WeeklyMenuRecipeCard class="recipe-card" :item="weeklyMenu.desserts[1]"
 										  @generate="openGenerateOneModal"
+										  @generateByMeal="generateOneByMeal"
 										  @dontRecommend="openDontRecommend"
-										  @add="openAddOneToShoppingListModal"/>
+										  @add="openAddOneToShoppingListModal"
+										  @remove="openWeeklyMenuModal"/>
 				</div>
 			</div>
 		</div>
@@ -259,6 +305,22 @@
 			</div>
 		</div>
 	</div>
+	<div class="modal fade" id="remove-meal-modal" ref="remove-meal-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="remove-meal-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="remove-meal">
+					<span>Are you sure you want to remove this meal for the week?</span><br>
+					<button class="remove-meal-btn" @click="removeMeal">Remove meal</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -337,6 +399,8 @@ export default {
 			},
 
 			generateErrors: [],
+
+			removeMealItem: null,
 	 	}
 	},
 
@@ -382,6 +446,8 @@ export default {
 					}
 				}
 
+				this.weeklyMenu.desserts.sort((a,b) => a.meal - b.meal);
+
 				this.showInitLoader = false;
 
 			} catch (error) {
@@ -406,16 +472,19 @@ export default {
 			try {
 				for (const day in this.weeklyMenu) {
 					for(const meal in this.weeklyMenu[day]) {
-						const response = await this.axios.post(`/shoppingList/add/categoryAndItems`, {
-							categoryName: this.weeklyMenu[day][meal].recipe.name,
-							items: this.weeklyMenu[day][meal].recipe.ingredients,
-						});
+						if(this.weeklyMenu[day][meal].recipe){
+							const response = await this.axios.post(`/shoppingList/add/categoryAndItems`, {
+								categoryName: this.weeklyMenu[day][meal].recipe.name,
+								items: this.weeklyMenu[day][meal].recipe.ingredients,
+							});
+						}
 					}
 				}
 
 				this.showAddAllToShoppingListLoader = false;
 				document.getElementById("add-all-shopping-list-close-button").click();
 			} catch (error) {
+				console.log(error);
 				console.log(error.response.data);
 			}
 		},
@@ -488,6 +557,38 @@ export default {
 			}
 		},
 
+		async removeMeal(){
+			try {
+				await this.axios.post(`/weeklyMenu/set/one`, {
+					nextWeek: Boolean(Number(this.nextWeek)),
+					day: this.removeMealItem.day,
+					meal: Number(this.removeMealItem.meal),
+					unsetByUser: true,
+					recipeId: null,
+				});
+
+				document.getElementById("remove-meal-close-button").click();
+				await this.initWeeklyMenu();
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async generateOneByMeal(item){
+			try {
+				await this.axios.post(`/weeklyMenu/generate/oneByMeal`, {
+					nextWeek: Boolean(Number(this.nextWeek)),
+					day: item.day,
+					meal: item.meal,
+					unsetByUser: false,
+				});
+
+				await this.initWeeklyMenu();
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
 		openGenerateOneModal(data){
 			let generateOneModal = new Modal(document.getElementById("generate-one-modal"), {});
 			generateOneModal.show();
@@ -507,6 +608,13 @@ export default {
 			addOneToShoppingListModal.show();
 
 			this.addOneToShoppingListData = data;
+		},
+
+		openWeeklyMenuModal(item){
+			let removeMealModal = new Modal(document.getElementById("remove-meal-modal"), {});
+			removeMealModal.show();
+
+			this.removeMealItem = item;
 		},
 
 		clearGenerateOneModal(){
@@ -670,12 +778,12 @@ export default {
 		}
 	}
 
-	.generate-week, .add-all-shopping-list, .generate-one, .dont-recommend, .add-one-to-shopping-list {
+	.generate-week, .add-all-shopping-list, .generate-one, .dont-recommend, .add-one-to-shopping-list, .remove-meal {
 		margin: 0 10% 30px 10%;
 		font-family: Gotu, serif;
 		text-align: center;
 
-		.generate-btn, .add-btn, .cancel-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn {
+		.generate-btn, .add-btn, .cancel-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn, .remove-meal-btn {
 			border: 1px solid var(--lightgrey);
 			border-radius: 20px;
 			padding: 5px 30px;
@@ -686,15 +794,15 @@ export default {
 			}
 		}
 
-		.generate-btn, .add-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn  {
+		.generate-btn, .add-btn, .dont-recommend-btn, .add-one-to-shopping-list-btn, .remove-meal-btn  {
 			background-color: var(--yellow);
 			margin-right: 40px;
-      width: fit-content;
+      		width: fit-content;
 		}
 
 		.cancel-btn {
 			background-color: var(--lightgreen);
-      width: fit-content;
+      		width: fit-content;
 		}
 
 		.addAllToShoppingListLoader {
@@ -720,13 +828,13 @@ export default {
 	}
 
   @media screen and (max-width: 465px){
-    .dont-recommend {
+    .dont-recommend, .remove-meal {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    .dont-recommend-btn {
+    .dont-recommend-btn, .remove-meal-btn {
       margin-right: 0 !important;
     }
   }

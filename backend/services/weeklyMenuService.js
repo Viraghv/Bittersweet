@@ -195,7 +195,7 @@ module.exports.generateWeekForUser = async (userId, nextWeek) => {
             }
         }
 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 4; i < 6; i++) {
             let recommendedRecipe = null;
 
             if(dessertIds.length === 0){
@@ -208,7 +208,7 @@ module.exports.generateWeekForUser = async (userId, nextWeek) => {
             recommendations.push({
                 recipeId: recommendedRecipe,
                 day: null,
-                meal: 0,
+                meal: i,
             });
         }
 
@@ -289,7 +289,7 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
                 }
             } else {
-                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                await weeklyMenuRepository.updateOneForUserByItemId(userId, data.itemId, null);
                 return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 2) {
@@ -300,7 +300,7 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
                 }
             } else {
-                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                await weeklyMenuRepository.updateOneForUserByItemId(userId, data.itemId, null);
                 return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         } else if(data.meal === 3) {
@@ -311,10 +311,10 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
                 }
             } else {
-                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                await weeklyMenuRepository.updateOneForUserByItemId(userId, data.itemId, null);
                 return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
-        } else if(data.meal === 0){
+        } else if(data.meal === 4 || data.meal === 5){
             recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
 
             if(dessertIds.length > 1) {
@@ -322,12 +322,136 @@ module.exports.generateOneForUser = async (userId, data) => {
                     recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
                 }
             } else {
-                await weeklyMenuRepository.updateOneForUser(userId, data.itemId, null);
+                await weeklyMenuRepository.updateOneForUserByItemId(userId, data.itemId, null);
                 return new NotFound(["Sorry, there are no other recipes to recommend."]);
             }
         }
 
-        await weeklyMenuRepository.updateOneForUser(userId, data.itemId, recommendedRecipe);
+        await weeklyMenuRepository.updateOneForUserByItemId(userId, data.itemId, recommendedRecipe);
+
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.generateOneByMealForUser = async (userId, data) => {
+    try {
+        let user = await userService.getUserById(userId);
+
+        if(!user){
+            throw new BadRequest("User does not exist.")
+        }
+
+        let userAllergies = [];
+
+        for (let i = 0; i < user.allergies.length; i++) {
+            userAllergies.push(user.allergies[i].id);
+        }
+
+        user.allergies = userAllergies;
+
+        let userDontRecommendRecipeIds = await this.getAllDontRecommendRecipesOfUser(userId);
+
+        let recipeIds = await recipeRepository.getRecipeIdsByUserPreference(user);
+
+        let breakfastIds = [];
+        let lunchIds = [];
+        let dinnerIds = [];
+        let dessertIds = [];
+
+        for (let i = 0; i < recipeIds.breakfast.length; i++) {
+            if(!userDontRecommendRecipeIds.includes(recipeIds.breakfast[i].id)){
+                breakfastIds.push(recipeIds.breakfast[i].id)
+            }
+        }
+        recipeIds.breakfast = breakfastIds;
+
+        for (let i = 0; i < recipeIds.lunch.length; i++) {
+            if(!userDontRecommendRecipeIds.includes(recipeIds.lunch[i].id)) {
+                lunchIds.push(recipeIds.lunch[i].id)
+            }
+        }
+        recipeIds.lunch = lunchIds;
+
+        for (let i = 0; i < recipeIds.dinner.length; i++) {
+            if(!userDontRecommendRecipeIds.includes(recipeIds.dinner[i].id)) {
+                dinnerIds.push(recipeIds.dinner[i].id)
+            }
+        }
+        recipeIds.dinner = dinnerIds;
+
+        for (let i = 0; i < recipeIds.dessert.length; i++) {
+            if(!userDontRecommendRecipeIds.includes(recipeIds.dessert[i].id)) {
+                dessertIds.push(recipeIds.dessert[i].id)
+            }
+        }
+        recipeIds.dessert = dessertIds;
+
+
+        let recommendedRecipe = null;
+
+        if(data.meal === 1) {
+            if(breakfastIds.length === 0){
+                await weeklyMenuRepository.setOneOfCurrentUserByMeal(userId, data, null);
+                return new NotFound(["Sorry, there are no recipes to recommend."]);
+            } else {
+                recommendedRecipe = breakfastIds[Math.floor(Math.random() * breakfastIds.length)] || null;
+            }
+        } else if(data.meal === 2) {
+            if(lunchIds.length === 0){
+                await weeklyMenuRepository.setOneOfCurrentUserByMeal(userId, data, null);
+                return new NotFound(["Sorry, there are no recipes to recommend."]);
+            } else {
+                recommendedRecipe = lunchIds[Math.floor(Math.random() * lunchIds.length)] || null;
+            }
+        } else if(data.meal === 3) {
+            if(dinnerIds.length === 0){
+                await weeklyMenuRepository.setOneOfCurrentUserByMeal(userId, data, null);
+                return new NotFound(["Sorry, there are no recipes to recommend."]);
+            } else {
+                recommendedRecipe = dinnerIds[Math.floor(Math.random() * dinnerIds.length)] || null;
+            }
+        } else if(data.meal === 4 || data.meal === 5){
+            if(dessertIds.length === 0){
+                await weeklyMenuRepository.setOneOfCurrentUserByMeal(userId, data, null);
+                return new NotFound(["Sorry, there are no recipes to recommend."]);
+            } else {
+                recommendedRecipe = dessertIds[Math.floor(Math.random() * dessertIds.length)] || null;
+            }
+        }
+
+        data.recipeId = recommendedRecipe;
+
+        await weeklyMenuRepository.setOneOfCurrentUserByMeal(userId, data);
+
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+module.exports.setOneOfCurrentUser = async (userId, itemData) => {
+    try {
+        if(typeof itemData.nextWeek !== 'boolean') {
+            throw new BadRequest(["The 'nextWeek' value must be Boolean."])
+        }
+
+        if(itemData.meal !== 0){
+            if(itemData.day < 0 || itemData.day > 6) {
+                throw new BadRequest(["Day must be a 0-6 value."]);
+            }
+        }
+
+        if(itemData.meal < 0 || itemData.meal > 5) {
+            throw new BadRequest(["Meal must be a 0-5 value."]);
+        }
+
+        if(typeof itemData.unsetByUser !== 'boolean') {
+            throw new BadRequest(["The 'unsetByUser' value must be Boolean."])
+        }
+
+        return await weeklyMenuRepository.setOneOfCurrentUserByMeal(userId, itemData);
 
     } catch (error) {
         console.log(error);

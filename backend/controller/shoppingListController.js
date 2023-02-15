@@ -107,6 +107,21 @@ module.exports.deleteCategoryById = async (req, res) => {
     }
 }
 
+module.exports.deleteAllCategoriesOfCurrentUser = async (req, res) => {
+    let sessionToken = req.headers.authorization
+    let userId = session[sessionToken].userId;
+
+    try {
+        res.json( await shoppingListService.deleteAllCategoriesOfUser(userId));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.deleteAllDoneItemsOfUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;

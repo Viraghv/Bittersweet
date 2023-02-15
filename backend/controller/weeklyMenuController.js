@@ -33,6 +33,36 @@ module.exports.generateOneForCurrentUser = async (req, res) => {
     }
 }
 
+module.exports.generateOneByMealForCurrentUser = async (req, res) => {
+    try {
+        let sessionToken = req.headers.authorization
+        let userId = session[sessionToken].userId;
+
+        res.json( await weeklyMenuService.generateOneByMealForUser(userId, req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
+module.exports.setOneOfCurrentUser = async (req, res) => {
+    try {
+        let sessionToken = req.headers.authorization
+        let userId = session[sessionToken].userId;
+
+        res.json( await weeklyMenuService.setOneOfCurrentUser(userId, req.body));
+    } catch (exception) {
+        if (exception instanceof HttpException){
+            sendHttpException(res, exception);
+            return;
+        }
+        sendServerErrorResponse(res, exception.message);
+    }
+}
+
 module.exports.setDontRecommendForCurrentUser = async (req, res) => {
     try {
         let sessionToken = req.headers.authorization

@@ -2,73 +2,111 @@
 	<div class="content col-xxl-5 col-xl-7 col-lg-9 col-md-11 col-sm-11">
 		<h1 class="title-text">Shopping list</h1>
 		<div class="shopping-list-header">
-			<input type="text" class="searchbar" v-model="searchInput" placeholder="Search for category..."/>
-			<button class="delete-crossed-button"
-					data-bs-toggle="modal"
-					data-bs-target="#delete-crossed-modal">
-				Delete crossed-off items</button>
-		</div>
-		<div class="add-category-button"
-			 data-bs-toggle="modal"
-			 data-bs-target="#add-category-modal">
+			<div class="delete-buttons-container">
+				<button class="clear-list-button"
+						data-bs-toggle="modal"
+						data-bs-target="#clear-list-modal">
+					Clear list
+				</button>
+				<button class="delete-crossed-button"
+						data-bs-toggle="modal"
+						data-bs-target="#delete-crossed-modal">
+					Delete crossed-off items
+				</button>
+			</div>
+			<div class="search-and-views-container">
+				<input type="text" class="searchbar" v-model="itemSearchInput" placeholder="Search for item..." v-if="view === 'list'"/>
+				<input type="text" class="searchbar" v-model="categorySearchInput" placeholder="Search for category..." v-if="view === 'category'"/>
 
-			<img class="add-category-icon" src="@/assets/icons/add_icon_black.png" alt="add-icon"/>
-			<span class="add-category-text">Add category</span>
+				<button class="change-view-button" v-if="view === 'category'" @click="setView('list')">
+					List view
+				</button>
+				<button class="change-view-button" v-if="view === 'list'" @click="setView('category')">
+					Category view
+				</button>
+			</div>
 		</div>
-		<div class="list-container">
-			<div class="list-category" v-for="(category, index) in userList" :key="index" v-show="categoryMatch(category)">
-				<div class="category-header">
-					<span>{{category.name}}</span>
-					<div class="icons-container">
-						<img class="edit-icon" src="@/assets/icons/edit_grey.png" alt="edit-icon" @click="openEditCategoryModal(category.id, category.name)">
-						<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete-icon" @click="openDeleteCategoryModal(category.id)">
-					</div>
+
+
+		<div class="list-view" v-if="view === 'list'">
+			<div class="list-container">
+				<div class="no-items-container" v-if="allShoppingListItems.length === 0">
+					<span class="no-items-text">The shopping list is empty.</span>
 				</div>
-				<div class="category-list-items">
-					<div class="no-items-container" v-if="category.shoppingListItems.length === 0">
-						<span class="no-items-text">This category is empty.</span>
-					</div>
-					<div class="category-list-item" v-for="(item, index) in category.shoppingListItems" :key="index">
-						<input class="checkbox-input" :checked="item.done" type="checkbox" :id="'check-item' + index" :value="item" @change="setItemDone(item)">
-						<label :for="'check-item' + index" :class="item.done ? 'crossed' : ''">
-							<span class="amount">{{item.amount ? item.amount + " " : ""}}</span>
-							<span class="unit">{{item.unit ? item.unit.name + " " : ""}}</span>
-							<span class="name">{{item.name}}</span>
-						</label>
-					</div>
-					<div class="new-items-container">
-						<div class="new-item" v-for="(item, index) in addedNewItems[category.id]" :key="index">
-							<div class="new-item-inputs-container">
-								<input class="item-amount-input" type="number" placeholder="Amount" v-model="item.amount" >
-								<Multiselect class="item-unit-input" v-model="item.unitId" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
-								<input class="item-name-input" type="text" placeholder="Item name" v-model="item.name">
-							</div>
-							<img class="delete-item-button" src="@/assets/icons/close_grey.png" alt="delete-icon" @click="deleteItem(category.id, index)">
-						</div>
-						<div class="upload-alert-container">
-							<div class="upload-alert alert alert-danger"
-								 v-if="itemUploadErrors[category.id] ? itemUploadErrors[category.id].length !== 0 : false">
-								<strong>Upload failed!</strong><br>
-								<ul>
-									<li class="upload-error-items" v-for="(error, index) in itemUploadErrors[category.id]" :key="index">{{error}}</li>
-								</ul>
-							</div>
-						</div>
-						<div class="add-item-btn-container">
-							<button class="add-item-btn" v-if="addedNewItems[category.id]?.length > 0" @click="uploadItems(category.id)">Upload</button>
-						</div>
-					</div>
-				</div>
-				<div class="add-item-button" @click="addNewItem(category.id)">
-					<img class="add-item-icon" src="@/assets/icons/add_icon_black.png" alt="add-icon"/>
-					<span class="add-item-text" >Add item</span>
+				<div class="list-item" v-for="(item, index) in allShoppingListItems" :key="index" v-show="itemMatch(item)">
+					<input class="checkbox-input" :checked="item.done" type="checkbox" :id="'check-item' + index" :value="item" @change="setItemsDone(item.connectedItems, item.done)">
+					<label :for="'check-item' + index" :class="item.done ? 'crossed' : ''">
+						<span class="amount">{{item.amount ? item.amount + " " : ""}}</span>
+						<span class="unit">{{item.unit ? item.unit.name + " " : ""}}</span>
+						<span class="name">{{item.name}}</span>
+						<span class="checked-amount" v-if="item.amount"> ({{item.checkedAmount}}/{{item.amount}})</span>
+					</label>
 				</div>
 			</div>
 		</div>
-		<div class="no-category-container">
-			<span class="no-category-text" v-if="Object.keys(userList).length === 0">Your shopping list is empty.</span>
-		</div>
 
+		<div class="category-view" v-if="view === 'category'">
+			<div class="add-category-button"
+				 data-bs-toggle="modal"
+				 data-bs-target="#add-category-modal">
+
+				<img class="add-category-icon" src="@/assets/icons/add_icon_black.png" alt="add-icon"/>
+				<span class="add-category-text">Add category</span>
+			</div>
+			<div class="list-container">
+				<div class="list-category" v-for="(category, index) in userList" :key="index" v-show="categoryMatch(category)">
+					<div class="category-header">
+						<span>{{category.name}}</span>
+						<div class="icons-container">
+							<img class="edit-icon" src="@/assets/icons/edit_grey.png" alt="edit-icon" @click="openEditCategoryModal(category.id, category.name)">
+							<img class="delete-icon" src="@/assets/icons/bin_grey.png" alt="delete-icon" @click="openDeleteCategoryModal(category.id)">
+						</div>
+					</div>
+					<div class="category-list-items">
+						<div class="no-items-container" v-if="category.shoppingListItems.length === 0">
+							<span class="no-items-text">This category is empty.</span>
+						</div>
+						<div class="category-list-item" v-for="(item, index) in category.shoppingListItems" :key="index">
+							<input class="checkbox-input" :checked="item.done" type="checkbox" :id="'check-item' + index" :value="item" @change="setItemDone(item)">
+							<label :for="'check-item' + index" :class="item.done ? 'crossed' : ''">
+								<span class="amount">{{item.amount ? item.amount + " " : ""}}</span>
+								<span class="unit">{{item.unit ? item.unit.name + " " : ""}}</span>
+								<span class="name">{{item.name}}</span>
+							</label>
+						</div>
+						<div class="new-items-container">
+							<div class="new-item" v-for="(item, index) in addedNewItems[category.id]" :key="index">
+								<div class="new-item-inputs-container">
+									<input class="item-amount-input" type="number" placeholder="Amount" v-model="item.amount" >
+									<Multiselect class="item-unit-input" v-model="item.unitId" :options="units" :searchable="true" :can-clear="false" placeholder="Unit"/>
+									<input class="item-name-input" type="text" placeholder="Item name" v-model="item.name">
+								</div>
+								<img class="delete-item-button" src="@/assets/icons/close_grey.png" alt="delete-icon" @click="deleteItem(category.id, index)">
+							</div>
+							<div class="upload-alert-container">
+								<div class="upload-alert alert alert-danger"
+									 v-if="itemUploadErrors[category.id] ? itemUploadErrors[category.id].length !== 0 : false">
+									<strong>Upload failed!</strong><br>
+									<ul>
+										<li class="upload-error-items" v-for="(error, index) in itemUploadErrors[category.id]" :key="index">{{error}}</li>
+									</ul>
+								</div>
+							</div>
+							<div class="add-item-btn-container">
+								<button class="add-item-btn" v-if="addedNewItems[category.id]?.length > 0" @click="uploadItems(category.id)">Upload</button>
+							</div>
+						</div>
+					</div>
+					<div class="add-item-button" @click="addNewItem(category.id)">
+						<img class="add-item-icon" src="@/assets/icons/add_icon_black.png" alt="add-icon"/>
+						<span class="add-item-text" >Add item</span>
+					</div>
+				</div>
+			</div>
+			<div class="no-category-container">
+				<span class="no-category-text" v-if="Object.keys(userList).length === 0">Your shopping list is empty.</span>
+			</div>
+		</div>
 	</div>
 
 
@@ -161,6 +199,24 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="modal fade" id="clear-list-modal" ref="clear-list-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<img class="warning-icon d-none d-sm-block" src="@/assets/icons/warning.png" alt="warning">
+					<button id="clear-list-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+
+				<div class="clear-list">
+					<span>Are you sure you want to clear your shopping list? Every category and list item will be deleted.</span><br>
+					<button class="delete-btn" @click="clearList">Clear</button>
+					<button class="cancel-btn" data-bs-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -180,9 +236,13 @@ export default {
 
 	data() {
 		return {
+			view: "category",   // list / category
+
 			userList: [],
 			addedNewItems: {},
 			itemUploadErrors: {},
+
+			allShoppingListItems: [],
 
 			units: {},
 
@@ -192,7 +252,8 @@ export default {
 			editCategoryId: null,
 			deleteCategoryId: null,
 
-			searchInput: "",
+			categorySearchInput: "",
+			itemSearchInput: "",
 		}
 	},
 
@@ -201,6 +262,8 @@ export default {
 			try {
 				const response = await this.axios.get(`/shoppingList/currentUserList`);
 				this.userList = response.data;
+
+				this.initAllShoppingListItems();
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -223,12 +286,75 @@ export default {
 			}
 		},
 
+		initAllShoppingListItems() {
+			this.allShoppingListItems = [];
+
+			for (let i = 0; i < this.userList.length; i++) {
+				for (let j = 0; j < this.userList[i].shoppingListItems.length; j++) {
+					let skip = false;
+					for (let k = 0; k < this.allShoppingListItems.length; k++) {
+						if(this.userList[i].shoppingListItems[j].name.toLowerCase().trim() === this.allShoppingListItems[k].name.toLowerCase().trim() &&
+						   this.userList[i].shoppingListItems[j].unit?.id === this.allShoppingListItems[k].unit?.id) {
+
+							this.allShoppingListItems[k].amount += Number(this.userList[i].shoppingListItems[j].amount);
+							this.allShoppingListItems[k].connectedItems.push(this.userList[i].shoppingListItems[j].id);
+
+							if(this.userList[i].shoppingListItems[j].done === false) {
+								this.allShoppingListItems[k].done = false;
+							} else {
+								this.allShoppingListItems[k].checkedAmount += Number(this.userList[i].shoppingListItems[j].amount);
+							}
+
+							skip = true;
+							break;
+						}
+					}
+
+					if(skip){
+						continue;
+					}
+
+					this.allShoppingListItems.push({
+						name: this.userList[i].shoppingListItems[j].name,
+						amount: Number(this.userList[i].shoppingListItems[j].amount),
+						checkedAmount: this.userList[i].shoppingListItems[j].done ? Number(this.userList[i].shoppingListItems[j].amount) : 0,
+						unit: this.userList[i].shoppingListItems[j].unit,
+						done: this.userList[i].shoppingListItems[j].done,
+						connectedItems: [this.userList[i].shoppingListItems[j].id],
+					});
+				}
+			}
+
+			this.allShoppingListItems.sort((a,b) => {
+				if (a.name.toLowerCase() < b.name.toLowerCase()) {
+					return -1;
+				}
+				if (a.name.toLowerCase() > b.name.toLowerCase()) {
+					return 1;
+				}
+				return 0;
+			});
+		},
+
 		async setItemDone(item){
 			try {
 				await this.axios.post(`/shoppingList/edit/item/setDone/${item.id}`, {
 					done: !item.done
 				});
 
+				await this.initUserList();
+			} catch (error) {
+				console.log(error.response.data);
+			}
+		},
+
+		async setItemsDone(itemIds, done) {
+			try {
+				for (let i = 0; i < itemIds.length; i++) {
+					await this.axios.post(`/shoppingList/edit/item/setDone/${itemIds[i]}`, {
+						done: !done
+					});
+				}
 				await this.initUserList();
 			} catch (error) {
 				console.log(error.response.data);
@@ -275,6 +401,19 @@ export default {
 
 				document.getElementById("delete-crossed-close-button").click();
 
+			} catch (error) {
+				console.log(error)
+			}
+		},
+
+		async clearList(){
+			try {
+				await axios.get(`/shoppingList/delete/all/category`);
+
+				await this.initUserList();
+				this.initAddNewItems();
+
+				document.getElementById("clear-list-close-button").click();
 			} catch (error) {
 				console.log(error)
 			}
@@ -378,7 +517,16 @@ export default {
 		},
 
 		categoryMatch(category){
-			return (category.name.toLowerCase()).includes(this.searchInput.toLowerCase());
+			return (category.name.toLowerCase()).includes(this.categorySearchInput.toLowerCase());
+		},
+
+		itemMatch(item){
+			let fullItemString = (item.amount ? item.amount + " " : "")  + (item.unit ? item.unit.name + " " : "") + item.name;
+			return (fullItemString.toLowerCase()).includes(this.itemSearchInput.toLowerCase());
+		},
+
+		setView(type){
+			this.view = type;
 		},
 
 		openEditCategoryModal(categoryId, categoryName){
@@ -449,303 +597,381 @@ export default {
 
 		.shopping-list-header {
 			display: flex;
+			flex-direction: column;
 			justify-content: space-between;
-			margin-bottom: 30px;
+			margin-bottom: 10px;
 
-			.searchbar {
-				padding: 1% 3%;
-				border-radius: 20px;
-				height: 3rem;
-				border: 2px solid var(--darkgreen);
-				width: 50%;
+			.delete-buttons-container {
+				display: flex;
+				justify-content: right;
+				margin-bottom: 10px;
+				gap: 10px;
 
-				&:focus {
-					outline: 2.5px solid var(--darkgreen);
+				.delete-crossed-button, .clear-list-button {
+					background-color: var(--yellow);
+					border: 1px solid var(--lightgrey);
+					border-radius: 20px;
+					padding: 3px 20px;
+					height: 3rem;
+
+					&:hover {
+						opacity: 0.8;
+					}
 				}
 			}
 
-			.delete-crossed-button {
-				background-color: var(--yellow);
-				border: 1px solid var(--lightgrey);
-				border-radius: 20px;
-				padding: 3px 20px;
-				margin-left: 20px;
+			.search-and-views-container {
+				display: flex;
+				justify-content: space-between;
 
-				&:hover {
-					opacity: 0.8;
+				.searchbar {
+					padding: 1% 3%;
+					border-radius: 20px;
+					height: 3rem;
+					border: 2px solid var(--darkgreen);
+					width: 50%;
+
+					&:focus {
+						outline: 2.5px solid var(--darkgreen);
+					}
+				}
+
+				.change-view-button {
+					background-color: var(--darkgreen);
+					border: 1px solid var(--lightgrey);
+					border-radius: 20px;
+					padding: 3px 20px;
+					height: 3rem;
+
+					&:hover {
+						opacity: 0.8;
+					}
+				}
+			}
+
+		}
+
+		.list-view {
+			.list-container {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				font-size: 1.1rem;
+				padding: 30px 5%;
+				background-color: var(--lightgreen);
+				border-radius: 20px;
+				margin-top: 40px;
+
+				.no-items-container {
+					text-align: center;
+
+					.no-items-text {
+						color: var(--mediumgrey);
+						font-size: 0.9rem;
+					}
+				}
+
+				.list-item {
+					display: flex;
+					align-items: center;
+
+
+					.checkbox-input {
+						width: 25px;
+						height: 25px;
+						min-width: 25px;
+						min-height: 25px;
+						accent-color: var(--yellow);
+						margin-right: 15px;
+
+						&:hover {
+							cursor: pointer;
+						}
+					}
+
+					.checked-amount {
+						color: var(--mediumgrey);
+					}
+
+					.crossed {
+						text-decoration: line-through;
+					}
 				}
 			}
 		}
 
-		.list-container {
-			display: flex;
-			flex-direction: column-reverse;
+		.category-view {
+			.list-container {
+				display: flex;
+				flex-direction: column-reverse;
 
-			.list-category {
-				margin-bottom: 50px;
+				.list-category {
+					margin-bottom: 50px;
 
-				&:hover {
+					&:hover {
+						.category-header {
+							.icons-container {
+								.edit-icon, .delete-icon {
+									display: block;
+								}
+
+							}
+						}
+					}
+
 					.category-header {
+						display: flex;
+						justify-content: space-between;
+						gap: 15px;
+						background-color: var(--darkgreen);
+						border-top-left-radius: 20px;
+						border-top-right-radius: 20px;
+						font-size: 1.3rem;
+						padding: 15px 25px 10px 25px;
+
 						.icons-container {
-							.edit-icon, .delete-icon {
-								display: block;
-							}
-
-						}
-					}
-				}
-
-				.category-header {
-					display: flex;
-					justify-content: space-between;
-					gap: 15px;
-					background-color: var(--darkgreen);
-					border-top-left-radius: 20px;
-					border-top-right-radius: 20px;
-					font-size: 1.3rem;
-					padding: 15px 25px 10px 25px;
-
-					.icons-container {
-						display: flex;
-						align-items: center;
-						min-width: 55px;
-
-						.edit-icon, .delete-icon {
-							display: none;
-							width: 20px;
-							height: 20px;
-
-							&:hover {
-								cursor: pointer;
-								opacity: 0.8;
-							}
-						}
-
-						.edit-icon {
-							margin-right: 15px;
-						}
-					}
-				}
-
-				.category-list-items {
-					display: flex;
-					flex-direction: column;
-					gap: 10px;
-					background-color: var(--lightgreen);
-					font-size: 1.1rem;
-					padding: 2.5% 5%;
-
-					.no-items-container {
-						text-align: center;
-
-						.no-items-text {
-							color: var(--mediumgrey);
-							font-size: 0.9rem;
-						}
-					}
-
-					.category-list-item {
-						display: flex;
-						align-items: center;
-
-
-						.checkbox-input {
-							width: 25px;
-							height: 25px;
-							min-width: 25px;
-							min-height: 25px;
-							accent-color: var(--yellow);
-							margin-right: 15px;
-
-							&:hover {
-								cursor: pointer;
-							}
-						}
-
-						.crossed {
-							text-decoration: line-through;
-						}
-					}
-
-					.new-items-container {
-						.new-item {
 							display: flex;
-							justify-content: space-between;
 							align-items: center;
-							gap: 10px;
-							width: 100%;
-							margin-bottom: 10px;
+							min-width: 55px;
 
-							&:first-child {
-								margin-top: 20px;
-							}
+							.edit-icon, .delete-icon {
+								display: none;
+								width: 20px;
+								height: 20px;
 
-							.new-item-inputs-container {
-								width: 100%;
-								display: flex;
-								justify-content: space-between;
-								align-items: center;
-								gap: 5px;
-							}
-
-							.item-name-input, .item-amount-input, .item-unit-input{
-								border-radius: 10px;
-								border-color: transparent;
-								padding: 7px 15px;
-								font-size: 1rem;
-								font-family: Gotu,serif;
-								height: 2.7rem;
-
-								&:focus {
-									outline: var(--darkgreen) solid 3px;
+								&:hover {
+									cursor: pointer;
+									opacity: 0.8;
 								}
 							}
 
-							.item-name-input {
-								width: 100%;
+							.edit-icon {
+								margin-right: 15px;
 							}
+						}
+					}
 
-							.item-unit-input {
-								width: 50%;
+					.category-list-items {
+						display: flex;
+						flex-direction: column;
+						gap: 10px;
+						background-color: var(--lightgreen);
+						font-size: 1.1rem;
+						padding: 2.5% 5%;
+
+						.no-items-container {
+							text-align: center;
+
+							.no-items-text {
+								color: var(--mediumgrey);
+								font-size: 0.9rem;
 							}
+						}
 
-							.item-amount-input {
-								width: 30%;
-								margin-left: 10px;
-
-								&::-webkit-outer-spin-button,
-								&::-webkit-inner-spin-button {
-									-webkit-appearance: none;
-									margin: 0;
-								}
-							}
-
-							input[type=number] {
-								-moz-appearance: textfield;
-							}
-
-							.ingredient-unit-input {
-								width: 25%;
-
-								&:invalid {
-									color: grey;
-								}
+						.category-list-item {
+							display: flex;
+							align-items: center;
 
 
-							}
-
-							.delete-item-button {
-								margin-left: 10px;
+							.checkbox-input {
+								width: 25px;
+								height: 25px;
+								min-width: 25px;
+								min-height: 25px;
+								accent-color: var(--yellow);
+								margin-right: 15px;
 
 								&:hover {
 									cursor: pointer;
 								}
 							}
 
-							.delete-item-button {
-								height: 1.2rem;
+							.crossed {
+								text-decoration: line-through;
 							}
 						}
 
-						.add-item-btn-container {
-							display: flex;
-							justify-content: right;
+						.new-items-container {
+							.new-item {
+								display: flex;
+								justify-content: space-between;
+								align-items: center;
+								gap: 10px;
+								width: 100%;
+								margin-bottom: 10px;
 
-							.add-item-btn {
-								background-color: var(--yellow);
-								border: 1px solid var(--lightgrey);
-								border-radius: 20px;
-								padding: 2px 20px;
-								margin-top: 10px;
-								margin-right: 35px;
+								&:first-child {
+									margin-top: 20px;
+								}
 
-								&:hover {
-									opacity: 0.8;
+								.new-item-inputs-container {
+									width: 100%;
+									display: flex;
+									justify-content: space-between;
+									align-items: center;
+									gap: 5px;
+								}
+
+								.item-name-input, .item-amount-input, .item-unit-input{
+									border-radius: 10px;
+									border-color: transparent;
+									padding: 7px 15px;
+									font-size: 1rem;
+									font-family: Gotu,serif;
+									height: 2.7rem;
+
+									&:focus {
+										outline: var(--darkgreen) solid 3px;
+									}
+								}
+
+								.item-name-input {
+									width: 100%;
+								}
+
+								.item-unit-input {
+									width: 50%;
+								}
+
+								.item-amount-input {
+									width: 30%;
+									margin-left: 10px;
+
+									&::-webkit-outer-spin-button,
+									&::-webkit-inner-spin-button {
+										-webkit-appearance: none;
+										margin: 0;
+									}
+								}
+
+								input[type=number] {
+									-moz-appearance: textfield;
+								}
+
+								.ingredient-unit-input {
+									width: 25%;
+
+									&:invalid {
+										color: grey;
+									}
+
+
+								}
+
+								.delete-item-button {
+									margin-left: 10px;
+
+									&:hover {
+										cursor: pointer;
+									}
+								}
+
+								.delete-item-button {
+									height: 1.2rem;
+								}
+							}
+
+							.add-item-btn-container {
+								display: flex;
+								justify-content: right;
+
+								.add-item-btn {
+									background-color: var(--yellow);
+									border: 1px solid var(--lightgrey);
+									border-radius: 20px;
+									padding: 2px 20px;
+									margin-top: 10px;
+									margin-right: 35px;
+
+									&:hover {
+										opacity: 0.8;
+									}
 								}
 							}
 						}
 					}
-				}
 
-				.add-item-button {
-					background-color: var(--yellow);
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					padding: 10px;
+					.add-item-button {
+						background-color: var(--yellow);
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						padding: 10px;
 
-					&:hover {
-						opacity: 0.8;
-						cursor: pointer;
-					}
+						&:hover {
+							opacity: 0.8;
+							cursor: pointer;
+						}
 
-					.add-item-text {
-						margin-bottom: -4px;
-					}
+						.add-item-text {
+							margin-bottom: -4px;
+						}
 
-					.add-item-icon {
-						width: 30px;
-						margin-right: 10px;
+						.add-item-icon {
+							width: 30px;
+							margin-right: 10px;
 
+						}
 					}
 				}
 			}
-		}
 
-		.no-category-container {
-			text-align: center;
-			margin-top: 50px;
-			margin-bottom: 40px;
+			.no-category-container {
+				text-align: center;
+				margin-top: 50px;
+				margin-bottom: 40px;
 
-			.no-category-text {
-				color: var(--mediumgrey);
+				.no-category-text {
+					color: var(--mediumgrey);
+				}
 			}
-		}
 
-		.add-category-button {
-			display: flex;
-			align-items: center;
-			justify-content: left;
-			width: fit-content;
-			margin-bottom: 20px;
-			margin-top: 40px;
+			.add-category-button {
+				display: flex;
+				align-items: center;
+				justify-content: left;
+				width: fit-content;
+				margin-bottom: 20px;
+				margin-top: 40px;
 
-			&:hover {
-				cursor: pointer;
+				&:hover {
+					cursor: pointer;
 
-				.add-category-text{
+					.add-category-text{
+						&::after {
+							transform: scaleX(1);
+							transform-origin: bottom left;
+						}
+					}
+				}
+
+				.add-category-text {
+					margin-bottom: -4px;
+
+					display: inline-block;
+					position: relative;
+
 					&::after {
-						transform: scaleX(1);
-						transform-origin: bottom left;
+						content: '';
+						position: absolute;
+						width: 100%;
+						transform: scaleX(0);
+						height: 3px;
+						bottom: 0;
+						left: 0;
+						background-color: var(--yellow);
+						transform-origin: bottom right;
+						transition: transform 0.25s ease-out;
 					}
 				}
-			}
 
-			.add-category-text {
-				margin-bottom: -4px;
-
-				display: inline-block;
-				position: relative;
-
-				&::after {
-					content: '';
-					position: absolute;
-					width: 100%;
-					transform: scaleX(0);
-					height: 3px;
-					bottom: 0;
-					left: 0;
-					background-color: var(--yellow);
-					transform-origin: bottom right;
-					transition: transform 0.25s ease-out;
+				.add-category-icon {
+					width: 30px;
+					margin-right: 10px;
 				}
 			}
-
-			.add-category-icon {
-				width: 30px;
-				margin-right: 10px;
-			}
 		}
+
 	}
 
 	.modal {
@@ -804,7 +1030,7 @@ export default {
 		}
 	}
 
-	.delete-category, .delete-crossed {
+	.delete-category, .delete-crossed, .clear-list {
 		margin: 0 10% 30px 10%;
 		font-family: Gotu, serif;
 		text-align: center;
@@ -871,15 +1097,30 @@ export default {
 			.shopping-list-header {
 				flex-direction: column;
 
-				.searchbar {
-					width: 100%;
-					margin-bottom: 15px;
+				.delete-buttons-container {
+					flex-direction: column;
+
+					.delete-crossed-button, .clear-list-button{
+						margin: 0 0 0 auto;
+						padding: 10px 20px;
+						width: 100%;
+					}
 				}
 
-				.delete-crossed-button {
-					margin: 0 0 0 auto;
-					padding: 10px 20px;
-					width: 100%;
+				.search-and-views-container {
+					flex-direction: column-reverse;
+					gap: 10px;
+
+					.searchbar {
+						width: 100%;
+						margin-bottom: 15px;
+					}
+
+					.change-view-button {
+						margin: 0 0 0 auto;
+						padding: 10px 20px;
+						width: 100%;
+					}
 				}
 			}
 		}

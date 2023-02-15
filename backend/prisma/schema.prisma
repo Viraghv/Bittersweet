@@ -85,7 +85,7 @@ model Step {
 
 model Unit {
   id                Int                @id @default(autoincrement())
-  name              String             @db.VarChar(30)
+  name              String             @unique @db.VarChar(30)
   ingredients       Ingredient[]
   shoppingListItems ShoppingListItem[]
 }
@@ -139,7 +139,7 @@ model RecipeInGroup {
 
 model RecipeCategory {
   id      Int                @id @default(autoincrement())
-  name    String             @db.VarChar(50)
+  name    String             @unique @db.VarChar(50)
   recipes RecipeInCategory[]
 }
 
@@ -155,7 +155,7 @@ model RecipeInCategory {
 
 model Allergen {
   id      Int                @id @default(autoincrement())
-  name    String             @db.VarChar(50)
+  name    String             @unique @db.VarChar(50)
   recipes AllergenInRecipe[]
   users   UserAllergy[]
 }
@@ -180,7 +180,7 @@ model UserAllergy {
 
 model Diet {
   id      Int            @id @default(autoincrement())
-  name    String         @db.VarChar(50)
+  name    String         @unique @db.VarChar(50)
   recipes RecipeInDiet[]
   users   User[]
 }
@@ -224,14 +224,15 @@ model Favourite {
 }
 
 model WeeklyMenuItem {
-  id       Int     @id @default(autoincrement())
-  recipe   Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
-  recipeId Int?
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int
-  day      Int?    @db.TinyInt // 0 - 6, starting from Monday
-  meal     Int     @db.TinyInt // 0 => dessert, 1 => breakfast, 2 => lunch, 3 => dinner
-  nextWeek Boolean
+  id          Int     @id @default(autoincrement())
+  recipe      Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  recipeId    Int?
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  day         Int?    @db.TinyInt // 0 - 6, starting from Monday
+  meal        Int     @db.TinyInt // 1 => breakfast, 2 => lunch, 3 => dinner, 4 => dessert1, 5 => dessert2 
+  nextWeek    Boolean
+  unsetByUser Boolean @default(false)
 
   @@unique([userId, day, meal, nextWeek])
 }

@@ -107,10 +107,6 @@ module.exports.setItemDoneById = async (categoryId, done, userId) => {
                 done: done,
             }
         });
-
-        if(updatedCount.count === 0){
-            throw new BadRequest(["No item updated. You may not be authorized to make this change."])
-        }
     } catch (error) {
         throw error;
     } finally {
@@ -136,6 +132,21 @@ module.exports.deleteCategoryById = async (categoryId, userId) => {
         await prisma.$disconnect();
     }
 }
+
+module.exports.deleteAllCategoriesOfUser = async (userId) => {
+    try {
+        await prisma.ShoppingListCategory.deleteMany({
+            where: {
+                userId: userId,
+            },
+        });
+    } catch (error) {
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
 
 module.exports.deleteAllDoneItemsOfUser = async (userId) => {
     try {

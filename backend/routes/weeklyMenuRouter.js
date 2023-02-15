@@ -5,6 +5,9 @@ const authMiddleware = require('../middlewares/auth');
 
 router.get('/generate/week/:nextWeek', authMiddleware, weeklyMenuController.generateWeekForCurrentUser);
 router.post('/generate/one', authMiddleware, weeklyMenuController.generateOneForCurrentUser);
+router.post('/generate/oneByMeal', authMiddleware, weeklyMenuController.generateOneByMealForCurrentUser)
+
+router.post('/set/one', authMiddleware, weeklyMenuController.setOneOfCurrentUser);
 
 router.get('/dontRecommend/set/:recipeId', authMiddleware, weeklyMenuController.setDontRecommendForCurrentUser);
 router.get('/dontRecommend/allOfCurrentUser', authMiddleware, weeklyMenuController.getAllDontRecommendRecipesOfCurrentUser);

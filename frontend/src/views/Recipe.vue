@@ -14,7 +14,12 @@
 				<span class="comment-count">({{ commentCount }} ratings)</span>
 			</div>
 		</div>
-		<div class="favourite-container" v-show="userStore.loggedIn">
+		<div class="buttons-container" v-show="userStore.loggedIn">
+			<button class="weekly-menu-button"
+					data-bs-toggle="modal"
+					data-bs-target="#weekly-menu-modal">
+				Put on weekly menu
+			</button>
 			<button class="favourite-button" :class="userFavourite ? 'yellow' : ''" @click="changeFavourites">
 				<img class="heart-icon" v-if="!userFavourite" src="@/assets/icons/heart_outline_lightgrey.png" alt="heart">
 				<img class="heart-icon" v-else src="@/assets/icons/heart_yellow.png" alt="heart">
@@ -79,7 +84,7 @@
 											<span class="unit">{{ingredient.unit ? ingredient.unit + " " : ""}}</span>
 											<span class="name">{{ingredient.name}}</span>
 										</label>
-										<input class="checkbox-input" type="checkbox" :id="'check-ingredient' + index" v-model="selectedIngredients" :value="ingredient" v-show="userStore.loggedIn">
+										<input class="checkbox-input" type="checkbox" :name="'check-ingredient' + index" v-model="selectedIngredients" :value="ingredient" v-show="userStore.loggedIn">
 									</div>
 								</li>
 							</ul>
@@ -223,6 +228,50 @@
 		</div>
 		<div class="my-pagination-container">
 			<Pagination :total-items="commentCount" :items-per-page="5" @change-page="initComments" v-show="rating"/>
+		</div>
+	</div>
+
+	<div class="modal fade" id="weekly-menu-modal" ref="weekly-menu-modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button id="weekly-menu-close-button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="weekly-menu">
+					<span class="weekly-menu-text">Select where you want to put the recipe on the menu:</span>
+					<table class="weekly-menu-form-table">
+						<tr>
+							<th><label for="weekly-menu-week">Week:</label></th>
+							<td>
+								<Multiselect class="weekly-menu-select" name="weekly-menu-week" v-model="weeklyMenuInputs.nextWeek" :options="weekOptions" :can-clear="true"/>
+							</td>
+						</tr>
+						<tr>
+							<th><label for="weekly-menu-day"></label>Day:</th>
+							<td>
+								<Multiselect class="weekly-menu-select" name="weekly-menu-day" v-model="weeklyMenuInputs.day" :options="dayOptions" :can-clear="true"/>
+							</td>
+						</tr>
+						<tr>
+							<th><label for="weekly-menu-meal"></label>Meal:</th>
+							<td>
+								<Multiselect class="weekly-menu-select" name="weekly-menu-meal" v-model="weeklyMenuInputs.meal" :options="mealOptions" :can-clear="true"/>
+							</td>
+						</tr>
+					</table>
+
+					<div class="weekly-menu-alert alert alert-danger" v-if="weeklyMenuErrors.length !== 0">
+						<strong>Error!</strong><br>
+						<ul>
+							<li class="weekly-menu-error-items" v-for="(error, index) in weeklyMenuErrors" :key="index">{{error}}</li>
+						</ul>
+					</div>
+
+					<button class="weekly-menu-btn" @click="setWeeklyMenu">Put on menu</button>
+				</div>
+
+			</div>
 		</div>
 	</div>
 
@@ -429,6 +478,36 @@ export default {
 			deleteCommentErrors: [],
 			commentsCurrentPage: 1,
 
+			weeklyMenuInputs: {
+				nextWeek: null,
+				day: null,
+				meal: null
+			},
+
+			weekOptions: {
+				0: "This week",
+				1: "Next week",
+			},
+
+			dayOptions: {
+				0: "Monday",
+				1: "Tuesday",
+				2: "Wednesday",
+				3: "Thursday",
+				4: "Friday",
+				5: "Saturday",
+				6: "Sunday",
+			},
+
+			mealOptions: {
+				1: "breakfast",
+				2: "lunch",
+				3: "dinner",
+				4: "dessert (first)",
+				5: "dessert (second)",
+			},
+
+			weeklyMenuErrors: [],
 		}
 	},
 
@@ -840,6 +919,27 @@ export default {
 
 		},
 
+		async setWeeklyMenu(){
+			this.weeklyMenuErrors = this.weeklyMenuInputsAreValid;
+
+			if(this.weeklyMenuErrors.length === 0){
+				try {
+					await this.axios.post(`/weeklyMenu/set/one`, {
+						nextWeek: Boolean(Number(this.weeklyMenuInputs.nextWeek)),
+						day: this.weeklyMenuInputs.day ? Number(this.weeklyMenuInputs.day) : null,
+						meal: Number(this.weeklyMenuInputs.meal),
+						unsetByUser: false,
+						recipeId: Number(this.recipeID),
+					});
+
+					document.getElementById("weekly-menu-close-button").click();
+
+				} catch (error) {
+					console.log(error.response.data);
+				}
+			}
+		},
+
 		clearFavouriteModal(){
 			this.selectedGroupInput =  "";
 			this.createGroupInput = "";
@@ -851,12 +951,25 @@ export default {
 			this.commentErrors = [];
 		},
 
+		clearWeeklyMenuModal(){
+			this.weeklyMenuInputs = {
+				nextWeek: null,
+				day: null,
+				meal: null
+			};
+
+			this.weeklyMenuErrors = [];
+		},
+
 		setModalHandlers() {
 			const favouriteModal = document.getElementById('favourite-modal');
 			favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
 
 			const commentModal = document.getElementById('comment-modal');
 			commentModal.addEventListener("hidden.bs.modal", () => this.clearCommentModal());
+
+			const weeklyMenuModal = document.getElementById('weekly-menu-modal');
+			weeklyMenuModal.addEventListener("hidden.bs.modal", () => this.clearWeeklyMenuModal());
 		},
 	},
 
@@ -885,6 +998,21 @@ export default {
 			return errors;
 		},
 
+		weeklyMenuInputsAreValid(){
+			let errors = [];
+
+			if(!this.weeklyMenuInputs.nextWeek || !this.weeklyMenuInputs.meal ||
+				(this.weeklyMenuInputs.meal !== "4" && this.weeklyMenuInputs.meal !== "5" && !this.weeklyMenuInputs.day)) {
+				errors.push("Please fill in all necessary fields (when one of the 'dessert' values is selected as the meal, the day field should be left empty).");
+			}
+
+			if((this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") && this.weeklyMenuInputs.day) {
+				errors.push("When one of the 'dessert' values is selected as the meal, the day field should be left empty.")
+			}
+
+			return errors;
+		},
+
 		...mapStores(useUserStore),
 	},
 
@@ -892,6 +1020,18 @@ export default {
 		'userStore.loggedIn'(loggedIn) {
 			if(loggedIn) {
 				this.initPage();
+			}
+		},
+
+		'weeklyMenuInputs.meal'() {
+			if(this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") {
+				this.weeklyMenuInputs.day = null;
+			}
+		},
+
+		'weeklyMenuInputs.day'() {
+			if((this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") && this.weeklyMenuInputs.day !== null) {
+				this.weeklyMenuInputs.meal = null;
 			}
 		}
 	},
@@ -929,10 +1069,18 @@ export default {
 			}
 		}
 
-		.favourite-container {
+		.buttons-container {
 			display: flex;
 			width: 100%;
 			justify-content: flex-end;
+			gap: 10px;
+
+			.weekly-menu-button {
+				background-color: white;
+				border: 1px solid var(--lightgrey);
+				border-radius: 20px;
+				padding: 5px 30px;
+			}
 
 			.favourite-button {
 				display: flex;
@@ -1480,6 +1628,46 @@ export default {
 		}
 	}
 
+	.weekly-menu {
+		margin: 0 10% 30px 10%;
+		font-family: Gotu,serif;
+
+		.weekly-menu-text {
+			display: block;
+			text-align: center;
+			font-size: 18px;
+			margin-bottom: 10px;
+		}
+
+		.weekly-menu-form-table {
+			width: 100%;
+			margin-bottom: 10px;
+
+			th {
+				width: 20%;
+			}
+
+			.weekly-menu-select {
+				width: 100%;
+			}
+		}
+
+		.weekly-menu-btn {
+			display: block;
+			border: 1px solid var(--lightgrey);
+			border-radius: 20px;
+			padding: 5px 30px;
+			margin-top: 15px;
+			background-color: var(--yellow);
+			margin-left: auto;
+			margin-right: auto;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+	}
+
 	.add-favourite {
 		margin: 0 10% 30px 10%;
 		font-family: Gotu,serif;
@@ -1701,11 +1889,11 @@ export default {
 	.alert {
 		width: 100%;
 
-		.comment-error-items {
+		.comment-error-items, .weekly-menu-error-items {
 			font-size: 0.8rem;
 		}
 
-		&.comment-alert {
+		&.comment-alert, &.weekly-menu-alert {
 			padding-bottom: 5px;
 		}
 	}
@@ -1792,7 +1980,7 @@ export default {
       }
     }
 
-    .favourite-container {
+    .buttons-container {
       justify-content: center !important;
     }
   }
