@@ -108,22 +108,12 @@ router.get('/currentUserAllRecipesWithComments', authMiddleware, userController.
 router.get('/currentUserAllRecipeIds', authMiddleware, userController.getCurrentUserAllRecipeIds);
 router.get('/currentUserAllRecipeCards/:sortBy/:page', authMiddleware, userController.getCurrentUserAllRecipeCards);
 router.get('/allUserCount', authMiddleware, userController.getAllUserCount);
-router.get('/allUserCount/active', authMiddleware, userController.getAllActiveUserCount);
+router.get('/allUserCount/verified', authMiddleware, userController.getAllVerifiedUserCount);
 
 router.post('/edit/password', authMiddleware, userController.changePasswordOfCurrentUser);
 router.post('/edit/profile', authMiddleware, deleteImage, userController.editProfileOfCurrentUser);
 router.post('/edit/uploadImage', authMiddleware, deleteImage, uploadFile, userController.uploadImageForCurrentUser);
 router.post('/edit/preferences', authMiddleware, userController.editPreferencesCurrentUser);
-
-router.post('/groups/createForCurrentUser', authMiddleware, userController.createGroupForCurrentUser);
-router.post('/groups/edit', authMiddleware, userController.editNameOfGroup);
-router.get('/groups/delete/:id', authMiddleware, userController.deleteGroup);
-router.get('/groups/allCurrentUser', authMiddleware, userController.getAllGroupsOfCurrentUser);
-router.get('/groups/allOfRecipeAndUser/:id', authMiddleware, userController.getAllGroupsOfFavourite);
-router.post('/groups/addRecipe', authMiddleware, userController.addRecipeToGroup);
-router.post('/groups/deleteRecipe', authMiddleware, userController.deleteRecipeFromGroup);
-router.get('/groups/getAllRecipeCards/:sortBy/:id/:page', authMiddleware, userController.getAllRecipeCardsOfGroup);
-router.get('/groups/recipeCount/:id', authMiddleware, userController.getRecipeCountOfGroup);
 
 router.get('/admin/getUser/:id', adminAuthMiddleware, userController.getUserAdmin);
 router.post('/admin/all/:sortBy/:page', adminAuthMiddleware, userController.getAllUsers);

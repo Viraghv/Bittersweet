@@ -324,12 +324,12 @@ export default {
 		async initSelectableGroups(){
 			try {
 
-				const allUserGroups = await this.axios.get(`/user/groups/allCurrentUser`)
+				const allUserGroups = await this.axios.get(`/favourite/groups/allCurrentUser`)
 				for(const group of allUserGroups.data){
 					this.allFavouritesSelectableGroups[group.id] = group.name;
 				}
 
-				const groupsOfFavourite = await this.axios.get(`/user/groups/allOfRecipeAndUser/${this.allFavouritesAddToGroupRecipeId}`)
+				const groupsOfFavourite = await this.axios.get(`/favourite/groups/allOfRecipeAndUser/${this.allFavouritesAddToGroupRecipeId}`)
 				for (const groupId in this.allFavouritesSelectableGroups) {
 					for (let i = 0; i < groupsOfFavourite.data.length; i++) {
 						if(Number(groupId) === Number(groupsOfFavourite.data[i].id)) {
@@ -346,7 +346,7 @@ export default {
 			try {
 				this.userGroups = {};
 
-				const response = await this.axios.get("/user/groups/allCurrentUser");
+				const response = await this.axios.get("/favourite/groups/allCurrentUser");
 				for(const group of response.data){
 					this.userGroups[group.id] = group.name;
 				}
@@ -360,7 +360,7 @@ export default {
 
 		async initGroupRecipeCount(){
 			try {
-				const response = await this.axios.get(`/user/groups/recipeCount/${Number(this.selectedUserGroup)}`);
+				const response = await this.axios.get(`/favourite/groups/recipeCount/${Number(this.selectedUserGroup)}`);
 				this.groupRecipeCount = response.data;
 			} catch (error) {
 				console.log(error.response.data);
@@ -371,7 +371,7 @@ export default {
 			window.scrollTo(0,0);
 
 			try {
-				const response = await this.axios.get(`/user/groups/getAllRecipeCards/${this.selectedSortTypeGroups}/${Number(this.selectedUserGroup)}/${page}`)
+				const response = await this.axios.get(`/favourite/groups/getAllRecipeCards/${this.selectedSortTypeGroups}/${Number(this.selectedUserGroup)}/${page}`)
 				this.groupRecipes = response.data;
 				this.groupCurrentPage = page;
 
@@ -394,7 +394,7 @@ export default {
 		async addToGroup(){
 			if(this.allFavouritesSelectedGroup) {
 				try {
-					await this.axios.post("/user/groups/addRecipe", {
+					await this.axios.post("/favourite/groups/addRecipe", {
 						groupId: Number(this.allFavouritesSelectedGroup),
 						recipeId: Number(this.allFavouritesAddToGroupRecipeId),
 					});
@@ -439,7 +439,7 @@ export default {
 
 		async removeRecipeFromGroup(){
 			try {
-				await this.axios.post(`/user/groups/deleteRecipe`, {
+				await this.axios.post(`/favourite/groups/deleteRecipe`, {
 					groupId: this.selectedUserGroup,
 					recipeId: this.groupDeleteRecipeId,
 				});
@@ -470,7 +470,7 @@ export default {
 
 			if(this.newGroupErrors.length === 0){
 				try {
-					const response = await this.axios.post(`/user/groups/createForCurrentUser`, {
+					const response = await this.axios.post(`/favourite/groups/createForCurrentUser`, {
 						name: this.newGroupName,
 					});
 
@@ -496,7 +496,7 @@ export default {
 
 			if(this.newGroupErrors.length === 0){
 				try {
-					await this.axios.post(`/user/groups/edit`, {
+					await this.axios.post(`/favourite/groups/edit`, {
 						groupId: this.selectedUserGroup,
 						newName: this.newGroupName,
 					});
@@ -522,7 +522,7 @@ export default {
 
 		async deleteGroup(){
 			try {
-				await this.axios.get(`/user/groups/delete/${Number(this.selectedUserGroup)}`);
+				await this.axios.get(`/favourite/groups/delete/${Number(this.selectedUserGroup)}`);
 
 				document.getElementById("delete-group-close-button").click();
 

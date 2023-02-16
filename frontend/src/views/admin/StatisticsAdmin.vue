@@ -15,8 +15,8 @@
 			<div class="counters-container">
 				<div class="active-user-count">
 					<span class="first-line">There are currently</span>
-					<span class="main-line">{{activeUsersCount}}</span>
-					<span class="last-line">active users</span>
+					<span class="main-line">{{ verifiedUsersCount }}</span>
+					<span class="last-line">verified users</span>
 				</div>
 				<div class="recipes-count">
 					<span class="first-line">There are currently</span>
@@ -81,7 +81,7 @@ export default {
 
 	data(){
 		return {
-			activeUsersCount: 0,
+			verifiedUsersCount: 0,
 			recipesCount: 0,
 			rankedUsers: [],
 			rankedCategories: [],
@@ -89,10 +89,10 @@ export default {
 	},
 
 	methods: {
-		async initActiveUserCount(){
+		async initVerifiedUserCount(){
 			try {
-				const response = await this.axios.get(`/user/allUserCount/active`);
-				this.activeUsersCount = response.data;
+				const response = await this.axios.get(`/user/allUserCount/verified`);
+				this.verifiedUsersCount = response.data;
 			} catch (error) {
 				console.log(error.response.data);
 			}
@@ -127,7 +127,7 @@ export default {
 	},
 
 	mounted() {
-		this.initActiveUserCount();
+		this.initVerifiedUserCount();
 		this.initRecipesCount();
 		this.initRankedUsers();
 		this.initRankedCategories();

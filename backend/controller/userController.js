@@ -118,21 +118,6 @@ module.exports.getPfp = async (req, res) => {
     }
 }
 
-module.exports.createGroupForCurrentUser = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json( await userService.createGroupForCurrentUser(req.body.name, userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
 module.exports.getCurrentUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -220,9 +205,9 @@ module.exports.getAllUserCount = async (req, res) => {
     }
 }
 
-module.exports.getAllActiveUserCount = async (req, res) => {
+module.exports.getAllVerifiedUserCount = async (req, res) => {
     try {
-        res.json( await userService.getAllActiveUserCount());
+        res.json( await userService.getAllVerifiedUserCount());
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -288,124 +273,6 @@ module.exports.editPreferencesCurrentUser = async (req, res) => {
 
     try {
         res.json(await userService.editPreferencesOfUser(req.body, userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-
-module.exports.getAllGroupsOfCurrentUser = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json( await userService.getAllGroupsOfUserById(userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.getAllGroupsOfFavourite = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json(await userService.getAllGroupsOfFavouriteById(Number(req.params.id), Number(userId)));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.addRecipeToGroup = async (req, res) => {
-    try {
-        res.json( await userService.addRecipeToGroup(req.body));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.editNameOfGroup = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json( await userService.editNameOfGroup(Number(req.body.groupId), req.body.newName, userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.deleteGroup = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json( await userService.deleteGroup(Number(req.params.id), userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.deleteRecipeFromGroup = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json( await userService.deleteRecipeFromGroup(Number(req.body.groupId), Number(req.body.recipeId), userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.getAllRecipeCardsOfGroup = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json(await userService.getAllRecipeCardsOfGroup(req.params.sortBy, Number(req.params.id), Number(req.params.page), userId));
-    } catch (exception) {
-        if (exception instanceof HttpException){
-            sendHttpException(res, exception);
-            return;
-        }
-        sendServerErrorResponse(res, exception.message);
-    }
-}
-
-module.exports.getRecipeCountOfGroup = async (req, res) => {
-    let sessionToken = req.headers.authorization
-    let userId = session[sessionToken].userId;
-
-    try {
-        res.json(await userService.getRecipeCountOfGroup(Number(req.params.id), userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

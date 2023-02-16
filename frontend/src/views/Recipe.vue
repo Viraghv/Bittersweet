@@ -678,7 +678,7 @@ export default {
 
 		async initGroups(){
 			try {
-				const response = await this.axios.get("/user/groups/allCurrentUser");
+				const response = await this.axios.get("/favourite/groups/allCurrentUser");
 				for(const group of response.data){
 					this.userGroups[group.id] = group.name;
 				}
@@ -724,7 +724,7 @@ export default {
 		async addToGroup(){
 			if(this.selectedGroupInput) {
 				try {
-					await this.axios.post("/user/groups/addRecipe", {
+					await this.axios.post("/favourite/groups/addRecipe", {
 						groupId: Number(this.selectedGroupInput),
 						recipeId: Number(this.recipeID),
 					});
@@ -741,11 +741,11 @@ export default {
 		async createAndAddToGroup(){
 			if(this.createGroupInput.trim() !== ""){
 				try {
-					let response = await this.axios.post("/user/groups/createForCurrentUser", {
+					let response = await this.axios.post("/favourite/groups/createForCurrentUser", {
 						name: this.createGroupInput
 					});
 
-					await this.axios.post("/user/groups/addRecipe", {
+					await this.axios.post("/favourite/groups/addRecipe", {
 						groupId: Number(response.data.id),
 						recipeId: Number(this.recipeID),
 					});
