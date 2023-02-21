@@ -6,7 +6,7 @@ services:
     container_name: mysql-database
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD?Hibás adatbázis jelszó}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD?Incorrect database password}
       MYSQL_DATABASE: Bittersweet
     ports:
       - "3306:3306"

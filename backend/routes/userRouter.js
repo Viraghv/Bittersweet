@@ -58,10 +58,10 @@ const uploadFile = function (req, res, next) {
 
     upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
-            console.log("MulterError occured: ");
+            console.log("MulterError occurred: ");
             console.log(err);
         } else if (err) {
-            console.log("Unknown error occured: ");
+            console.log("Unknown error occurred: ");
             console.log(err);
         }
         next()
