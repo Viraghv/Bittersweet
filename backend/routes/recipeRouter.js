@@ -9,12 +9,15 @@ const {promises:fsPromise} = require('fs');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads/recipe_images');
+        const path = './uploads/recipe_images';
+        fs.mkdirSync(path, { recursive: true })
+
+        cb(null, path);
     },
     filename: (req, file, cb) => {
-        const extention = file.originalname.split('.')[1];
+        const extension = file.originalname.split('.')[1];
 
-        cb(null, req.params.id + '.' + extention);
+        cb(null, req.params.id + '.' + extension);
     },
 })
 

@@ -22,7 +22,7 @@ module.exports.register = async (userData) => {
     const errors = [];
 
     if(!userData.username?.trim() || !userData.email?.trim() ||
-       !userData.password?.trim() || !userData.passwordAgain?.trim()){
+       !userData.password?.trim()){
         errors.push("Please fill in all fields");
     }
 
@@ -30,8 +30,8 @@ module.exports.register = async (userData) => {
         errors.push("Username can't be longer than 100 characters");
     }
 
-    if(userData.email?.trim().length > 100) {
-        errors.push("Email can't be longer than 100 characters");
+    if(userData.email?.trim().length > 256) {
+        errors.push("Email can't be longer than 256 characters");
     }
 
     if(userData.email?.trim() &&
@@ -43,15 +43,9 @@ module.exports.register = async (userData) => {
         errors.push("Password must be at least 6 characters long")
     }
 
-    if(userData.password !== userData.passwordAgain){
-        errors.push("Passwords do not match");
-    }
-
     if(errors.length > 0){
         throw new BadRequest(errors);
     }
-
-    delete userData.passwordAgain;
 
     try {
         let user = await userRepository.createUser(userData);
@@ -70,14 +64,15 @@ module.exports.register = async (userData) => {
                 transporter.sendMail({
                     to: user.email,
                     subject: 'Bittersweet - Email Verification',
-                    html: `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
-Welcome to <b>Bittersweet!</b><br><br>\n
-Thank you for your registration.<br>
-To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
-
-Thank you, <br>\n
-Bittersweet
-</div>`
+                    html:
+                        `<div style="background-color: #E8EDDF; font-size: 1.2rem; text-align: center; display: inline-block; margin-left: auto; margin-right: auto; padding: 20px 40px">
+                            Welcome to <b>Bittersweet!</b><br><br>
+                            Thank you for your registration.<br>
+                            To verify your account, please click <b><a href="${url}">here.</a></b><br><br>
+                            
+                            Thank you, <br>
+                            Bittersweet
+                        </div>`
                 });
             },
         );

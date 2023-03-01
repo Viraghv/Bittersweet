@@ -7,7 +7,6 @@ const {sendHttpException, sendServerErrorResponse} = require("../httpHandler");
 const fs = require("fs");
 const NotFound = require("../exceptions/NotFound");
 const path = require("path");
-const NotAuthorized = require("../exceptions/NotAuthorized");
 
 
 module.exports.register = async (req, res) => {

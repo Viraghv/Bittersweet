@@ -732,7 +732,7 @@ export default {
 			}
 
 			if(!this.recipe.image && !this.editPreviewImage.image){
-				errors.push("Please upload a valid image (jpg, png, gif).");
+				errors.push("Please upload a valid image (jpg, png).");
 			}
 
 			if(this.recipe.ingredients.length === 0){

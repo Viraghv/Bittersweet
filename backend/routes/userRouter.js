@@ -10,10 +10,13 @@ const {promises: fsPromise} = require("fs");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads/pfps');
+        const path = './uploads/pfps';
+        fs.mkdirSync(path, { recursive: true })
+
+        cb(null, path);
     },
     filename: (req, file, cb) => {
-        const extention = file.originalname.split('.')[1];
+        const extension = file.originalname.split('.')[1];
 
         let userId;
         if(req.params.id){
@@ -23,7 +26,7 @@ const storage = multer.diskStorage({
             userId = session[sessionToken].userId;
         }
 
-        cb(null, userId + '.' + extention);
+        cb(null, userId + '.' + extension);
     },
 })
 
@@ -79,6 +82,8 @@ const deleteImage = async function (req, res, next){
         }
 
         const directory = "./uploads/pfps/"
+        fs.mkdirSync(directory, { recursive: true })
+
         const files =  await fsPromise.readdir(directory);
 
         for(const file of files){

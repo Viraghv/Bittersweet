@@ -71,7 +71,7 @@
 					</router-link></li>
 					<li><router-link class="dropdown-item" :to="{name: 'Favourites'}">
 						<img class="heartIcon" src="@/assets/icons/heart.png" alt="heart">
-						Favourite
+						Favourites
 					</router-link></li>
 					<li><router-link class="dropdown-item" :to="{name: 'ShoppingList'}" >
 						<img class="shoppingListIcon" src="@/assets/icons/shopping-list.png" alt="shoppinglist">
@@ -316,7 +316,6 @@ export default {
 						username: this.signupData.username,
 						email: this.signupData.email,
 						password: this.signupData.password,
-						passwordAgain: this.signupData.passwordAgain,
 					});
 
 					this.clearSignupFields();
@@ -401,8 +400,8 @@ export default {
 				errors.push("Username can't be longer than 100 characters.");
 			}
 
-			if(this.signupData.email.trim().length > 100) {
-				errors.push("Email can't be longer than 100 characters.");
+			if(this.signupData.email.trim().length > 256) {
+				errors.push("Email can't be longer than 256 characters.");
 			}
 
 			if(this.signupData.email.trim() !== "" &&

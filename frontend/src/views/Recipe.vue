@@ -63,7 +63,7 @@
 		<div class="column-container">
 			<div class="column-left">
 				<div class="recipe-image-container">
-					<img class="recipe-image" :src="'data:image/' + recipe.imageExt + ';base64,'+ recipe.image" alt="recipe-image" v-if="recipe.imageUrl && recipe.imageUrl !== 'default'" />
+					<img class="recipe-image" :src="'data:image/' + recipe.imageExt + ';base64,'+ recipe.image" alt="recipe-image" v-if="recipe.image && recipe.imageUrl !== 'default'" />
 					<img class="recipe-image" src='/src/assets/default_recipe_photo.png' alt="recipe-image" v-else>
 				</div>
 				<div class="ingredients-container">
