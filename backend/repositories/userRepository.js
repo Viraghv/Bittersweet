@@ -22,8 +22,8 @@ module.exports.createUser = async (userData) => {
     } catch (exception) {
         console.log(exception);
         switch (exception.meta.target){
-            case "User_username_key": throw new InternalServerError(["The username is already taken."]);
-            case "User_email_key": throw new InternalServerError(["The email is already in use."]);
+            case "User_username_key": throw new BadRequest(["The username is already taken."]);
+            case "User_email_key": throw new BadRequest(["The email is already in use."]);
         }
         throw new InternalServerError("Something went wrong during signup.");
     } finally {

@@ -18,6 +18,8 @@ const transporter = nodemailer.createTransport({
 
 const EMAIL_SECRET = "ahw58zfdlcj4nvjrlsjvir6lvakdn5vrk5fvlg4847"
 
+const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 module.exports.register = async (userData) => {
     const errors = [];
 
@@ -35,7 +37,7 @@ module.exports.register = async (userData) => {
     }
 
     if(userData.email?.trim() &&
-        !userData.email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+        !userData.email?.toLowerCase().match(EMAIL_REGEX)){
         errors.push("Invalid email");
     }
 
@@ -81,7 +83,6 @@ module.exports.register = async (userData) => {
     } catch (exception){
         throw exception
     }
-
 }
 
 module.exports.login = async (loginData) => {

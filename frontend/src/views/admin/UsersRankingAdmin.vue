@@ -49,7 +49,7 @@ export default {
 	methods: {
 		async initActiveUserCount(){
 			try {
-				const response = await this.axios.get(`/user/allUserCount/active`);
+				const response = await this.axios.get(`/user/allUserCount/verified`);
 				this.activeUsersCount = response.data;
 			} catch (error) {
 				console.log(error.response.data);

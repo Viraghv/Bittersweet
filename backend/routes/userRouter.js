@@ -97,8 +97,9 @@ const deleteImage = async function (req, res, next){
     next();
 }
 
-
 router.post('/register', userController.register);
+
+
 router.post('/login', userController.login);
 router.get('/logout', userController.logout);
 
