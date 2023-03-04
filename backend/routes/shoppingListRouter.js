@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const shoppingListController = require('../controller/shoppingListController');
+const shoppingListController = require('../controllers/shoppingListController');
 const authMiddleware = require('../middlewares/auth');
 
 router.get('/currentUserList', authMiddleware, shoppingListController.getCurrentUserList);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const weeklyMenuController = require('../controller/weeklyMenuController');
+const weeklyMenuController = require('../controllers/weeklyMenuController');
 const authMiddleware = require('../middlewares/auth');
 
 router.get('/generate/week/:nextWeek', authMiddleware, weeklyMenuController.generateWeekForCurrentUser);

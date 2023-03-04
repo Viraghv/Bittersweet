@@ -5,7 +5,7 @@ const NotFound = require("../exceptions/NotFound");
 const weeklyMenuService = require("./weeklyMenuService");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
-const NotAuthorized = require("../exceptions/NotAuthorized");
+const Unauthorized = require("../exceptions/Unauthorized");
 const {TokenExpiredError} = require("jsonwebtoken");
 
 const transporter = nodemailer.createTransport({
@@ -98,7 +98,7 @@ module.exports.login = async (loginData) => {
         }
 
         if(!user.emailVerified){
-            throw new NotAuthorized(["Please verify your email address."])
+            throw new Unauthorized(["Please verify your email address."])
 
         }
 
