@@ -741,7 +741,7 @@ export default {
 		async createAndAddToGroup(){
 			if(this.createGroupInput.trim() !== ""){
 				try {
-					let response = await this.axios.post("/favourite/groups/createForCurrentUser", {
+					let response = await this.axios.post("/favourite/groups/create", {
 						name: this.createGroupInput
 					});
 

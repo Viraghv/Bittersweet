@@ -3,6 +3,12 @@ const HttpException = require("../exceptions/HttpException");
 const {sendHttpException, sendServerErrorResponse} = require("../httpHandler");
 const {session} = require("../session/sessionStorage");
 
+/**
+ * Controller function for adding recipe by recipeId to current user's favourites.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.addById = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -18,6 +24,13 @@ module.exports.addById = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for deleting recipe by recipeId from current user's favourites.
+ * Deletes recipe from all the user's groups, and then from their favourites.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.deleteById = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -36,12 +49,18 @@ module.exports.deleteById = async (req, res) => {
     }
 }
 
-module.exports.getallUserFavourites = async (req, res) => {
+/**
+ * Controller function for getting all favourite recipeIds of current user.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
+module.exports.getAllUserFavourites = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
 
     try {
-        res.json( await favouriteService.getallUserFavourites(userId));
+        res.json( await favouriteService.getAllUserFavourites(userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -51,6 +70,12 @@ module.exports.getallUserFavourites = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for getting all favourite recipe cards of current user, sorted, by page.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getAllUserFavouriteCards = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -66,6 +91,12 @@ module.exports.getAllUserFavouriteCards = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for getting the count of current user's all favourites.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getAllUserFavouriteCount = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -81,12 +112,18 @@ module.exports.getAllUserFavouriteCount = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for creating a new group for the current user.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.createGroupForCurrentUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
 
     try {
-        res.json( await favouriteService.createGroupForCurrentUser(req.body.name, userId));
+        res.json( await favouriteService.createGroupForUser(req.body.name, userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -96,12 +133,18 @@ module.exports.createGroupForCurrentUser = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for editing group of current user by groupId.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.editNameOfGroup = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
 
     try {
-        res.json( await favouriteService.editNameOfGroup(Number(req.body.groupId), req.body.newName, userId));
+        res.json( await favouriteService.editNameOfGroup(Number(req.params.id), req.body.newName, userId));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -111,6 +154,12 @@ module.exports.editNameOfGroup = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for deleting group of current user by groupId.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.deleteGroup = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -126,6 +175,12 @@ module.exports.deleteGroup = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for getting all groups of current user.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getAllGroupsOfCurrentUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -141,6 +196,12 @@ module.exports.getAllGroupsOfCurrentUser = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for getting all of current user's groups that recipe is in by recipeId.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getAllGroupsOfFavourite = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -156,6 +217,12 @@ module.exports.getAllGroupsOfFavourite = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for adding recipe to group by groupId and recipeId.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.addRecipeToGroup = async (req, res) => {
     try {
         res.json( await favouriteService.addRecipeToGroup(req.body));
@@ -168,6 +235,12 @@ module.exports.addRecipeToGroup = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for deleting recipe from group by groupId and recipeId.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.deleteRecipeFromGroup = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -183,6 +256,12 @@ module.exports.deleteRecipeFromGroup = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for getting all recipe cards of group by groupId, sorted, by page.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getAllRecipeCardsOfGroup = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -198,6 +277,12 @@ module.exports.getAllRecipeCardsOfGroup = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for getting count of recipes in group by groupId.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getRecipeCountOfGroup = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;

@@ -91,7 +91,7 @@ export default {
 	methods: {
 		async initVerifiedUserCount(){
 			try {
-				const response = await this.axios.get(`/user/allUserCount/verified`);
+				const response = await this.axios.get(`/user/admin/allUserCount/verified`);
 				this.verifiedUsersCount = response.data;
 			} catch (error) {
 				console.log(error.response.data);

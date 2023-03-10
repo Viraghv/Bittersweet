@@ -1,17 +1,23 @@
 const { PrismaClient } = require('@prisma/client')
 const InternalServerError = require("../exceptions/InternalServerError");
-const {session} = require("../session/sessionStorage");
-const HttpException = require("../exceptions/HttpException");
 const BadRequest = require("../exceptions/BadRequest");
 const fs = require("fs");
 
 const prisma = new PrismaClient();
 
-
+/**
+ * Repository function for creating new recipe for a user.
+ * Inserts the received data to the Recipe, Ingredient, Step, RecipeInCategory, RecipeInDiet, and AllergenInRecipe tables.
+ * If an insert encounters an error, it deletes the already created recipe, so everything already inserted gets deleted with it.
+ * @param recipeData object containing the data of the new recipe
+ * @param userId userId of uploader user
+ * @returns recipeId of new recipe
+ */
 module.exports.createOneRecipe = async (recipeData, userId) => {
     let newRecipe;
 
     try {
+        //insert recipe
         newRecipe = await prisma.Recipe.create({
             data: {
                 name: recipeData.name,
@@ -26,59 +32,82 @@ module.exports.createOneRecipe = async (recipeData, userId) => {
             }
         });
 
-        for(const ingredient of recipeData.ingredients){
-            await  prisma.Ingredient.create({
-                data: {
-                    name: ingredient.name,
-                    amount: ingredient.amount ? ingredient.amount : null,
-                    recipeId: newRecipe.id,
-                    unitId: ingredient.unit ? ingredient.unit : null,
-                }
-            })
+        // insert ingredients
+        let ingerdientsArray = [];
+        for(const ingredient of recipeData.ingredients) {
+            ingerdientsArray.push({
+                name: ingredient.name,
+                amount: ingredient.amount ? ingredient.amount : null,
+                recipeId: newRecipe.id,
+                unitId: ingredient.unit ? ingredient.unit : null,
+            });
         }
 
+        await  prisma.Ingredient.createMany({
+            data: ingerdientsArray,
+        })
+
+        // insert steps
+        let stepsArray = [];
         for(const step of recipeData.steps){
-            await prisma.Step.create({
-                data: {
-                    number: step.number,
-                    content: step.content,
-                    recipeId: newRecipe.id
-                }
+            stepsArray.push({
+                number: step.number,
+                content: step.content,
+                recipeId: newRecipe.id,
             })
         }
 
+        await prisma.Step.createMany({
+            data: stepsArray
+        });
+
+        // insert category connections
         if(Array.isArray(recipeData.categories)){
-            for(const oneCategory of recipeData.categories){
-                await prisma.RecipeInCategory.create({
-                    data: {
-                        categoryId: oneCategory.category,
-                        recipeId: newRecipe.id,
-                        primary: oneCategory.primary
-                    }
-                })
+            let categoriesArray = [];
+
+            for(const category of recipeData.categories){
+                categoriesArray.push({
+                    categoryId: category.category,
+                    recipeId: newRecipe.id,
+                    primary: category.primary
+                });
             }
+
+            await prisma.RecipeInCategory.createMany({
+                data: categoriesArray,
+            })
         }
 
+        // insert diet connections
         if(Array.isArray(recipeData.diets)){
+            let dietsArray = [];
+
             for (let i = 0; i < recipeData.diets.length; i++) {
-                await prisma.RecipeInDiet.create({
-                    data: {
-                        dietId: recipeData.diets[i],
-                        recipeId: newRecipe.id,
-                    }
-                })
+                dietsArray.push({
+                    dietId: recipeData.diets[i],
+                    recipeId: newRecipe.id,
+                });
             }
+
+            await prisma.RecipeInDiet.createMany({
+                data: dietsArray,
+            })
         }
 
+        // insert allergen connections
         if(Array.isArray(recipeData.allergens)){
+            let allergiesArray = [];
+
             for (let i = 0; i < recipeData.allergens.length; i++) {
-                await prisma.AllergenInRecipe.create({
-                    data: {
-                        allergenId: recipeData.allergens[i],
-                        recipeId: newRecipe.id,
-                    }
-                })
+                allergiesArray.push({
+                    allergenId: recipeData.allergens[i],
+                    recipeId: newRecipe.id,
+                });
             }
+
+            await prisma.AllergenInRecipe.createMany({
+                data: allergiesArray,
+            })
         }
 
         return newRecipe.id;
@@ -86,6 +115,7 @@ module.exports.createOneRecipe = async (recipeData, userId) => {
     } catch (exception) {
         console.log(exception);
 
+        // if recipe was already created, delete it
         if(newRecipe){
             try{
                 await prisma.Recipe.delete({
@@ -106,7 +136,13 @@ module.exports.createOneRecipe = async (recipeData, userId) => {
     }
 
 }
-
+/**
+ * Repository function for uploading new image for recipe by recipeId.
+ * Updates the recipe's image filename to the newly uploaded one. If there is an error during the update, the message
+ * gets deleted from the recipe_images directory.
+ * @param image filename of the new recipe image
+ * @param recipeId recipeId of recipe
+ */
 module.exports.uploadImage = async (image, recipeId) => {
     try{
         await prisma.Recipe.updateMany({
@@ -137,10 +173,20 @@ module.exports.uploadImage = async (image, recipeId) => {
 
 }
 
+/**
+ * Repository function for editing recipe of a user by recipeId.
+ * Updates the received data in the Recipe, Ingredient, Step, RecipeInCategory, RecipeInDiet, and AllergenInRecipe tables.
+ * @param recipeId recipeId of recipe
+ * @param recipeData object containing the data of the edited recipe
+ * @param userId userId of recipe's original uploader
+ * @returns count of updated recipes (0-1)
+ */
 module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
     let updatedCount;
 
     try {
+
+        // update recipe
         updatedCount = await prisma.Recipe.updateMany({
             where: {
                 id: recipeId,
@@ -159,13 +205,14 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
             }
         });
 
-
+        // delete all ingredients
         await prisma.Ingredient.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new ingredients
         let ingerdientsArray = [];
         for(const ingredient of recipeData.ingredients) {
             ingerdientsArray.push({
@@ -180,13 +227,14 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
             data: ingerdientsArray,
         })
 
-
+        // delete all steps
         await prisma.Step.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new steps
         let stepsArray = [];
         for(const step of recipeData.steps){
            stepsArray.push({
@@ -201,13 +249,14 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
         });
 
 
-
+        // delete all category connections
         await prisma.RecipeInCategory.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new category connections
         if(Array.isArray(recipeData.categories)){
             let categoriesArray = [];
 
@@ -224,12 +273,14 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
             })
         }
 
+        // delete all diet connections
         await prisma.RecipeInDiet.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new diet connections
         if(Array.isArray(recipeData.diets)){
             let dietsArray = [];
 
@@ -245,12 +296,14 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
             })
         }
 
+        // delete all allergen connections
         await prisma.AllergenInRecipe.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new allergen connections
         if(Array.isArray(recipeData.allergens)){
             let allergiesArray = [];
 
@@ -276,6 +329,12 @@ module.exports.editRecipeOfUser = async (recipeId, recipeData, userId) => {
     }
 }
 
+/**
+ * Repository function for deleting recipe of a user by recipeId.
+ * Deletes record from Recipe table matching recipeId and userId.
+ * @param recipeId recipeId of recipe to be deleted
+ * @param userId userId of recipe's original uploader
+ */
 module.exports.deleteRecipeOfUser = async (recipeId, userId) => {
     let deletedRecipeCount = 0;
 
@@ -297,21 +356,12 @@ module.exports.deleteRecipeOfUser = async (recipeId, userId) => {
     }
 }
 
-module.exports.getAllRecipeCount = async () => {
-    let recipeCount = 0;
-
-    try {
-        recipeCount = await prisma.Recipe.count();
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    return recipeCount;
-}
-
+/**
+ * Repository function for getting a recipe by recipeId.
+ * Gets all data about recipe, including data from connecting tables.
+ * @param recipeId recipeId of recipe
+ * @returns data object of recipe matching the recipeId
+ */
 module.exports.getRecipeById = async (recipeId) => {
     let recipe;
 
@@ -325,13 +375,13 @@ module.exports.getRecipeById = async (recipeId) => {
                 description: true,
                 minute: true,
                 recipeCategories: {
-                  include: {
-                      recipeCategory: {
-                          select: {
-                              name: true,
-                          }
-                      },
-                  }
+                    include: {
+                        recipeCategory: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                    }
                 },
                 difficulty: {
                     select: {
@@ -403,7 +453,31 @@ module.exports.getRecipeById = async (recipeId) => {
     return recipe;
 }
 
-module.exports.getAllRecpieCardsWithPagination = async (page) => {
+/**
+ * Repository function for getting the count of all recipes.
+ * @returns count of all recipes
+ */
+module.exports.getAllRecipeCount = async () => {
+    let recipeCount = 0;
+
+    try {
+        recipeCount = await prisma.Recipe.count();
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return recipeCount;
+}
+/**
+ * Repository function for getting all recipe cards, paginated.
+ * Gets all recipe card data of given page, ordered by upload time, descending.
+ * @param page page to get
+ * @returns recipe cards of given page
+ */
+module.exports.getAllRecipeCardsWithPagination = async (page) => {
     let recipes = [];
     try {
         recipes = await prisma.Recipe.findMany({
@@ -446,9 +520,18 @@ module.exports.getAllRecpieCardsWithPagination = async (page) => {
     return recipes;
 }
 
+/**
+ * Repository function for getting filtered recipe cards, sorted, paginated.
+ * Constructs orderBy and filter objects before executing prisma query.
+ * @param sortBy sort cards by (options: nameAsc, nameDesc, uploadedAsc, uploadedDesc, timeAsc, timeDesc, caloriesAsc,
+ * caloriesDesc, portionsAsc, portionsDesc, difficultyAsc, difficultyDesc, costAsc, costDesc)
+ * @param page page to get
+ * @param searchData object containing the set filter options
+ * @returns filtered recipe cards of given page, and count of all filtered recipe cards
+ */
 module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
+    // construct order by object for prisma
     let orderBy = {};
-
     switch (sortBy) {
         case "nameAsc":  orderBy = {name: "asc"}; break;
         case "nameDesc":  orderBy = {name: "desc"}; break;
@@ -482,6 +565,7 @@ module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
         }; break;
     }
 
+    // construct filters object for prisma
     let filters = {};
 
     filters.name = {
@@ -564,6 +648,7 @@ module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
     let recipeCount = null;
 
     try {
+        // query matching recipe cards of page
         recipes = await prisma.Recipe.findMany({
             skip: (page - 1) * 12,
             take: 12,
@@ -596,6 +681,7 @@ module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
             orderBy: orderBy
         });
 
+        // query all matching recipe cards count
         recipeCount = await prisma.Recipe.count({
            where: filters,
         });
@@ -614,10 +700,17 @@ module.exports.getFilteredRecipeCards = async (sortBy, page, searchData) => {
     return response;
 }
 
+/**
+ * Gets recipeIds that fit the given user's weekly menu preferences (exclude allergens, match diet, max difficulty, max cost).
+ * Separates breakfast, lunch, dinner, and dessert recipeIds.
+ * @param user user object containing user's preferences
+ * @returns object containing the recipeIds fitting the user preferences, separated by meal
+ */
 module.exports.getRecipeIdsByUserPreference = async (user) => {
     let recipeIds = {};
     let preferences = {};
 
+    // construct preferences object for filtering in prisma
     if(user.allergies.length > 0){
         preferences.allergens = {
             every: {
@@ -653,6 +746,7 @@ module.exports.getRecipeIdsByUserPreference = async (user) => {
     }
 
     try {
+        // get fitting breakfast recipeIds
         preferences.recipeCategories = {
             some: {
                 categoryId: 1, //breakfast
@@ -666,6 +760,7 @@ module.exports.getRecipeIdsByUserPreference = async (user) => {
             }
         });
 
+        // get fitting lunch recipeIds
         preferences.recipeCategories = {
             some: {
                 categoryId: 2, //lunch
@@ -679,6 +774,7 @@ module.exports.getRecipeIdsByUserPreference = async (user) => {
             }
         });
 
+        // get fitting dinner recipeIds
         preferences.recipeCategories = {
             some: {
                 categoryId: 3, //dinner
@@ -692,6 +788,7 @@ module.exports.getRecipeIdsByUserPreference = async (user) => {
             }
         });
 
+        // get fitting dessert recipeIds
         preferences.recipeCategories = {
             some: {
                 categoryId: 4, //dessert
@@ -715,6 +812,14 @@ module.exports.getRecipeIdsByUserPreference = async (user) => {
     return recipeIds;
 }
 
+/**
+ * Repository function for getting comments by recipeId, paginated.
+ * Gets all comments of recipe on the given page ordered by upload time, descending,
+ * including uploader user's username and profile picture.
+ * @param recipeId recipeId of recipe to get comments of
+ * @param page page to get
+ * @returns comments of recipe on given page
+ */
 module.exports.getCommentsByRecipeId = async (recipeId, page) => {
     let comments = [];
     try {
@@ -751,6 +856,12 @@ module.exports.getCommentsByRecipeId = async (recipeId, page) => {
     return comments;
 }
 
+/**
+ * Repository function for getting comment count of recipe by recipeId.
+ * Gets the number of comments on the given recipe.
+ * @param recipeId recipeId of recipe
+ * @returns comment count of given recipe
+ */
 module.exports.getCommentCountById = async (recipeId) => {
     let commentCount = 0;
 
@@ -770,6 +881,11 @@ module.exports.getCommentCountById = async (recipeId) => {
     return commentCount;
 }
 
+/**
+ * Repository function for getting average rating of recipe by recipeId.
+ * @param recipeId recipeId of recipe
+ * @returns average rating of given recipe
+ */
 module.exports.getAverageRatingById = async (recipeId) => {
     let averageRating = 0;
 
@@ -792,6 +908,13 @@ module.exports.getAverageRatingById = async (recipeId) => {
     return averageRating._avg.rating;
 }
 
+/**
+ * Repository function for adding comment by user to recipe.
+ * Inserts record to Comment table, connected to the given user and recipe.
+ * @param commentData data object of new comment
+ * @param userId userId of uploader
+ * @returns new comment record as object
+ */
 module.exports.addComment = async (commentData, userId) => {
     try {
         return await prisma.Comment.create({
@@ -810,6 +933,14 @@ module.exports.addComment = async (commentData, userId) => {
     }
 }
 
+/**
+ * Repository function for editing comment of user by commentId.
+ * Updates record in Comment table matching the commentId and userId.
+ * @param commentId commentId of comment to be edited
+ * @param commentData data object of edited comment
+ * @param userId userId of comment uploader
+ * @returns number of edited comments (0-1)
+ */
 module.exports.editComment = async (commentId, commentData, userId) => {
     let editCount = 0;
 
@@ -838,7 +969,12 @@ module.exports.editComment = async (commentId, commentData, userId) => {
     }
 }
 
-
+/**
+ * Repository function for deleting comment of user by commentId.
+ * Deletes record from Comment table matching commentId and userId.
+ * @param commentId commentId of comment to be deleted
+ * @param userId userId of comment uploader
+ */
 module.exports.deleteComment = async (commentId, userId) => {
     try {
         await prisma.Comment.deleteMany({
@@ -855,6 +991,12 @@ module.exports.deleteComment = async (commentId, userId) => {
     }
 }
 
+/**
+ * Repository function for getting comment of given user by recipeId.
+ * @param recipeId recipeId of recipe the comment is on
+ * @param userId userId of comment uploader
+ * @returns comment of user on given recipe
+ */
 module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     try {
         return  await prisma.Comment.findMany({
@@ -876,25 +1018,10 @@ module.exports.getCommentByUserAndRecipeId = async (recipeId, userId) => {
     }
 }
 
-module.exports.getAllUnits = async () => {
-    let units = [];
-    try {
-        units = await prisma.Unit.findMany({
-            select: {
-                id: true,
-                name: true,
-            }
-        })
-    } catch (error){
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    return units;
-}
-
+/**
+ * Repository function for getting all difficulty levels.
+ * @returns all difficulty levels
+ */
 module.exports.getAllDifficulties = async () => {
     let difficulties = [];
     try {
@@ -919,303 +1046,10 @@ module.exports.getAllDifficulties = async () => {
     return difficulties;
 }
 
-module.exports.getAllCategories = async () => {
-    let categories = [];
-    try {
-        categories = await prisma.RecipeCategory.findMany({
-            select: {
-                id: true,
-                name: true,
-            }
-        })
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    return categories;
-}
-
-module.exports.getAllDiets = async () => {
-    let diets = [];
-    try {
-        diets = await prisma.Diet.findMany({
-            select: {
-                id: true,
-                name: true,
-            }
-        })
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    return diets;
-}
-
-module.exports.getAllAllergens = async () => {
-    let allergens = [];
-    try {
-        allergens = await prisma.Allergen.findMany({
-            select: {
-                id: true,
-                name: true,
-            }
-        })
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    return allergens;
-}
-
-module.exports.addUnit = async (unitName) => {
-    try {
-        return await prisma.Unit.create({
-            data: {
-                name: unitName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "Unit_name_key") {
-            throw new InternalServerError(["This unit already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during creating this unit."));
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.editUnit = async (unitId, unitName) => {
-    try {
-        return await prisma.Unit.update({
-            where: {
-                id: unitId,
-            },
-            data: {
-                name: unitName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "Unit_name_key") {
-            throw new InternalServerError(["This unit already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during editing this unit."));
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.deleteUnit = async (unitId) => {
-    try {
-        await prisma.Unit.delete({
-            where: {
-                id: unitId,
-            },
-        });
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.addCategory = async (categoryName) => {
-    try {
-        return await prisma.RecipeCategory.create({
-            data: {
-                name: categoryName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "RecipeCategory_name_key") {
-            throw new InternalServerError(["This category already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during creating this category."));
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.editCategory = async (categoryId, categoryName) => {
-    try {
-        return await prisma.RecipeCategory.update({
-            where: {
-                id: categoryId,
-            },
-            data: {
-                name: categoryName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "RecipeCategory_name_key") {
-            throw new InternalServerError(["This category already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during editing this category."));
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.deleteCategory = async (categoryId) => {
-    try {
-        await prisma.RecipeCategory.delete({
-            where: {
-                id: categoryId,
-            },
-        });
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.addDiet = async (dietName) => {
-    try {
-        return await prisma.Diet.create({
-            data: {
-                name: dietName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "Diet_name_key") {
-            throw new InternalServerError(["This diet already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during creating this diet."));
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.editDiet = async (dietId, dietName) => {
-    try {
-        return await prisma.Diet.update({
-            where: {
-                id: dietId,
-            },
-            data: {
-                name: dietName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "Diet_name_key") {
-            throw new InternalServerError(["This diet already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during editing this diet."));
-    } finally {
-        await prisma.$disconnect();
-    }
-}
-
-module.exports.deleteDiet = async (dietId) => {
-    try {
-        await prisma.Diet.delete({
-            where: {
-                id: dietId,
-            },
-        });
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-}
-
-module.exports.addAllergen = async (allergenName) => {
-    try {
-        return await prisma.Allergen.create({
-            data: {
-                name: allergenName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "Allergen_name_key") {
-            throw new InternalServerError(["This allergen already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during creating this allergen."));
-    } finally {
-        await prisma.$disconnect();
-    }
-
-}
-
-module.exports.editAllergen = async (allergenId, allergenName) => {
-    try {
-        return await prisma.Allergen.update({
-            where: {
-                id: allergenId,
-            },
-            data: {
-                name: allergenName.trim(),
-            }
-        });
-    } catch (error) {
-        console.log(error);
-
-        if(error.meta.target === "Allergen_name_key") {
-            throw new InternalServerError(["This allergen already exists."])
-        }
-
-        throw new InternalServerError(("Something went wrong during editing this allergen."));
-    } finally {
-        await prisma.$disconnect();
-    }
-}
-
-module.exports.deleteAllergen = async (allergenId) => {
-    try {
-        await prisma.Allergen.delete({
-            where: {
-                id: allergenId,
-            },
-        });
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-}
-
+/**
+ * Repository function for getting all cost levels.
+ * @returns all cost levels
+ */
 module.exports.getAllCosts = async () => {
     let costs = [];
     try {
@@ -1240,9 +1074,471 @@ module.exports.getAllCosts = async () => {
     return costs;
 }
 
-module.exports.getAllRecipes = async (sortBy, page, searchData) => {
-    let orderBy = {};
+/**
+ * Repository function for getting all units.
+ * @returns all units
+ */
+module.exports.getAllUnits = async () => {
+    let units = [];
+    try {
+        units = await prisma.Unit.findMany({
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error){
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
 
+    return units;
+}
+
+/**
+ * Repository function for getting all recipe categories.
+ * @returns all recipe categories
+ */
+module.exports.getAllCategories = async () => {
+    let categories = [];
+    try {
+        categories = await prisma.RecipeCategory.findMany({
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return categories;
+}
+
+/**
+ * Repository function for getting all diets.
+ * @returns all diets
+ */
+module.exports.getAllDiets = async () => {
+    let diets = [];
+    try {
+        diets = await prisma.Diet.findMany({
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return diets;
+}
+
+/**
+ * Repository function for getting all allergens.
+ * @returns all allergens
+ */
+module.exports.getAllAllergens = async () => {
+    let allergens = [];
+    try {
+        allergens = await prisma.Allergen.findMany({
+            select: {
+                id: true,
+                name: true,
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    return allergens;
+}
+
+/**
+ * Repository function for adding a new unit.
+ * Insert new record into Unit table with given name.
+ * @param unitName name of new unit
+ * @returns created new unit record as object
+ */
+module.exports.addUnit = async (unitName) => {
+    try {
+        return await prisma.Unit.create({
+            data: {
+                name: unitName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "Unit_name_key") {
+            throw new InternalServerError(["This unit already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this unit."));
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for editing a unit by unitId.
+ * Updates the given unit's name in the Unit table.
+ * @param unitId unitId of unit to be edited
+ * @param unitName new name of the unit
+ * @returns edited unit record as object
+ */
+module.exports.editUnit = async (unitId, unitName) => {
+    try {
+        return await prisma.Unit.update({
+            where: {
+                id: unitId,
+            },
+            data: {
+                name: unitName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "Unit_name_key") {
+            throw new InternalServerError(["This unit already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this unit."));
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for deleting unit by unitId.
+ * Deletes given unit from Unit table.
+ * @param unitId unitId of unit to be deleted
+ */
+module.exports.deleteUnit = async (unitId) => {
+    try {
+        await prisma.Unit.delete({
+            where: {
+                id: unitId,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+/**
+ * Repository function for adding a new recipe category.
+ * Insert new record into RecipeCategory table with given name.
+ * @param categoryName name of new category
+ * @returns created new category record as object
+ */
+module.exports.addCategory = async (categoryName) => {
+    try {
+        return await prisma.RecipeCategory.create({
+            data: {
+                name: categoryName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "RecipeCategory_name_key") {
+            throw new InternalServerError(["This category already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this category."));
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+/**
+ * Repository function for editing a recipe category by categoryId.
+ * Updates the given category's name in the RecipeCategory table.
+ * @param categoryId categoryId of category to be edited
+ * @param categoryName new name of the category
+ * @returns edited category record as object
+ */
+module.exports.editCategory = async (categoryId, categoryName) => {
+    try {
+        return await prisma.RecipeCategory.update({
+            where: {
+                id: categoryId,
+            },
+            data: {
+                name: categoryName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "RecipeCategory_name_key") {
+            throw new InternalServerError(["This category already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this category."));
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+/**
+ * Repository function for deleting category by categoryId.
+ * Deletes given category from RecipeCategory table.
+ * @param categoryId categoryId of category to be deleted
+ */
+module.exports.deleteCategory = async (categoryId) => {
+    try {
+        await prisma.RecipeCategory.delete({
+            where: {
+                id: categoryId,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+/**
+ * Repository function for getting ranked categories, paginated.
+ * Gets all categories of given page, ordered descending by the number of recipes they are connected to.
+ * @param page page to get
+ * @returns array of categories, in ranked order
+ */
+module.exports.getRankedCategories = async (page) => {
+    try {
+        return await prisma.RecipeCategory.findMany({
+            skip: (page - 1) * 25,
+            take: 25,
+
+            select: {
+                id: true,
+                name: true,
+                _count: {
+                    select: {
+                        recipes: true
+                    }
+                },
+            },
+
+            orderBy: {
+                recipes: {
+                    _count: 'desc',
+                }
+            }
+
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for getting count of all recipe categories.
+ * @returns count of all recipe categories
+ */
+module.exports.getCategoriesCount = async () => {
+    try {
+        return await prisma.RecipeCategory.count();
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for adding a new diet.
+ * Insert new record into Diet table with given name.
+ * @param dietName name of new diet
+ * @returns created new diet record as object
+ */
+module.exports.addDiet = async (dietName) => {
+    try {
+        return await prisma.Diet.create({
+            data: {
+                name: dietName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "Diet_name_key") {
+            throw new InternalServerError(["This diet already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this diet."));
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+/**
+ * Repository function for editing a diet by dietId.
+ * Updates the given diet's name in the Diet table.
+ * @param dietId dietId of diet to be edited
+ * @param dietName new name of the diet
+ * @returns edited diet record as object
+ */
+module.exports.editDiet = async (dietId, dietName) => {
+    try {
+        return await prisma.Diet.update({
+            where: {
+                id: dietId,
+            },
+            data: {
+                name: dietName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "Diet_name_key") {
+            throw new InternalServerError(["This diet already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this diet."));
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for deleting diet by dietId.
+ * Deletes given diet from Diet table.
+ * @param dietId dietId of diet to be deleted
+ */
+module.exports.deleteDiet = async (dietId) => {
+    try {
+        await prisma.Diet.delete({
+            where: {
+                id: dietId,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+/**
+ * Repository function for adding a new allergen.
+ * Insert new record into Allergen table with given name.
+ * @param allergenName name of new allergen
+ * @returns created new allergen record as object
+ */
+module.exports.addAllergen = async (allergenName) => {
+    try {
+        return await prisma.Allergen.create({
+            data: {
+                name: allergenName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "Allergen_name_key") {
+            throw new InternalServerError(["This allergen already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during creating this allergen."));
+    } finally {
+        await prisma.$disconnect();
+    }
+
+}
+
+/**
+ * Repository function for editing an allergen by allergenId.
+ * Updates the given allergen's name in the Allergen table.
+ * @param allergenId allergenId of allergen to be edited
+ * @param allergenName new name of the allergen
+ * @returns edited allergen record as object
+ */
+module.exports.editAllergen = async (allergenId, allergenName) => {
+    try {
+        return await prisma.Allergen.update({
+            where: {
+                id: allergenId,
+            },
+            data: {
+                name: allergenName.trim(),
+            }
+        });
+    } catch (error) {
+        console.log(error);
+
+        if(error.meta.target === "Allergen_name_key") {
+            throw new InternalServerError(["This allergen already exists."])
+        }
+
+        throw new InternalServerError(("Something went wrong during editing this allergen."));
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for deleting allergen by allergenId.
+ * Deletes given allergen from Allergen table.
+ * @param allergenId allergenId of allergen to be deleted
+ */
+module.exports.deleteAllergen = async (allergenId) => {
+    try {
+        await prisma.Allergen.delete({
+            where: {
+                id: allergenId,
+            },
+        });
+    } catch (error) {
+        console.log(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * Repository function for getting all recipes, sorted, filtered, and paginated.
+ * Queries all recipes of given page, sorted and filtered based on the sortBy and searchData objects.
+ * @param sortBy sort recipes by (options: idAsc, idDesc,  nameAsc, nameDesc, uploadedAsc, uploadedDesc, lastModifiedAsc,
+ * lastModifiedDesc, usernameAsc, usernameDesc)
+ * @param page page to get
+ * @param searchData object containing the set filter options (search by id, name, or username)
+ * @returns sorted and filtered recipes of given page
+ */
+module.exports.getAllRecipes = async (sortBy, page, searchData) => {
+    // construct order by object for prisma
+    let orderBy = {};
     switch (sortBy) {
         case "idAsc":  orderBy = {id: "asc"}; break;
         case "idDesc":  orderBy = {id: "desc"}; break;
@@ -1306,6 +1602,12 @@ module.exports.getAllRecipes = async (sortBy, page, searchData) => {
     }
 }
 
+/**
+ * Repository function for getting the count of all recipes as admin.
+ * Gets number of recipes fitting the given filters.
+ * @param searchData object containing the set filter options (search by id, name, or username)
+ * @returns count of all recipes matching the set filters
+ */
 module.exports.getAllAdminPageRecipesCount = async (searchData) => {
     try {
         return  await prisma.Recipe.count({
@@ -1331,10 +1633,18 @@ module.exports.getAllAdminPageRecipesCount = async (searchData) => {
     }
 }
 
+/**
+ * Repository function for editing recipe by recipeId as admin.
+ * Updates matching records based on the received data in the Recipe, Ingredient, Step, RecipeInCategory, RecipeInDiet, and AllergenInRecipe tables.
+ * @param recipeId recipeId of recipe
+ * @param recipeData object containing the data of the edited recipe
+ * @returns count of updated recipes (0-1)
+ */
 module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
     let updatedCount;
 
     try {
+        // update recipe
         updatedCount = await prisma.Recipe.updateMany({
             where: {
                 id: recipeId,
@@ -1352,13 +1662,14 @@ module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
             }
         });
 
-
+        // delete all ingredients
         await prisma.Ingredient.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new ingredients
         let ingerdientsArray = [];
         for(const ingredient of recipeData.ingredients) {
             ingerdientsArray.push({
@@ -1373,13 +1684,14 @@ module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
             data: ingerdientsArray,
         })
 
-
+        // delete all steps
         await prisma.Step.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new steps
         let stepsArray = [];
         for(const step of recipeData.steps){
             stepsArray.push({
@@ -1394,13 +1706,14 @@ module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
         });
 
 
-
+        // delete all category connections
         await prisma.RecipeInCategory.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new category connections
         if(Array.isArray(recipeData.categories)){
             let categoriesArray = [];
 
@@ -1417,12 +1730,14 @@ module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
             })
         }
 
+        // delete all diet connections
         await prisma.RecipeInDiet.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new diet connections
         if(Array.isArray(recipeData.diets)){
             let dietsArray = [];
 
@@ -1438,12 +1753,14 @@ module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
             })
         }
 
+        // delete all allergen connections
         await prisma.AllergenInRecipe.deleteMany({
             where: {
                 recipeId: recipeId,
             }
         });
 
+        // insert new allergen connections
         if(Array.isArray(recipeData.allergens)){
             let allergiesArray = [];
 
@@ -1469,6 +1786,11 @@ module.exports.editRecipeAdmin = async (recipeId, recipeData) => {
     }
 }
 
+/**
+ * Repository function for deleting recipe by recipeId as admin.
+ * Deletes recipe matching recipeId from Recipe table.
+ * @param recipeId recipeId of recipe to be deleted
+ */
 module.exports.deleteRecipeAdmin = async (recipeId) => {
     try {
         await prisma.Recipe.delete({
@@ -1483,9 +1805,18 @@ module.exports.deleteRecipeAdmin = async (recipeId) => {
     }
 }
 
+/**
+ * Repository function for getting all comments as admin, sorted, paginated.
+ * Queries all comments of given page, sorted and filtered based on the sortBy and searchData objects.
+ * @param sortBy sort comments by (options: idAsc, idDesc, ratingAsc, ratingDesc, uploadedAsc, uploadedDesc, recipeIdAsc,
+ * recipeIdDesc, usernameAsc, usernameDesc)
+ * @param page page to get
+ * @param searchData  object containing the set filter options (search by id, content, username, and recipeId)
+ * @returns sorted and filtered comments of given page
+ */
 module.exports.getAllComments = async (sortBy, page, searchData) => {
+    // construct order by object for prisma
     let orderBy = {};
-
     switch (sortBy) {
         case "idAsc":  orderBy = {id: "asc"}; break;
         case "idDesc":  orderBy = {id: "desc"}; break;
@@ -1553,6 +1884,12 @@ module.exports.getAllComments = async (sortBy, page, searchData) => {
     }
 }
 
+/**
+ * Repository function for getting the count of all filtered comments as admin.
+ * Gets number of comments fitting the given filters.
+ * @param searchData object containing the set filter options (search by id, content, username, and recipeId)
+ * @returns count of all comments matching the set filters
+ */
 module.exports.getAllAdminPageCommentsCount = async (searchData) => {
     try {
         return  await prisma.Comment.count({
@@ -1581,6 +1918,12 @@ module.exports.getAllAdminPageCommentsCount = async (searchData) => {
     }
 }
 
+/**
+ * Repository function for editing comment by commentId as admin.
+ * Updates matching record based on the received data in the Comment table.
+ * @param commentId commentId of comment to be edited
+ * @param commentData data object of edited comment
+ */
 module.exports.editCommentAdmin = async (commentId, commentData) => {
     try {
         await prisma.Comment.update({
@@ -1600,6 +1943,11 @@ module.exports.editCommentAdmin = async (commentId, commentData) => {
     }
 }
 
+/**
+ * Repository function for deleting comment by commentId as admin.
+ * Deletes record matching commentId in Comment table.
+ * @param commentId commentId of comment to be deleted
+ */
 module.exports.deleteCommentAdmin = async (commentId) => {
     try {
         await prisma.Comment.delete({
@@ -1607,48 +1955,6 @@ module.exports.deleteCommentAdmin = async (commentId) => {
                 id: commentId,
             },
         });
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-}
-
-module.exports.getRankedCategories = async (page) => {
-    try {
-        return await prisma.RecipeCategory.findMany({
-            skip: (page - 1) * 25,
-            take: 25,
-
-            select: {
-                id: true,
-                name: true,
-                _count: {
-                    select: {
-                        recipes: true
-                    }
-                },
-            },
-
-            orderBy: {
-                recipes: {
-                    _count: 'desc',
-                }
-            }
-
-        });
-    } catch (error) {
-        console.log(error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
-}
-
-module.exports.getCategoriesCount = async () => {
-    try {
-        return await prisma.RecipeCategory.count();
     } catch (error) {
         console.log(error);
         throw error;

@@ -48,7 +48,7 @@ module.exports.updateOneForUserByItemId = async (userId, itemId, recipeId) => {
 
 module.exports.setOneOfCurrentUserByMeal = async (userId, itemData) => {
     try {
-        return prisma.WeeklyMenuItem.updateMany({
+        await prisma.WeeklyMenuItem.updateMany({
             where: {
                 userId: userId,
                 nextWeek: Boolean(itemData.nextWeek),

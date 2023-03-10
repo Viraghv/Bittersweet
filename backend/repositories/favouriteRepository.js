@@ -1,9 +1,15 @@
 const { PrismaClient } = require('@prisma/client')
-const InternalServerError = require("../exceptions/InternalServerError");
 const BadRequest = require("../exceptions/BadRequest");
 
 const prisma = new PrismaClient();
 
+/**
+ * Repository function for adding recipe by recipeId to user's favourites.
+ * Adds record of recipeId and userId to Favourite table.
+ * @param recipeId recipeId of recipe
+ * @param userId userId of user
+ * @returns created favourite record as object
+ */
 module.exports.addById = async (recipeId, userId) => {
     try {
        return await prisma.Favourite.create({
@@ -20,6 +26,13 @@ module.exports.addById = async (recipeId, userId) => {
     }
 }
 
+/**
+ * Repository function for deleting recipe by recipeId from user's favourites.
+ * Deletes record that matches recipeId and userId from Favourites table.
+ * @param recipeId recipeId of recipe
+ * @param userId userId of user
+ * @returns number of records deleted (0-1)
+ */
 module.exports.deleteById = async (recipeId, userId) => {
     try {
         return await prisma.Favourite.deleteMany({
@@ -36,7 +49,13 @@ module.exports.deleteById = async (recipeId, userId) => {
     }
 }
 
-module.exports.getallUserFavourites = async (userId) => {
+/**
+ * Repository function for getting all favourite recipeIds of user.
+ * Queries all recipeIds of records from Favourite table that match the userId.
+ * @param userId userId of user
+ * @returns array of recipeIds as objects
+ */
+module.exports.getAllUserFavourites = async (userId) => {
     try {
         return await prisma.Favourite.findMany({
            where: {
@@ -54,6 +73,14 @@ module.exports.getallUserFavourites = async (userId) => {
     }
 }
 
+/**
+ * Repository function for getting all favourite recipe cards of user, sorted, by page.
+ * Queries all favourite recipes of user.
+ * @param page page to get
+ * @param sortBy sort cards by (options: nameAsc, nameDesc, uploadedAsc, uploadedDesc, addedToFavouritesAsc, addedToFavouritesDesc)
+ * @param userId userId of user
+ * @returns array of objects containing recipe card objects
+ */
 module.exports.getAllUserFavouriteCards = async (page, sortBy, userId) => {
     let orderBy = {};
 
@@ -118,6 +145,12 @@ module.exports.getAllUserFavouriteCards = async (page, sortBy, userId) => {
     }
 }
 
+/**
+ * Repository function for getting the count of user's all favourites.
+ * Queries the count of records in the Favourite table with a matching userId.
+ * @param userId userId of user
+ * @returns count of user's favourite recipes
+ */
 module.exports.getAllUserFavouriteCount = async (userId) => {
     let favouritesCount = 0;
 
@@ -137,7 +170,14 @@ module.exports.getAllUserFavouriteCount = async (userId) => {
     return favouritesCount;
 }
 
-module.exports.createGroupForCurrentUser = async (name, userId) => {
+/**
+ * Repository function for creating a new group for a user.
+ * Creates new record in RecipeGroup table, with the given name and userId.
+ * @param name name of new group
+ * @param userId userId of user
+ * @returns created new group record as object
+ */
+module.exports.createGroupForUser = async (name, userId) => {
     try {
         return await prisma.RecipeGroup.create({
             data: {
@@ -153,6 +193,13 @@ module.exports.createGroupForCurrentUser = async (name, userId) => {
     }
 }
 
+/**
+ * Repository function for editing group of user by groupId.
+ * Updates name of group in RecipeGroup table matching the groupId and userId.
+ * @param groupId groupId of group to be edited
+ * @param newName new name of the group
+ * @param userId userId of the group's user
+ */
 module.exports.editNameOfGroup = async (groupId, newName, userId) => {
     try {
         let updatedCount = await prisma.RecipeGroup.updateMany({
@@ -176,6 +223,13 @@ module.exports.editNameOfGroup = async (groupId, newName, userId) => {
     }
 }
 
+/**
+ * Repository function for deleting group of user by groupId.
+ * Deletes record from RecipeGroup table matching the groupId and userId.
+ * @param groupId groupId of group to be deleted
+ * @param userId userId of the group's user
+ * @returns {Promise<void>}
+ */
 module.exports.deleteGroup = async (groupId, userId) => {
     try {
         let deletedCount = await prisma.RecipeGroup.deleteMany({
@@ -195,6 +249,12 @@ module.exports.deleteGroup = async (groupId, userId) => {
     }
 }
 
+/**
+ * Repository function for getting all groups of user.
+ * Queries all the records from the RecipeGroup table matching the userId.
+ * @param userId userId of user
+ * @returns array of user's groups as objects
+ */
 module.exports.getAllGroupsOfUserById = async (userId) => {
     try {
         return await prisma.RecipeGroup.findMany({
@@ -214,6 +274,13 @@ module.exports.getAllGroupsOfUserById = async (userId) => {
     }
 }
 
+/**
+ * Repository function for getting all of a user's groups that a recipe is in by recipeId.
+ * Queries all groups that are connected to the recipeId and userId.
+ * @param recipeId recipeId of recipe
+ * @param userId userId of user
+ * @returns array of object containing groups as objects that the recipe is in
+ */
 module.exports.getAllGroupsOfFavouriteById = async (recipeId, userId) => {
     try {
         return await prisma.RecipeInGroup.findMany({
@@ -240,6 +307,12 @@ module.exports.getAllGroupsOfFavouriteById = async (recipeId, userId) => {
     }
 }
 
+/**
+ * Repository function for adding recipe to group by groupId and recipeId.
+ * Creates record in RecipeInGroup table with groupId and recipeId.
+ * @param data object that contains the groupId and recipeId
+ * @returns the created new record as an object
+ */
 module.exports.addRecipeToGroup = async (data) => {
     try {
         return await prisma.RecipeInGroup.create({
@@ -255,6 +328,13 @@ module.exports.addRecipeToGroup = async (data) => {
     }
 }
 
+/**
+ * Repository function for deleting recipe from group by groupId and recipeId.
+ * Deletes record from the RecipeInGroup table matching the groupId, recipeId, and connecting to the userId.
+ * @param groupId groupId of group to be deleted from
+ * @param recipeId recipeId of recipe to be deleted from group
+ * @param userId userId of the group's user
+ */
 module.exports.deleteRecipeFromGroup = async (groupId, recipeId, userId) => {
     try {
         let deletedCount = await prisma.RecipeInGroup.deleteMany({
@@ -277,6 +357,15 @@ module.exports.deleteRecipeFromGroup = async (groupId, recipeId, userId) => {
     }
 }
 
+/**
+ * Repository function for getting all recipe cards of group by groupId, sorted, by page.
+ * Queries given page of recipe card data from the group matching the groupId, if group matches userId.
+ * @param sortBy sort cards by (options: nameAsc, nameDesc, uploadedAsc, uploadedDesc, addedToGroupAsc, addedToGroupDesc)
+ * @param groupId groupId of group
+ * @param page page to get
+ * @param userId userId of group's user
+ * @returns array of objects containing group's recipe cards as objects
+ */
 module.exports.getAllRecipeCardsOfGroup = async (sortBy, groupId, page, userId) => {
     let orderBy = {};
 
@@ -344,6 +433,13 @@ module.exports.getAllRecipeCardsOfGroup = async (sortBy, groupId, page, userId) 
     }
 }
 
+/**
+ * Repository function for getting count of recipes in group by groupId.
+ * Queries count of RecipeInGroup table records matching the groupId and connecting to the userId.
+ * @param groupId groupId of group
+ * @param userId userId of group's user
+ * @returns count of recipes in the group
+ */
 module.exports.getRecipeCountOfGroup = async (groupId, userId) => {
     let recipeCount = 0;
 
@@ -366,6 +462,12 @@ module.exports.getRecipeCountOfGroup = async (groupId, userId) => {
     return recipeCount;
 }
 
+/**
+ * Repository function for deleting recipe by recipeId from current user's favourites.
+ * Deletes records from RecipeInGroup table if the recipeId matches and the groupId is in the userGroupIds array.
+ * @param recipeId recipeId of recipe
+ * @param userGroupIds array of groupIds of user's groups
+ */
 module.exports.deleteRecipeFromGroups = async (recipeId, userGroupIds) => {
     try {
         await prisma.RecipeInGroup.deleteMany({

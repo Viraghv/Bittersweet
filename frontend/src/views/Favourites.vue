@@ -329,7 +329,7 @@ export default {
 					this.allFavouritesSelectableGroups[group.id] = group.name;
 				}
 
-				const groupsOfFavourite = await this.axios.get(`/favourite/groups/allOfRecipeAndUser/${this.allFavouritesAddToGroupRecipeId}`)
+				const groupsOfFavourite = await this.axios.get(`/favourite/groups/allGroupsOfFavourite/${this.allFavouritesAddToGroupRecipeId}`)
 				for (const groupId in this.allFavouritesSelectableGroups) {
 					for (let i = 0; i < groupsOfFavourite.data.length; i++) {
 						if(Number(groupId) === Number(groupsOfFavourite.data[i].id)) {
@@ -470,7 +470,7 @@ export default {
 
 			if(this.newGroupErrors.length === 0){
 				try {
-					const response = await this.axios.post(`/favourite/groups/createForCurrentUser`, {
+					const response = await this.axios.post(`/favourite/groups/create`, {
 						name: this.newGroupName,
 					});
 
@@ -496,8 +496,7 @@ export default {
 
 			if(this.newGroupErrors.length === 0){
 				try {
-					await this.axios.post(`/favourite/groups/edit`, {
-						groupId: this.selectedUserGroup,
+					await this.axios.post(`/favourite/groups/edit/${this.selectedUserGroup}`, {
 						newName: this.newGroupName,
 					});
 

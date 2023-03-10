@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema file
+// Defines all the tables and relations of the database.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Table of users
 model User {
   id                     Int                    @id @default(autoincrement())
   username               String                 @unique @db.VarChar(100)
@@ -37,6 +38,7 @@ model User {
   dontRecommendRecipes   DontRecommend[]
 }
 
+// Table of recipes
 model Recipe {
   id                 Int                @id @default(autoincrement())
   name               String             @db.VarChar(100)
@@ -65,6 +67,7 @@ model Recipe {
   dontRecommendUsers DontRecommend[]
 }
 
+// Table of ingredients (for the recipes)
 model Ingredient {
   id       Int      @id @default(autoincrement())
   name     String   @db.VarChar(100)
@@ -75,6 +78,7 @@ model Ingredient {
   unitId   Int?
 }
 
+// Table of steps (for the recipes)
 model Step {
   id       Int    @id @default(autoincrement())
   number   Int
@@ -83,6 +87,7 @@ model Step {
   recipeId Int
 }
 
+// Table of units (for the ingredients and shopping list items)
 model Unit {
   id                Int                @id @default(autoincrement())
   name              String             @unique @db.VarChar(30)
@@ -90,6 +95,7 @@ model Unit {
   shoppingListItems ShoppingListItem[]
 }
 
+// Table of difficulty options (for the recipes)
 model Difficulty {
   id      Int      @id @default(autoincrement())
   name    String   @unique @db.VarChar(15)
@@ -98,6 +104,7 @@ model Difficulty {
   recipes Recipe[]
 }
 
+// Table of cost options (for the recipes)
 model Cost {
   id      Int      @id @default(autoincrement())
   name    String   @unique @db.VarChar(15)
@@ -106,6 +113,7 @@ model Cost {
   recipes Recipe[]
 }
 
+// Table of comments
 model Comment {
   id       Int      @id @default(autoincrement())
   content  String?  @db.VarChar(300)
@@ -119,6 +127,7 @@ model Comment {
   @@unique([recipeId, userId])
 }
 
+// Table of recipe groups (that the users can create to categorize recipes for themselves)
 model RecipeGroup {
   id      Int             @id @default(autoincrement())
   name    String          @db.VarChar(50)
@@ -127,6 +136,7 @@ model RecipeGroup {
   recipes RecipeInGroup[]
 }
 
+// Connecting table between Recipe and RecipeGroup
 model RecipeInGroup {
   recipeGroup RecipeGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId     Int
@@ -137,12 +147,14 @@ model RecipeInGroup {
   @@id([groupId, recipeId])
 }
 
+// Table of category options (for the recipes)
 model RecipeCategory {
   id      Int                @id @default(autoincrement())
   name    String             @unique @db.VarChar(50)
   recipes RecipeInCategory[]
 }
 
+// Connetcing table between Recipe and RecipeCategory
 model RecipeInCategory {
   recipeCategory RecipeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId     Int
@@ -153,6 +165,7 @@ model RecipeInCategory {
   @@id([categoryId, recipeId])
 }
 
+// Table of allergen options (whether they are in a recipe or a user is allergic to them)
 model Allergen {
   id      Int                @id @default(autoincrement())
   name    String             @unique @db.VarChar(50)
@@ -160,6 +173,7 @@ model Allergen {
   users   UserAllergy[]
 }
 
+// Connectiong table between Allergen and Recipe
 model AllergenInRecipe {
   allergen   Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
   allergenId Int
@@ -169,6 +183,7 @@ model AllergenInRecipe {
   @@id([allergenId, recipeId])
 }
 
+// Connecting table between Allergen and User
 model UserAllergy {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
@@ -178,6 +193,7 @@ model UserAllergy {
   @@id([userId, allergenId])
 }
 
+// Table of diet options (whether a recipe fits a diet, or a user follows a diet)
 model Diet {
   id      Int            @id @default(autoincrement())
   name    String         @unique @db.VarChar(50)
@@ -185,6 +201,7 @@ model Diet {
   users   User[]
 }
 
+// Connecting table between Recipe and Diet
 model RecipeInDiet {
   diet     Diet   @relation(fields: [dietId], references: [id], onDelete: Cascade)
   dietId   Int
@@ -194,6 +211,7 @@ model RecipeInDiet {
   @@id([dietId, recipeId])
 }
 
+// Table of shopping list items
 model ShoppingListItem {
   id                   Int                  @id @default(autoincrement())
   name                 String               @db.VarChar(100)
@@ -205,6 +223,7 @@ model ShoppingListItem {
   categoryId           Int
 }
 
+// Table of shopping list categories
 model ShoppingListCategory {
   id                Int                @id @default(autoincrement())
   name              String             @db.VarChar(100)
@@ -213,6 +232,7 @@ model ShoppingListCategory {
   userId            Int
 }
 
+// Table of each users' favourite recipes
 model Favourite {
   recipe   Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   recipeId Int
@@ -223,6 +243,7 @@ model Favourite {
   @@id([recipeId, userId])
 }
 
+// Table of users' weekly menu items
 model WeeklyMenuItem {
   id          Int     @id @default(autoincrement())
   recipe      Recipe? @relation(fields: [recipeId], references: [id], onDelete: SetNull)
@@ -237,6 +258,7 @@ model WeeklyMenuItem {
   @@unique([userId, day, meal, nextWeek])
 }
 
+// Table of which recipes each user asked not to be recommended in their weekly menu
 model DontRecommend {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       Int

@@ -3,6 +3,12 @@ const HttpException = require("../exceptions/HttpException");
 const {sendHttpException, sendServerErrorResponse} = require("../httpHandler");
 const {session} = require("../session/sessionStorage");
 
+/**
+ * Controller function for getting the current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.getCurrentUserList = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -18,6 +24,12 @@ module.exports.getCurrentUserList = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for adding a new category to current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.addCategory = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -33,13 +45,19 @@ module.exports.addCategory = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for adding a new category with items in it to current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.addCategoryAndItems = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
 
     try {
         let category = await shoppingListService.addCategory(req.body.categoryName, userId);
-        res.json(await shoppingListService.addItems(category.id, req.body.items))
+        res.json(await shoppingListService.addItemsToCategoryById(category.id, req.body.items))
 
     } catch (exception) {
         if (exception instanceof HttpException){
@@ -50,9 +68,15 @@ module.exports.addCategoryAndItems = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for adding new items to a category by categoryId on user's shopping list.
+ * Sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.addItemsToCategoryById = async (req, res) => {
     try {
-        res.json(await shoppingListService.addItems(Number(req.params.id), req.body.items))
+        res.json(await shoppingListService.addItemsToCategoryById(Number(req.params.id), req.body.items))
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);
@@ -62,6 +86,12 @@ module.exports.addItemsToCategoryById = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for editing the name of a category by categoryId on current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.editCategoryById = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -77,6 +107,12 @@ module.exports.editCategoryById = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for setting the 'done' attribute of an item on current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.setItemDoneById = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -92,6 +128,12 @@ module.exports.setItemDoneById = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for deleting a category by categoryId on current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.deleteCategoryById = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -107,6 +149,12 @@ module.exports.deleteCategoryById = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for deleting all categories (and with that, all items too) from current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.deleteAllCategoriesOfCurrentUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
@@ -122,6 +170,12 @@ module.exports.deleteAllCategoriesOfCurrentUser = async (req, res) => {
     }
 }
 
+/**
+ * Controller function for deleting all items set as 'done' from current user's shopping list.
+ * Identifies user by session token, and sends response to client.
+ * @param req request object
+ * @param res response object
+ */
 module.exports.deleteAllDoneItemsOfUser = async (req, res) => {
     let sessionToken = req.headers.authorization
     let userId = session[sessionToken].userId;
