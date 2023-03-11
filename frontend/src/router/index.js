@@ -1,5 +1,6 @@
 import {createRouter, createWebHistory} from "vue-router";
 
+// app routes
 const routes = [
     {
         name: "Home",

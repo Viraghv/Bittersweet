@@ -1,3 +1,5 @@
+<!-- Comment component on recipe page -->
+
 <template>
 	<div class="comment-header">
 		<div class="user">
@@ -40,6 +42,9 @@ export default {
 		},
 	},
 	computed: {
+		/**
+		 * @returns uploaded date in British format
+		 */
 		formattedDate(){
 			return new Date(this.comment.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
 		}

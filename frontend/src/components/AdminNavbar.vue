@@ -1,3 +1,5 @@
+<!-- Navbar component on admin page -->
+
 <template>
 	<div class="navbar-container">
 		<router-link class="link" :class="currentPage === 'UsersAdmin' ? 'selected' : ''" :to="{name: 'UsersAdmin'}">Users</router-link>

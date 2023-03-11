@@ -1,3 +1,5 @@
+<!-- Navbar-header component on every page -->
+
 <template>
 	<div class="mynavbar">
 		<router-link :to="{name: 'Home'}">
@@ -265,20 +267,28 @@ export default {
 			this.forgotPasswordSuccess = false;
 		},
 
+		/**
+		 * Logs in user with the entered login data.
+		 */
 		async login(){
 			this.loginErrorsRefresher++;
+			// validate login fields
 			this.loginErrorMsgs = this.areLoginInputsValid;
 			if (this.loginErrorMsgs.length === 0){
 				try {
+					// log in user on backend
 					let result = await this.axios.post("/user/login", {
 						username: this.loginData.username,
 						password: this.loginData.password,
 					})
+					// put session token and the expiration date in cookies
 					const expirationDate = new Date(Date.now() + 24*60*60*1000);
 					this.$cookies.set("sessionToken", result.data.sessionToken, expirationDate);
 					this.$cookies.set("tokenExpiration", expirationDate.toString(), expirationDate);
+					// set session token as Authorization header in axios
 					this.axios.defaults.headers.common["Authorization"] = result.data.sessionToken;
 
+					// store user data in userStore
 					await this.userStore.login();
 					await this.initUser();
 					await this.initAdmin();
@@ -294,12 +304,19 @@ export default {
 			}
 		},
 
+		/**
+		 * Log out current user.
+		 */
 		async logout(){
 			try {
+				// log out on backend
 				await this.axios.get("/user/logout");
+				// delete sessiontoken from cookies
 				this.$cookies.remove("sessionToken");
 				this.$cookies.remove("tokenExpiration");
+				// delete Authorization header
 				this.axios.defaults.headers.common["Authorization"] = "";
+				// delete user data from userStore
 				this.userStore.logout();
 				this.$router.push({name: 'Home'});
 			} catch (error) {
@@ -307,11 +324,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Sign up user with the entered information.
+		 */
 		async signup() {
+			// validate signup fields
 			this.signupErrorMsgs = this.areSignupInputsValid;
 			this.showSignupSuccessMsg = false;
 			if (this.signupErrorMsgs.length === 0) {
 				try {
+					// register user
 					await this.axios.post("/user/register", {
 						username: this.signupData.username,
 						email: this.signupData.email,
@@ -332,11 +354,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes currently logged-in user in userStore.
+		 */
 		async initUser(){
 			try {
+				// get user data
 				const userResponse = await this.axios.get(`/user/getCurrentUser`);
 				let user = userResponse.data;
 
+				// get profile picture
 				if(user.profilepicture){
 					const pfpResponse = await this.axios.get(`/user/pfp/${user.profilepicture}`);
 
@@ -344,12 +371,16 @@ export default {
 					user.pfpExt = user.profilepicture.split(".")[1];
 				}
 
+				// save in userStore
 				this.userStore.setUser(user);
 			} catch (error) {
 				console.log(error.response.data);
 			}
 		},
 
+		/**
+		 * Initializes admin value of currently logged in user.
+		 */
 		async initAdmin(){
 			try {
 				const response = await this.axios.get('/user/isAdmin');
@@ -359,6 +390,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Sends request to server to generate new password for user with the given email address.
+		 */
 		async sendForgotPassword(){
 			this.forgotPasswordErrorMsgs = [];
 			if(this.forgotPasswordEmail !== ""){
@@ -379,6 +413,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Closes login modal and opens forgot password modal.
+		 */
 		changeToForgotPasswordModal(){
 			document.getElementById("login-close-button").click();
 			let forgotPasswordModal = new Modal(document.getElementById("forgot-password-modal"), {});
@@ -388,31 +425,41 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Validates signup inputs.
+		 * @returns array of error messages
+		 */
 		areSignupInputsValid(){
 			let errors = [];
 
+			// are all fields filled
 			if(this.signupData.username.trim() === "" || this.signupData.email.trim() === "" ||
 			   this.signupData.password.trim() === "" || this.signupData.passwordAgain.trim() === ""){
 				errors.push("Please fill in all fields.");
 			}
 
+			// is username longer than 100 characters
 			if(this.signupData.username.trim().length > 100) {
 				errors.push("Username can't be longer than 100 characters.");
 			}
 
+			// is email longer than 256 characters
 			if(this.signupData.email.trim().length > 256) {
 				errors.push("Email can't be longer than 256 characters.");
 			}
 
+			// does email address fit email regex
 			if(this.signupData.email.trim() !== "" &&
 			   !this.signupData.email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
 				errors.push("Invalid email.");
 			}
 
+			// is password shorter than 6 characters
 			if(this.signupData.password.trim() !== "" && this.signupData.password.trim().length < 6){
 				errors.push("Password must be at least 6 characters long.")
 			}
 
+			// do the password fields match
 			if(this.signupData.password !== this.signupData.passwordAgain){
 				errors.push("Passwords do not match.");
 			}
@@ -420,11 +467,16 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Validates login inputs.
+		 * @returns array of error messages
+		 */
 		areLoginInputsValid(){
 			this.loginErrorsRefresher;
 
 			let errors = [];
 
+			// are all fields filled
 			if(this.loginData.username.trim() === "" || this.loginData.password.trim() === ""){
 				errors.push("Please fill in all fields.");
 			}
@@ -442,7 +494,7 @@ export default {
 		const forgotPasswordModal = document.getElementById('forgot-password-modal');
 		forgotPasswordModal.addEventListener("hidden.bs.modal", () => this.clearForgotPasswordFields());
 
-
+   		// initialize user if logged in when navbar is mounted
 		try {
 			await this.axios.get("/user/isLoggedIn");
 			await this.userStore.login();

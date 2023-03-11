@@ -204,7 +204,7 @@ module.exports.deleteDontRecommendOfCurrentUser = async (req, res) => {
         let sessionToken = req.headers.authorization
         let userId = session[sessionToken].userId;
 
-        res.json( await weeklyMenuService.deleteDontRecommendOfCurrentUser(userId, Number(req.params.recipeId)));
+        res.json( await weeklyMenuService.deleteDontRecommendOfUser(userId, Number(req.params.recipeId)));
     } catch (exception) {
         if (exception instanceof HttpException){
             sendHttpException(res, exception);

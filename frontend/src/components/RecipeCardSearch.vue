@@ -1,3 +1,5 @@
+<!-- Recipe card component on home and search pages -->
+
 <template>
 	<div class="recipe-card-search" @click="navigateToRecipePage">
 		<div class="image-container">
@@ -45,6 +47,9 @@ export default {
 		imageExt: "",
 	},
 	methods: {
+		/**
+		 * Scrolls to top and navigates to the recipe page.
+		 */
 		navigateToRecipePage() {
 			window.scrollTo(0, 0);
 			this.$router.push({path: `/recipe/${this.id}`});

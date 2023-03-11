@@ -39,14 +39,14 @@ npx prisma generate
  - uploads mappa elhelyezése a /backend mappába
 
 ```shell
-docker compose run --rm mysql-database mysql -uroot -p Bittersweet < /backend/Bittersweet.sql
+docker compose run --rm database mysql -uroot -p Bittersweet < Bittersweet.sql
 ```
  - adatbázis jelszó megadása (amit a .env fájlban is megadtunk)
 
 ### Futtatás
 
 ```shell
-docker compose up mysql-database
+docker compose up database
 ```
 
 ```shell

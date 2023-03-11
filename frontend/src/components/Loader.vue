@@ -1,3 +1,5 @@
+<!-- Loading spinner component -->
+
 <template>
 	<span class="loader"></span>
 </template>

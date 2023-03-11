@@ -1,3 +1,5 @@
+<!-- Footer component on every page -->
+
 <template>
 	<div class="footer">
 		<div class="attributions-container">

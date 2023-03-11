@@ -1,3 +1,5 @@
+<!-- Recipe card component on weekly menu page -->
+
 <template>
 	<div class="mycontainer" :class="item?.meal === 4 || item?.meal === 5 ? 'dessert' : ''">
 		<div class="no-recipe" v-if="item?.recipe === null && !item?.unsetByUser">
@@ -92,6 +94,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Scrolls to top and navigates to the recipe page.
+		 */
 		navigateToRecipePage(){
 			window.scrollTo(0,0);
 			this.$router.push({path: `/recipe/${this.item.recipe.id}`});

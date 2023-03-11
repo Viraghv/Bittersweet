@@ -1,3 +1,5 @@
+<!-- Component for one row in the unit, diet, allergen, and category admin pages -->
+
 <template>
 	<div class="item-container">
 		<div class="add-item-container" v-if="mode === 'add'" @click="emitAdd">

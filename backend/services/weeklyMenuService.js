@@ -424,7 +424,7 @@ module.exports.generateOneForUser = async (userId, data) => {
  * Service function for generating one new recipe for user's weekly menu by week, day, and meal.
  * Generates one meal for user to the given week, day, and meal, based on their preferences.
  * @param userId userId of user
- * @param data object containig the week, day, and meal to regenerate
+ * @param data object containing the week, day, and meal to regenerate
  * @returns error message if there is no fitting recipe to recommend
  */
 module.exports.generateOneByMealForUser = async (userId, data) => {
@@ -621,6 +621,12 @@ module.exports.getRecipeCardsOfUser = async (userId, nextWeek) => {
     }
 }
 
+/**
+ * Service function for setting recipe as "Don't recommend" for user.
+ * @param userId userId of user
+ * @param recipeId recipeId of recipe to set
+ * @returns created new record as object
+ */
 module.exports.setDontRecommendForUser = async (userId, recipeId) => {
     try {
         return await weeklyMenuRepository.setDontRecommendForUser(userId, recipeId);
@@ -630,12 +636,19 @@ module.exports.setDontRecommendForUser = async (userId, recipeId) => {
     }
 }
 
+/**
+ * Service function for getting all "Don't recommend" recipe recipeIds of user.
+ * Converts received data to the desired format.
+ * @param userId userId of user
+ * @returns recipeIds of recipes user set as "Don't recommend"
+ */
 module.exports.getAllDontRecommendRecipesOfUser = async (userId) => {
     try {
         let recipeIds = [];
 
         recipeIds = await weeklyMenuRepository.getAllDontRecommendRecipesOfUser(userId);
 
+        // convert recipeIds array to a more intuitive form
         for (let i = 0; i < recipeIds.length; i++) {
             recipeIds[i] = recipeIds[i].recipeId;
         }
@@ -647,12 +660,20 @@ module.exports.getAllDontRecommendRecipesOfUser = async (userId) => {
     }
 }
 
+/**
+ * Service function for getting all "Don't recommend" recipes of user by page.
+ * Converts received data to the desired format.
+ * @param userId userId of user
+ * @param page page to get
+ * @returns array of all "Don't recommend" recipe cards of user for given page
+ */
 module.exports.getAllDontRecommendRecipeCardsOfCurrentUser = async (userId, page) => {
     try {
         let recipeCards = [];
 
         recipeCards = await weeklyMenuRepository.getAllDontRecommendRecipeCardsOfCurrentUser(userId, page);
 
+        // convert recipeCards array to a more intuitive form
         for (let i = 0; i < recipeCards.length; i++) {
             recipeCards[i] = recipeCards[i].recipe;
         }
@@ -664,6 +685,11 @@ module.exports.getAllDontRecommendRecipeCardsOfCurrentUser = async (userId, page
     }
 }
 
+/**
+ * Service function for getting count of user's all "Don't recommend" recipes.
+ * @param userId userId of user
+ * @returns count of user's all "Don't recommend" recipes
+ */
 module.exports.getAllDontRecommendRecipeCardsCountOfCurrentUser = async (userId) => {
     try {
         let recipeCardsCount = 0;
@@ -677,16 +703,24 @@ module.exports.getAllDontRecommendRecipeCardsCountOfCurrentUser = async (userId)
     }
 }
 
-module.exports.deleteDontRecommendOfCurrentUser = async (userId, recipeId) => {
+/**
+ * Service function for removing recipe from user's "Don't recommend" recipes.
+ * @param userId userId of user
+ * @param recipeId recipeId of recipe to remove
+ * @returns number of records deleted
+ */
+module.exports.deleteDontRecommendOfUser = async (userId, recipeId) => {
     try {
-        return await weeklyMenuRepository.deleteDontRecommendOfCurrentUser(userId, recipeId);
+        return await weeklyMenuRepository.deleteDontRecommendOfUser(userId, recipeId);
     } catch (error) {
         console.log(error);
         throw error;
     }
 }
 
-
+/**
+ * Scheduled function for generating a new weekly menu for the next week on every monday for every verified user.
+ */
 module.exports.generateWeeklyMenuScheduled = async () => {
     try {
         await weeklyMenuRepository.makeNextWeekThisWeek();

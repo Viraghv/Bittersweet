@@ -1,3 +1,5 @@
+<!-- Searchbar component for home and search pages -->
+
 <template>
 	<div class="searchbar-header">
 		<div class="search-container col-xxl-4 col-xl-5 col-lg-6 col-md-7 col-sm-9 col-9">

@@ -1,6 +1,13 @@
 import {useUserStore} from "@/stores/userStore.js";
 import axios from "axios";
 
+/**
+ * Nav guard for recipe editing.
+ * If user is not the uploader of the recipe and not an admin either, redirects to homepage.
+ * @param to to object
+ * @param from from object
+ * @param next next object
+ */
 export const beforeRouteEnter = async (to, from, next) => {
     if(!useUserStore().loggedIn) {
         next({name: 'Home'})
@@ -21,6 +28,10 @@ export const beforeRouteEnter = async (to, from, next) => {
     }
 }
 
+/**
+ * Gets if current user is admin.
+ * @returns current user admin value
+ */
 async function initAdmin(){
     try {
         const response = await axios.get('/user/isAdmin');
@@ -30,6 +41,10 @@ async function initAdmin(){
     }
 }
 
+/**
+ * Gets recipeIds of current user's uploaded recipes.
+ * @returns recipeIds of current user's uploaded recipes
+ */
 async function initRecipeIds(){
     try {
         const response = await axios.get('/user/currentUserAllRecipeIds');

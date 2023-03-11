@@ -1,3 +1,5 @@
+<!-- Pagination component -->
+
 <template>
 	<vue-awesome-paginate
 		:total-items="totalItems"

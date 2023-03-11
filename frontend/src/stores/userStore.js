@@ -1,5 +1,8 @@
 import {defineStore} from "pinia";
 
+/**
+ * Global store for logged in status and user data.
+ */
 export const useUserStore = defineStore("user", {
     state: () => {
         return {

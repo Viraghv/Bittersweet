@@ -1,3 +1,5 @@
+<!-- List-like minimal recipe card -->
+
 <template>
 	<div class="container">
 		<div class="image-info-container" @click="navigateToRecipePage">
@@ -40,6 +42,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Scrolls to top and navigates to the recipe page.
+		 */
 		navigateToRecipePage() {
 			window.scrollTo(0,0);
 			this.$router.push({path: `/recipe/${this.id}`});
@@ -59,6 +64,9 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @returns uploaded date in British format
+		 */
 		formattedUploaded(){
 			return new Date(this.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
 		},
