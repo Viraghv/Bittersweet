@@ -1,3 +1,5 @@
+<!-- Admin page, categories view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -120,10 +122,14 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes list of categories.
+		 */
 		async initCategories(){
 			try {
 				let response = await this.axios.get(`/recipe/categories`);
 
+				// sort alphabetically
 				response.data.sort((a, b) => {
 					let textA = a.name.toUpperCase();
 					let textB = b.name.toUpperCase();
@@ -136,7 +142,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Add an allergen to the list.
+		 */
 		async addCategory(){
+			// validate category name
 			this.newCategoryErrors = this.categoryInputsAreValid;
 
 			if(this.newCategoryErrors.length === 0){
@@ -157,7 +167,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edit the name of a category.
+		 */
 		async editCategory(){
+			// validate category name
 			this.newCategoryErrors = this.categoryInputsAreValid;
 
 			if(this.newCategoryErrors.length === 0){
@@ -178,6 +192,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Delete category from list.
+		 */
 		async deleteCategory(){
 			try {
 				await this.axios.get(`/recipe/admin/categories/delete/${this.currentCategoryId}`);
@@ -224,6 +241,9 @@ export default {
 			this.currentCategoryId = null;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const addCategoryModal = document.getElementById('add-category-modal');
 			addCategoryModal.addEventListener("hidden.bs.modal", () => this.clearAddCategoryModal());
@@ -237,14 +257,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Validates category name.
+		 * @returns array of validation error messages
+		 */
 		categoryInputsAreValid(){
 			let errors = [];
 
+			// is the name field filled
 			if(this.newCategoryName.trim() === ""){
 				errors.push("Please provide a name for the category.");
 
 			}
 
+			// is the name longer than 50 characters
 			if(this.newCategoryName.trim().length > 50){
 				errors.push("Category name can't be longer than 50 characters.");
 			}

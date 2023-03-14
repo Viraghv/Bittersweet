@@ -1,3 +1,5 @@
+<!-- Recipe page -->
+
 <template>
 	<div class="content col-xxl-7 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="recipe-header">
@@ -518,17 +520,22 @@ export default {
 			() => {
 				this.initPage();
 			},
-			// fetch the data when the view is created and the data is
-			// already being observed
+			// fetch the data when the view is created and the data is already being observed
 			{ immediate: true }
 		)
 	},
 
 	methods: {
+		/**
+		 * Sort recipe steps based on step number.
+		 */
 		sortSteps(){
 			this.recipe.steps.sort((a, b) => a.number - b.number);
 		},
 
+		/**
+		 * Concatenate recipe's categories to a single string, joined by "-" characters.
+		 */
 		joinCategoriesToString(){
 			let categoryNames = [];
 
@@ -543,6 +550,9 @@ export default {
 			this.categoriesStr = categoryNames.join(" - ");
 		},
 
+		/**
+		 * Change selected status of all ingredients to either selected or unselected.
+		 */
 		changeAll(){
 			this.allChecked = !this.allChecked;
 
@@ -553,12 +563,18 @@ export default {
 			}
 		},
 
+		/**
+		 * Checks if recipe has been modified at least once.
+		 */
 		setWasModified(){
 			if (this.recipe.uploaded !== this.recipe.lastModified) {
 				this.wasModified = true;
 			}
 		},
 
+		/**
+		 * Initializes all data of recipe.
+		 */
 		async initRecipe(){
 			try {
 				const response = await this.axios.get(`/recipe/recipeById/${this.recipeID}`);
@@ -591,6 +607,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe image by image URL.
+		 */
 		async initRecipeImage(){
 			try {
 				const response = await this.axios.get(`/recipe/recipeImage/${this.recipe.imageUrl}`);
@@ -602,6 +621,9 @@ export default {
 
 		},
 
+		/**
+		 * Initializes profile picture of uploader user.
+		 */
 		async initUserPfp(){
 			try {
 				const response = await this.axios.get(`/user/pfp/${this.user.pfpUrl}`);
@@ -612,6 +634,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes rating of recipe.
+		 */
 		async initRating(){
 			try {
 				const response = await this.axios.get(`/recipe/averageRating/${this.recipeID}`)
@@ -621,6 +646,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes number of comments on current recipe.
+		 */
 		async initCommentCount(){
 			try {
 				const response = await this.axios.get(`/recipe/comment/count/${this.recipeID}`)
@@ -630,11 +658,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes comments of current page on the recipe.
+		 * @param page page to get
+		 */
 		async initComments(page){
 			try {
 				const response = await this.axios.get(`/recipe/comment/get/byRecipeId/${this.recipeID}/${page}`)
 				this.comments = response.data;
 
+				// get profile pictures of commenter users
 				for (let i = 0; i < this.comments.length; i++) {
 					if(this.comments[i].user.profilepicture){
 						try {
@@ -653,6 +686,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes uploader user's recipe count.
+		 * @returns {Promise<void>}
+		 */
 		async initUserRecipeCount(){
 			try {
 				const response = await this.axios.get(`/user/uploadedRecipeCount/${this.user.id}`)
@@ -662,6 +699,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes all favourite recipes' recipeIds of current user.
+		 */
 		async initFavourite(){
 			try {
 				const response = await this.axios.get(`/favourite/allUserFavourites`)
@@ -676,6 +716,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes all recipe groups of current user.
+		 */
 		async initGroups(){
 			try {
 				const response = await this.axios.get("/favourite/groups/allCurrentUser");
@@ -687,6 +730,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes whether current user has already commented on this recipe or not.
+		 */
 		async initHasCommented(){
 			try {
 				const response = await this.axios.get("/user/currentUserAllRecipesWithComments");
@@ -700,6 +746,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Add this recipe to current user's favourites.
+		 */
 		async addToFavourites(){
 			try {
 				await this.axios.get(`/favourite/add/${this.recipeID}`)
@@ -710,6 +759,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Remove this recipe from current user's favourites.
+		 */
 		async removeFromFavourites(){
 			try {
 				await this.axios.get(`/favourite/delete/${this.recipeID}`);
@@ -721,6 +773,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Add this recipe to a recipe group of current user.
+		 */
 		async addToGroup(){
 			if(this.selectedGroupInput) {
 				try {
@@ -738,13 +793,18 @@ export default {
 			}
 		},
 
+		/**
+		 * Creates new recipe group for current user and adds this recipe to it.
+		 */
 		async createAndAddToGroup(){
 			if(this.createGroupInput.trim() !== ""){
 				try {
+					// create group
 					let response = await this.axios.post("/favourite/groups/create", {
 						name: this.createGroupInput
 					});
 
+					// add recipe to group
 					await this.axios.post("/favourite/groups/addRecipe", {
 						groupId: Number(response.data.id),
 						recipeId: Number(this.recipeID),
@@ -759,6 +819,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Add selected ingredients to current user's shopping list.
+		 */
 		async addToShoppingList(){
 			if(this.selectedIngredients.length > 0){
 				let selectedIngredientsCopy = JSON.parse(JSON.stringify(this.selectedIngredients))
@@ -786,6 +849,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Creates new comment on recipe from current user.
+		 */
 		async submitComment(){
 			this.commentErrors = this.commentInputsAreValid;
 			if(this.commentErrors.length === 0){
@@ -812,6 +878,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes edit comment modal with current user's comment data on recipe.
+		 */
 		async initEditComment(){
 			try {
 				const response = await this.axios.get(`/recipe/comment/get/currentUser/${this.recipeID}`);
@@ -821,7 +890,10 @@ export default {
 			}
 		},
 
-
+		/**
+		 * Initializes recipe page by calling other initializer function.
+		 * @returns {Promise<void>}
+		 */
 		async initPage(){
 			await this.initRecipe();
 			if(this.recipe.imageUrl && this.recipe.imageUrl !== "default"){
@@ -842,7 +914,11 @@ export default {
 			await this.initComments(1);
 		},
 
+		/**
+		 * Edits current user's comment on this recipe.
+		 */
 		async editComment(){
+			// validate comment inputs
 			this.commentErrors = this.commentInputsAreValid;
 			if(this.commentErrors.length === 0){
 				try {
@@ -865,6 +941,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes comment of current user on this recipe.
+		 */
 		async deleteComment(){
 			try {
 				const response = await this.axios.get(`/recipe/comment/get/currentUser/${this.recipeID}`);
@@ -879,6 +958,7 @@ export default {
 				await this.initRating();
 				await this.initHasCommented();
 
+				// navigate to first page of comments
 				let paginateButtons = document.getElementsByClassName("paginate-buttons");
 
 				for (let i = 0; i < paginateButtons.length; i++) {
@@ -897,9 +977,14 @@ export default {
 			}
 		},
 
+		/**
+		 * Changes the mode of the favourite modal based on whether the recipe is among the user's favourites or not.
+		 * @returns {Promise<void>}
+		 */
 		async changeFavourites(){
 			try {
 				if(!this.userFavourite){
+					// add recipe to favourites and change modal mode to 'add'
 
 					await this.addToFavourites();
 
@@ -909,6 +994,7 @@ export default {
 
 					await this.initGroups();
 				} else {
+					// change modal mode to 'remove'
 					this.modalMode = "remove"
 					let favouriteModal = new Modal(document.getElementById("favourite-modal"), {});
 					favouriteModal.show();
@@ -919,7 +1005,12 @@ export default {
 
 		},
 
+
+		/**
+		 * Puts this recipe on current user's weekly menu, to the chosen slot.
+		 */
 		async setWeeklyMenu(){
+			// validates put on weekly menu inputs
 			this.weeklyMenuErrors = this.weeklyMenuInputsAreValid;
 
 			if(this.weeklyMenuErrors.length === 0){
@@ -961,6 +1052,9 @@ export default {
 			this.weeklyMenuErrors = [];
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers() {
 			const favouriteModal = document.getElementById('favourite-modal');
 			favouriteModal.addEventListener("hidden.bs.modal", () => this.clearFavouriteModal());
@@ -974,23 +1068,36 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @returns uploaded date in British format
+		 */
 		formattedUploaded(){
 			return new Date(this.recipe.uploaded.split(" ")[0]).toLocaleDateString("en-GB");
 		},
 
+		/**
+		 * @returns last modified date in British format
+		 */
 		formattedLastModified(){
 			return new Date(this.recipe.lastModified.split(" ")[0]).toLocaleDateString("en-GB");
 		},
 
+		/**
+		 * Validates comment inputs.
+		 * @returns array of validation error messages
+		 */
 		commentInputsAreValid(){
 			let errors = [];
 
+			// was a rating given
 			if(!this.newComment.rating){
 				errors.push("Please rate the recipe.");
+			// is the rating between 1 and 5
 			} else if(this.newComment.rating < 1 || this.newComment.rating > 5) {
 				errors.push("Rating must be between 1-5 stars.");
 			}
 
+			// is the comment content longer than 300 characters
 			if(this.newComment.content?.trim().length > 300){
 				errors.push("Content of comment can't be longer than 300 characters.");
 			}
@@ -998,14 +1105,20 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Validates put on weekly menu inputs.
+		 * @returns array of validation error messages
+		 */
 		weeklyMenuInputsAreValid(){
 			let errors = [];
 
+			// are all mandatory fields filled
 			if(!this.weeklyMenuInputs.nextWeek || !this.weeklyMenuInputs.meal ||
 				(this.weeklyMenuInputs.meal !== "4" && this.weeklyMenuInputs.meal !== "5" && !this.weeklyMenuInputs.day)) {
 				errors.push("Please fill in all necessary fields (when one of the 'dessert' values is selected as the meal, the day field should be left empty).");
 			}
 
+			// if the selected meal is dessert, is day field  empty
 			if((this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") && this.weeklyMenuInputs.day) {
 				errors.push("When one of the 'dessert' values is selected as the meal, the day field should be left empty.")
 			}
@@ -1023,12 +1136,14 @@ export default {
 			}
 		},
 
+		// if put on weekly menu meal input is changed to dessert, clear day field
 		'weeklyMenuInputs.meal'() {
 			if(this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") {
 				this.weeklyMenuInputs.day = null;
 			}
 		},
 
+		// if meal field is set as dessert, and a day is selected, clear meal field
 		'weeklyMenuInputs.day'() {
 			if((this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") && this.weeklyMenuInputs.day !== null) {
 				this.weeklyMenuInputs.meal = null;
@@ -1038,7 +1153,6 @@ export default {
 
 	mounted() {
 		this.setModalHandlers();
-		//this.initPage();
 	}
 }
 </script>

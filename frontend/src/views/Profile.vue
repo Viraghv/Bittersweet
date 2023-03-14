@@ -1,3 +1,5 @@
+<!-- Profile page of user -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="profile-container">
@@ -349,6 +351,10 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Validates uploaded profile picture and displays the preview image.
+		 * @param event file upload event
+		 */
 		showPfpPreview(event){
 			this.uploadPfpErrors = [];
 
@@ -356,10 +362,12 @@ export default {
 				return;
 			}
 
+			// if image type is not jpg or png
 			if(event.target.files[0].type !== "image/jpeg" && event.target.files[0].type !== "image/png"){
 				this.uploadPfpErrors.push("Incorrect file type.")
 			}
 
+			// if file is bigger than 1MB
 			if(event.target.files[0].size > 1024000){
 				this.uploadPfpErrors.push("File can't be bigger than 1MB.")
 			}
@@ -369,6 +377,7 @@ export default {
 			}
 
 			this.editProfileInputs.pfp = event.target.files[0];
+			// display preview image
 			let src = URL.createObjectURL(event.target.files[0]);
 			let preview = document.getElementById("pfp-preview-img");
 			preview.src = src;
@@ -386,6 +395,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes number of user's uploaded recipes.
+		 */
 		async initRecipeCount(){
 			try {
 				const response = await axios.get(`/user/uploadedRecipeCount/${this.userStore.user.id}`);
@@ -395,11 +407,15 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes user data.
+		 */
 		async initUser(){
 			try {
 				const userResponse = await this.axios.get(`/user/getCurrentUser`);
 				let user = userResponse.data;
 
+				// get profile picture
 				if(user.profilepicture){
 					const pfpResponse = await this.axios.get(`/user/pfp/${user.profilepicture}`);
 
@@ -413,6 +429,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe difficulty options.
+		 */
 		async initDifficulties(){
 			try {
 				const response = await this.axios.get('/recipe/difficulties');
@@ -424,6 +443,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe cost options.
+		 */
 		async initCosts(){
 			try {
 				const response = await this.axios.get('/recipe/costs');
@@ -435,6 +457,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes allergen options.
+		 */
 		async initAllergens(){
 			try {
 				const response = await this.axios.get('/recipe/allergens');
@@ -446,6 +471,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes diet options.
+		 */
 		async initDiets(){
 			try {
 				const response = await this.axios.get('/recipe/diets');
@@ -457,12 +485,17 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes user's uploaded recipe cards of current page.
+		 * @param page page to get
+		 */
 		async initMyRecipes(page){
 			try {
 				const response = await this.axios.get(`/user/currentUserAllRecipeCards/${this.selectedSortType}/${page}`)
 				this.myRecipes = response.data;
 				this.myRecipesCurrentPage = page;
 
+				// get recipe images
 				for (let i = 0; i < this.myRecipes.length; i++) {
 					if(this.myRecipes[i].photo && this.myRecipes[i].photo !== "default"){
 						try {
@@ -498,7 +531,11 @@ export default {
 			this.editPreferencesInputs.costId = this.userStore.user?.costPref?.id;
 		},
 
+		/**
+		 * Changes password of user.
+		 */
 		async changePassword(){
+			// validate password inputs
 			this.changePasswordErrors = this.checkChangePasswordInput;
 
 			if(this.changePasswordErrors.length === 0){
@@ -521,13 +558,18 @@ export default {
 
 		},
 
+		/**
+		 * Edits profile data of user.
+		 */
 		async editProfile(){
+			// validate comment data
 			this.editProfileErrors = this.checkEditProfileInput;
 			this.uploadPfpErrors = [];
 
 			if(this.editProfileErrors.length === 0){
 				this.editProfileShowLoader = true;
 				try {
+					// upload profile data
 					await this.axios.post("/user/edit/profile", {
 						username: this.editProfileInputs.username.trim(),
 						firstname: this.editProfileInputs.firstname?.trim(),
@@ -535,6 +577,7 @@ export default {
 						deletePfp: this.editProfileInputs.deletePfp,
 					});
 
+					// upload profile picture
 					if(this.editProfileInputs.pfp){
 						const formData = new FormData();
 						formData.append('image', this.editProfileInputs.pfp);
@@ -565,6 +608,9 @@ export default {
 
 		},
 
+		/**
+		 * Edits user's weekly menu preferences.
+		 */
 		async editPreferences(){
 			this.savePreferencesLoader = true;
 
@@ -591,6 +637,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes recipe of user.
+		 */
 		async deleteRecipe(){
 			try {
 				await this.axios.get(`/recipe/delete/${this.deleteRecipeId}`);
@@ -598,6 +647,7 @@ export default {
 				await this.initRecipeCount();
 				await this.initMyRecipes(this.myRecipesCurrentPage);
 
+				// check if after delete the current page still exists, if not, navigate to previous one
 				if(!this.currentPageExists){
 					this.myRecipesCurrentPage--;
 
@@ -616,6 +666,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Removes current profile picture from profile edit inputs and preview image.
+		 */
 		removePfp(){
 			this.editProfileInputs.deletePfp = true;
 
@@ -669,6 +722,9 @@ export default {
 			this.dontShowCurrentPfp = false;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const changePasswordModal = document.getElementById('change-password-modal');
 			changePasswordModal.addEventListener("hidden.bs.modal", () => this.clearChangePasswordFields());
@@ -679,23 +735,33 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * @returns member since date in British format
+		 */
 		formattedMemberSinceDate(){
 			return new Date(this.userStore.user?.joined.split(" ")[0]).toLocaleDateString("en-GB");
 
 		},
 
+		/**
+		 * Validates change password inputs.
+		 * @returns array of validation error messages
+		 */
 		checkChangePasswordInput(){
 			let errors = [];
 
+			// are all fields filled
 			if(this.changePasswordInput.currentPassword.trim() === "" || this.changePasswordInput.newPassword.trim() === "" ||
 			   this.changePasswordInput.newPasswordAgain.trim() === ""){
 				errors.push("Please fill in all fields.");
 			}
 
+			// is new password shorter than 6 characters
 			if(this.changePasswordInput.newPassword.trim() !== "" && this.changePasswordInput.newPassword.trim().length < 6){
 				errors.push("Password must be at least 6 characters long.")
 			}
 
+			// does password and password again fields match
 			if(this.changePasswordInput.newPassword !== this.changePasswordInput.newPasswordAgain){
 				errors.push("Passwords do not match.");
 			}
@@ -703,21 +769,29 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Validates profile edit inputs.
+		 * @returns array of validation error messages
+		 */
 		checkEditProfileInput(){
 			let errors = [];
 
+			// is username field filled
 			if(!this.editProfileInputs.username.trim()){
 				errors.push("Please fill in the username field.");
 			}
 
+			// is username longer than 100 characters
 			if(this.editProfileInputs.username.trim().length > 100) {
 				errors.push("Username can't be longer than 100 characters.");
 			}
 
+			// is first name longer than 100 characters
 			if(this.editProfileInputs.firstname?.trim().length > 100){
 				errors.push("First name can't be longer than 100 characters.");
 			}
 
+			// is last name longer than 100 characters
 			if(this.editProfileInputs.lastname?.trim().length > 100){
 				errors.push("Last name can't be longer than 100 characters.");
 			}
@@ -725,6 +799,10 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Concatenates edit profile errors and profile picture upload errors.
+		 * @returns all user edit errors
+		 */
 		allEditProfileErrors(){
 			let allErrors = [];
 			allErrors.push(...this.editProfileErrors);
@@ -732,6 +810,10 @@ export default {
 			return allErrors;
 		},
 
+		/**
+		 * Does the current page of the user's recipes exists based on the recipe count and page size.
+		 * @returns true if page exists
+		 */
 		currentPageExists(){
 			let lastPage = Math.ceil(this.recipeCount / 10)
 

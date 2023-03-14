@@ -263,10 +263,17 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Converts search filters to send to backend and gets filtered recipe cards of page.
+		 * @param page page to get
+		 * @param closeFilters true if filters modal should close after getting recipe cards
+		 * @param goToFirstPage true if user should be navigated to the first page of recipes after getting recipe cards
+		 */
 		async getSearchResults(page, closeFilters=false, goToFirstPage=false){
 			try {
 				window.scroll(0,0);
 
+				// convert search filters
 				let convertedFilters = JSON.parse(JSON.stringify(this.localFilters));
 
 				convertedFilters.timeFrom.hour = !([null, ""].includes(convertedFilters.timeFrom.hour)) ? Number(convertedFilters.timeFrom.hour) : null;
@@ -301,6 +308,7 @@ export default {
 				let searchTerm = convertedFilters.searchTerm;
 				delete convertedFilters.searchTerm;
 
+				// get filtered recipe cards
 				const response = await this.axios.post(`/recipe/getFilteredCards/${this.selectedSortType}/${page}`, {
 					search: searchTerm,
 					filters: convertedFilters,
@@ -308,10 +316,12 @@ export default {
 
 				this.searchResults = response.data;
 
+				// close filters if needed
 				if(closeFilters && document.getElementById("filter-btn").getAttribute("aria-expanded") === true){
 					document.getElementById("filter-btn").click();
 				}
 
+				// get recipe images
 				for (let i = 0; i < this.searchResults.recipes.length; i++) {
 					if(this.searchResults.recipes[i].photo && this.searchResults.recipes[i].photo !== "default"){
 						try {
@@ -324,7 +334,7 @@ export default {
 					}
 				}
 
-
+				// go to first page of recipes if needed
 				if(goToFirstPage){
 					let paginateButtons = document.getElementsByClassName("paginate-buttons");
 
@@ -340,6 +350,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes allergen options.
+		 */
 		async initAllergens(){
 			try {
 				const response = await this.axios.get('/recipe/allergens');
@@ -351,6 +364,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe category options.
+		 */
 		async initCategories(){
 			try {
 				const response = await this.axios.get('/recipe/categories');
@@ -362,6 +378,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes diet options.
+		 */
 		async initDiets(){
 			try {
 				const response = await this.axios.get('/recipe/diets');
@@ -373,6 +392,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe difficulty options.
+		 */
 		async initDifficulties(){
 			try {
 				const response = await this.axios.get('/recipe/difficulties');
@@ -382,6 +404,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe cost options.
+		 */
 		async initCosts(){
 			try {
 				const response = await this.axios.get('/recipe/costs');
@@ -391,30 +416,45 @@ export default {
 			}
 		},
 
+		/**
+		 * Restricts fromHour filter field so a number higher than 99 cannot be set.
+		 */
 		restrictFromHours(){
 			if(this.localFilters.timeFrom.hour > 99){
 				this.localFilters.timeFrom.hour = Math.floor(this.localFilters.timeFrom.hour / 10) ;
 			}
 		},
 
+		/**
+		 * Restricts fromMins filter field so a number higher than 59 cannot be set.
+		 */
 		restrictFromMins(){
 			if(this.localFilters.timeFrom.minute > 59){
 				this.localFilters.timeFrom.minute = Math.floor(this.localFilters.timeFrom.minute / 10) ;
 			}
 		},
 
+		/**
+		 * Restricts toHour filter field so a number higher than 99 cannot be set.
+		 */
 		restrictToHours(){
 			if(this.localFilters.timeTo.hour > 99){
 				this.localFilters.timeTo.hour = Math.floor(this.localFilters.timeTo.hour / 10) ;
 			}
 		},
 
+		/**
+		 * Restricts toMins filter field so a number higher than 59 cannot be set.
+		 */
 		restrictToMins(){
 			if(this.localFilters.timeTo.minute > 59){
 				this.localFilters.timeTo.minute = Math.floor(this.localFilters.timeTo.minute / 10) ;
 			}
 		},
 
+		/**
+		 * Set recipe filters from URl.
+		 */
 		setFilters(){
 			if(this.filters){
 				this.localFilters = JSON.parse(this.filters);
@@ -444,6 +484,10 @@ export default {
 			};
 		},
 
+		/**
+		 * Puts filter parameters into URL and navigates to new search page.
+		 * @param searchTerm search term to filter recipe names with
+		 */
 		navigateToSearchPage(searchTerm){
 			this.localFilters.searchTerm = searchTerm;
 
@@ -732,10 +776,6 @@ export default {
 			padding-top: 5px !important;
 			padding-bottom: 5px !important;
 		}
-
-		//.filter-dropdown {
-		//	width: 95vw !important;
-		//}
 	}
 
 	@media screen and (max-width: 608px){

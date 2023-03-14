@@ -1,3 +1,5 @@
+<!-- User's "Don't recommend" recipes page -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<h2 class="dont-recommend-title">'Dont recommend' recipes</h2>
@@ -60,12 +62,17 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes the recipe cards for user's "Don't recommend" recipes list.
+		 * @param page page to get
+		 */
 		async initRecipeCards(page){
 			try {
 				const response = await this.axios.get(`/weeklyMenu/dontRecommend/allRecipeCards/${page}`);
 				this.recipeCards = response.data;
 				this.currentPage = page;
 
+				// get recipe images
 				for (let i = 0; i < this.recipeCards.length; i++) {
 					if(this.recipeCards[i].photo && this.recipeCards[i].photo !== "default"){
 						try {
@@ -82,6 +89,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes the number of all "Don't recommend" recipes of user.
+		 * @returns {Promise<void>}
+		 */
 		async initRecipeCardsCount(){
 			try {
 				const response = await this.axios.get(`/weeklyMenu/dontRecommend/count/allRecipeCards`);
@@ -92,13 +103,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Removes recipe from user's "Don't recommend" recipes list.
+		 */
 		async deleteRecipe(){
 			try {
 				await this.axios.get(`/weeklyMenu/dontRecommend/delete/${this.deleteId}`);
 				document.getElementById("delete-recipe-close-button").click();
 				await this.initRecipeCardsCount();
 
-
+				// check if after delete the current page still exists, if not, navigate to previous one
 				if(!this.currentPageExists){
 					this.currentPage--;
 
@@ -127,6 +141,10 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Does the current page of the "Don't recommend" recipes list exists based on the recipe count and page size.
+		 * @returns true if page exists
+		 */
 		currentPageExists(){
 			let lastPage = Math.ceil(this.recipeCardsCount / 10)
 

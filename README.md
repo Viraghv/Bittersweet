@@ -29,7 +29,7 @@ docker compose up mysql-database
 ```
 
 ```shell
-npx prisma generate
+npx prisma db push
 ```
 
 ### Teszt adatok feltöltése
@@ -39,14 +39,13 @@ npx prisma generate
  - uploads mappa elhelyezése a /backend mappába
 
 ```shell
-docker compose run --rm database mysql -uroot -p Bittersweet < Bittersweet.sql
+Get-Content Bittersweet.sql | docker exec -i mysql-database mysql -u root -p<database-password> Bittersweet
 ```
- - adatbázis jelszó megadása (amit a .env fájlban is megadtunk)
 
 ### Futtatás
 
 ```shell
-docker compose up database
+docker compose up mysql-database
 ```
 
 ```shell

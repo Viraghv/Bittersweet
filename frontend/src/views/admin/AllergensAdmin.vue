@@ -1,3 +1,5 @@
+<!-- Admin page, allergens view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -120,10 +122,14 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes list of allergens.
+		 */
 		async initAllergens(){
 			try {
 				let response = await this.axios.get(`/recipe/allergens`);
 
+				// sort alphabetically
 				response.data.sort((a, b) => {
 					let textA = a.name.toUpperCase();
 					let textB = b.name.toUpperCase();
@@ -136,7 +142,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Add an allergen to the list.
+		 */
 		async addAllergen(){
+			// validate allergen name
 			this.newAllergenErrors = this.allergenInputsAreValid;
 
 			if(this.newAllergenErrors.length === 0){
@@ -157,7 +167,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edit the name of an allergen.
+		 */
 		async editAllergen(){
+			// validate allergen name
 			this.newAllergenErrors = this.allergenInputsAreValid;
 
 			if(this.newAllergenErrors.length === 0){
@@ -178,6 +192,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Delete allergen from list.
+		 */
 		async deleteAllergen(){
 			try {
 				await this.axios.get(`/recipe/admin/allergens/delete/${this.currentAllergenId}`);
@@ -224,6 +241,9 @@ export default {
 			this.currentAllergenId = null;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const addAllergenModal = document.getElementById('add-allergen-modal');
 			addAllergenModal.addEventListener("hidden.bs.modal", () => this.clearAddAllergenModal());
@@ -237,14 +257,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Validates allergen name.
+		 * @returns array of validation error messages
+		 */
 		allergenInputsAreValid(){
 			let errors = [];
 
+			// is the name field filled
 			if(this.newAllergenName.trim() === ""){
 				errors.push("Please provide a name for the allergen.");
 
 			}
 
+			// is the name longer than 50 characters
 			if(this.newAllergenName.trim().length > 50){
 				errors.push("Allergen name can't be longer than 50 characters.");
 			}

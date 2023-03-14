@@ -1,3 +1,5 @@
+<!-- Email verification page -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="loader-container"  v-if="!successfulVerification && !tokenExpired">
@@ -48,21 +50,27 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Verifies user's email address by verification token.
+		 */
 		async verifyWithToken(){
+			// if token is not in url, go to home page
 			if(!this.token){
 				this.$router.push({name: "Home"});
 			}
 
 			try {
-				const response = await this.axios.get(`/user/verification/${this.token}`);
+				await this.axios.get(`/user/verification/${this.token}`);
 				this.successfulVerification = true;
 			} catch (error) {
 				console.log(error.response.data);
 
+				// if verification token is not a real token
 				if (error.response.data.errorMessage === "jwt malformed") {
 					this.$router.push({name: "Home"});
 				}
 
+				// if verification token is valid, but expired
 				if (error.response.data.errorMessage.includes("Verification link has expired.")){
 					this.tokenExpired = true;
 				}

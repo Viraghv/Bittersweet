@@ -1,3 +1,5 @@
+<!-- Admin page, recipes view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -146,6 +148,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes number of all recipes (for pagination).
+		 */
 		async initRecipesCount(){
 			try {
 				const response = await this.axios.post(`/recipe/admin/all/count`, this.searchObj)
@@ -155,6 +160,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipes of current page.
+		 * @param page page to get
+		 */
 		async initRecipes(page){
 			try {
 				const response = await this.axios.post(`/recipe/admin/all/${this.selectedSortType}/${page}`, this.searchObj);
@@ -166,6 +175,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes a single recipe.
+		 */
 		async deleteRecipe(){
 			try {
 				await this.axios.get(`/recipe/admin/delete/${this.currentRecipeId}`);
@@ -173,6 +185,7 @@ export default {
 
 				await this.initRecipesCount();
 
+				// check if after delete the current page still exists, if not, navigate to previous one
 				if(!this.currentRecipesPageExists){
 					this.currentPage--;
 
@@ -196,6 +209,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipes again with given search filters.
+		 */
 		searchForRecipe(){
 			this.initRecipes(1);
 			this.initRecipesCount();
@@ -210,6 +226,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Navigates to the recipe page of given recipe and scrolls to the top of the page.
+		 * @param recipeId
+		 */
 		navigateToRecipePage(recipeId){
 			window.scrollTo(0,0);
 			this.$router.push({path: `/recipe/${recipeId}`});
@@ -239,6 +259,10 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Changes placeholder text in searchbar based on selected search type.
+		 * @returns placeholder text
+		 */
 		searchbarPlaceholder(){
 			let placeholder = "Search by ";
 
@@ -251,6 +275,10 @@ export default {
 			return placeholder;
 		},
 
+		/**
+		 * Constructs search object based on selected search type and entered search term.
+		 * @returns search object
+		 */
 		searchObj(){
 			let searchObj = {};
 
@@ -263,6 +291,10 @@ export default {
 			return searchObj;
 		},
 
+		/**
+		 * Does the current page of the recipes table exists based on the recipe count and page size.
+		 * @returns true if page exists
+		 */
 		currentRecipesPageExists(){
 			let lastPage = Math.ceil(this.recipesCount / 25);
 

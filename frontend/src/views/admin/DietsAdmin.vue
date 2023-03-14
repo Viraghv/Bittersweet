@@ -1,3 +1,5 @@
+<!-- Admin page, diets view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -120,10 +122,14 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes list of diets.
+		 */
 		async initDiets(){
 			try {
 				let response = await this.axios.get(`/recipe/diets`);
 
+				// sort alphabetically
 				response.data.sort((a, b) => {
 					let textA = a.name.toUpperCase();
 					let textB = b.name.toUpperCase();
@@ -136,7 +142,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Add a diet to the list.
+		 */
 		async addDiet(){
+			// validate diet name
 			this.newDietErrors = this.dietInputsAreValid;
 
 			if(this.newDietErrors.length === 0){
@@ -157,7 +167,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edit the name of a diet.
+		 */
 		async editDiet(){
+			// validate diet name
 			this.newDietErrors = this.dietInputsAreValid;
 
 			if(this.newDietErrors.length === 0){
@@ -178,6 +192,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Delete diet from list.
+		 */
 		async deleteDiet(){
 			try {
 				await this.axios.get(`/recipe/admin/diets/delete/${this.currentDietId}`);
@@ -224,6 +241,9 @@ export default {
 			this.currentDietId = null;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const addDietModal = document.getElementById('add-diet-modal');
 			addDietModal.addEventListener("hidden.bs.modal", () => this.clearAddDietModal());
@@ -237,14 +257,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Validates diet name.
+		 * @returns array of validation error messages
+		 */
 		dietInputsAreValid(){
 			let errors = [];
 
+			// is the name field filled
 			if(this.newDietName.trim() === ""){
 				errors.push("Please provide a name for the diet.");
 
 			}
 
+			// is the name longer than 50 characters
 			if(this.newDietName.trim().length > 50){
 				errors.push("Diet name can't be longer than 50 characters.");
 			}

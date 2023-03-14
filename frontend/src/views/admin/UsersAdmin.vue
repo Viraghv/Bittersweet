@@ -1,3 +1,5 @@
+<!-- Admin page, users view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -348,6 +350,10 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Validates uploaded profile picture and displays the preview image.
+		 * @param event file upload event
+		 */
 		showPfpPreview(event){
 			this.uploadPfpErrors = [];
 
@@ -355,10 +361,12 @@ export default {
 				return;
 			}
 
+			// if image type is not jpg or png
 			if(event.target.files[0].type !== "image/jpeg" && event.target.files[0].type !== "image/png"){
 				this.uploadPfpErrors.push("Incorrect file type.")
 			}
 
+			// if file is bigger than 1MB
 			if(event.target.files[0].size > 1024000){
 				this.uploadPfpErrors.push("File can't be bigger than 1MB.")
 			}
@@ -368,6 +376,7 @@ export default {
 			}
 
 			this.editProfileInputs.pfp = event.target.files[0];
+			// display preview image
 			let src = URL.createObjectURL(event.target.files[0]);
 			let preview = document.getElementById("pfp-preview-img");
 			preview.src = src;
@@ -385,6 +394,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Removes current profile picture from user edit inputs and preview image.
+		 */
 		removePfp(){
 			this.editProfileInputs.deletePfp = true;
 
@@ -399,6 +411,9 @@ export default {
 			this.dontShowCurrentPfp = true;
 		},
 
+		/**
+		 * Initializes number of all users (for pagination).
+		 */
 		async initUsersCount(){
 			try {
 				const response = await this.axios.post(`/user/admin/all/count`, this.searchObj)
@@ -408,6 +423,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes users of current page.
+		 * @param page page to get
+		 */
 		async initUsers(page){
 			try {
 				const response = await this.axios.post(`/user/admin/all/${this.selectedSortType}/${page}`, this.searchObj);
@@ -419,6 +438,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes user data by userId for user editing.
+		 * @param userId
+		 */
 		async initUser(userId){
 			try {
 				const userResponse = await this.axios.get(`/user/admin/getUser/${userId}`);
@@ -441,13 +464,18 @@ export default {
 			}
 		},
 
+		/**
+		 * Edits a single user.
+		 */
 		async editProfile(){
+			// validate comment data
 			this.editProfileErrors = this.checkEditProfileInput;
 			this.uploadPfpErrors = [];
 
 			if(this.editProfileErrors.length === 0){
 				this.editProfileShowLoader = true;
 				try {
+					// upload profile data
 					await this.axios.post(`/user/admin/edit/profile/${this.currentUserId}`, {
 						username: this.editProfileInputs.username.trim(),
 						email: this.editProfileInputs.email.trim(),
@@ -456,6 +484,7 @@ export default {
 						deletePfp: this.editProfileInputs.deletePfp,
 					});
 
+					// upload profile picture
 					if(this.editProfileInputs.pfp){
 						const formData = new FormData();
 						formData.append('image', this.editProfileInputs.pfp);
@@ -486,7 +515,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Changes password of user.
+		 */
 		async changePassword(){
+			// validate password inputs
 			this.changePasswordErrors = this.checkChangePasswordInput;
 
 			if(this.changePasswordErrors.length === 0){
@@ -507,7 +540,12 @@ export default {
 			}
 		},
 
+		/**
+		 * Set verification status of user.
+		 * @param verified verification status to set (boolean)
+		 */
 		async setVerification(verified){
+			// check if user is editing their own verification status
 			if(this.userStore.user.id === this.currentUserId){
 				this.verificationErrors.push("You cannot set the verification for yourself.");
 			}
@@ -531,7 +569,12 @@ export default {
 			}
 		},
 
+		/**
+		 * Set admin status of user.
+		 * @param admin admin status to set (boolean)
+		 */
 		async setAdmin(admin){
+			// check if user is editing their own admin status
 			if(this.userStore.user.id === this.currentUserId){
 				this.adminErrors.push("You cannot set the admin role for yourself.");
 			}
@@ -555,7 +598,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes a single user.
+		 */
 		async deleteUser(){
+			// check if user is trying to delete their own account
 			if(this.userStore.user.id === this.currentUserId){
 				this.deleteUserErrors.push("You cannot delete your own account.");
 			}
@@ -568,6 +615,7 @@ export default {
 					await this.initUsersCount();
 					await this.initUsers(this.currentPage);
 
+					// check if after delete the current page still exists, if not, navigate to previous one
 					if(!this.currentUsersPageExists){
 						this.currentPage--;
 
@@ -590,6 +638,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes users again with given search filters.
+		 */
 		searchForUser(){
 			this.initUsers(1);
 			this.initUsersCount();
@@ -685,6 +736,9 @@ export default {
 			this.currentUserId = null;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const changePasswordModal = document.getElementById('change-password-modal');
 			changePasswordModal.addEventListener("hidden.bs.modal", () => this.clearChangePasswordFields());
@@ -704,6 +758,10 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Changes placeholder text in searchbar based on selected search type.
+		 * @returns placeholder text
+		 */
 		searchbarPlaceholder(){
 			let placeholder = "Search by ";
 
@@ -716,6 +774,10 @@ export default {
 			return placeholder;
 		},
 
+		/**
+		 * Constructs search object based on selected search type and entered search term.
+		 * @returns search object
+		 */
 		searchObj(){
 			let searchObj = {};
 
@@ -728,6 +790,10 @@ export default {
 			return searchObj;
 		},
 
+		/**
+		 * Concatenates edit profile errors and profile picture upload errors.
+		 * @returns all user edit errors
+		 */
 		allEditProfileErrors(){
 			let allErrors = [];
 			allErrors.push(...this.editProfileErrors);
@@ -735,30 +801,40 @@ export default {
 			return allErrors;
 		},
 
+		/**
+		 * Validates user profile data.
+		 * @returns array of validation error messages
+		 */
 		checkEditProfileInput(){
 			let errors = [];
 
+			// are the mandatory fields filled
 			if(!this.editProfileInputs.username.trim() || !this.editProfileInputs.email.trim()){
-				errors.push("Please fill in the username field.");
+				errors.push("Please fill in the username and email fields.");
 			}
 
+			// is the username longer than 100 characters
 			if(this.editProfileInputs.username.trim().length > 100) {
 				errors.push("Username can't be longer than 100 characters.");
 			}
 
+			// is the email longer than 100 characters
 			if(this.editProfileInputs.email?.trim().length > 100) {
 				errors.push("Email can't be longer than 100 characters.");
 			}
 
+			// does email match email regex
 			if(this.editProfileInputs.email?.trim() &&
 				!this.editProfileInputs.email?.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
 				errors.push("Invalid email.");
 			}
 
+			// is first name longer than 100 characters
 			if(this.editProfileInputs.firstname?.trim().length > 100){
 				errors.push("First name can't be longer than 100 characters.");
 			}
 
+			// is last name longer than 100 characters
 			if(this.editProfileInputs.lastname?.trim().length > 100){
 				errors.push("Last name can't be longer than 100 characters.");
 			}
@@ -766,17 +842,24 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Validates change password inputs.
+		 * @returns array of validation error messages
+		 */
 		checkChangePasswordInput(){
 			let errors = [];
 
+			// are all fields filled
 			if(this.changePasswordInput.newPassword.trim() === "" ||this.changePasswordInput.newPasswordAgain.trim() === ""){
 				errors.push("Please fill in all fields.");
 			}
 
+			// is new password shorter than 6 characters
 			if(this.changePasswordInput.newPassword.trim() !== "" && this.changePasswordInput.newPassword.trim().length < 6){
 				errors.push("Password must be at least 6 characters long.")
 			}
 
+			// does password and password again fields match
 			if(this.changePasswordInput.newPassword !== this.changePasswordInput.newPasswordAgain){
 				errors.push("Passwords do not match.");
 			}
@@ -784,6 +867,10 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Does the current page of the users table exists based on the user count and page size.
+		 * @returns true if page exists
+		 */
 		currentUsersPageExists(){
 			let lastPage = Math.ceil(this.usersCount / 25);
 

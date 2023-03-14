@@ -1,3 +1,5 @@
+<!-- Admin page, comments view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -188,6 +190,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes number of all comments (for pagination).
+		 */
 		async initCommentsCount(){
 			try {
 				const response = await this.axios.post(`/recipe/admin/comment/count`, this.searchObj)
@@ -197,6 +202,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes comments of current page.
+		 * @param page page to get
+		 */
 		async initComments(page){
 			try {
 				const response = await this.axios.post(`/recipe/admin/comment/all/${this.selectedSortType}/${page}`, this.searchObj);
@@ -208,7 +217,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edits a single comment.
+		 */
 		async editComment(){
+			// validate comment data
 			this.editCommentErrors = this.commentInputsAreValid;
 			if(this.editCommentErrors.length === 0){
 				try {
@@ -229,6 +242,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes a single comment.
+		 */
 		async deleteComment(){
 			try {
 				await this.axios.get(`/recipe/admin/comment/delete/${this.currentCommentId}`);
@@ -236,6 +252,7 @@ export default {
 
 				await this.initCommentsCount();
 
+				// check if after delete the current page still exists, if not, navigate to previous one
 				if(!this.currentCommentsPageExists){
 					this.currentPage--;
 
@@ -259,6 +276,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes comments again with given search filters.
+		 */
 		searchForComment(){
 			this.initComments(1);
 			this.initCommentsCount();
@@ -301,6 +321,9 @@ export default {
 			this.currentCommentId = null;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const editCommentModal = document.getElementById('edit-comment-modal');
 			editCommentModal.addEventListener("hidden.bs.modal", () => this.clearEditCommentModal());
@@ -311,6 +334,10 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Changes placeholder text in searchbar based on selected search type.
+		 * @returns placeholder text
+		 */
 		searchbarPlaceholder(){
 			let placeholder = "Search by ";
 
@@ -324,6 +351,10 @@ export default {
 			return placeholder;
 		},
 
+		/**
+		 * Constructs search object based on selected search type and entered search term.
+		 * @returns search object
+		 */
 		searchObj(){
 			let searchObj = {};
 
@@ -337,15 +368,22 @@ export default {
 			return searchObj;
 		},
 
+		/**
+		 * Validates comment data.
+		 * @returns array of validation error messages
+		 */
 		commentInputsAreValid(){
 			let errors = [];
 
+			// was a rating given
 			if(!this.editCommentInputs.rating){
 				errors.push("Please rate the recipe.");
+			// is the rating between 1 and 5
 			} else if(this.editCommentInputs.rating < 1 || this.editCommentInputs.rating > 5) {
 				errors.push("Rating must be between 1-5 stars.");
 			}
 
+			// is the comment content longer than 300 characters
 			if(this.editCommentInputs.content?.trim().length > 300){
 				errors.push("Content of comment can't be longer than 300 characters.");
 			}
@@ -353,6 +391,10 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Does the current page of the comments table exists based on the comment count and page size.
+		 * @returns true if page exists
+		 */
 		currentCommentsPageExists(){
 			let lastPage = Math.ceil(this.commentsCount / 25);
 

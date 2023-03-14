@@ -1,3 +1,5 @@
+<!-- Favourites page with All Favourites tab and Groups tab -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<h1 class="title-text">Favourites</h1>
@@ -211,7 +213,6 @@
 import {beforeRouteEnter} from "@/handlers/userLoggedInNavGuard.js";
 import Multiselect from '@vueform/multiselect';
 import Pagination from "@/components/Pagination.vue";
-import recipe from "./Recipe.vue";
 import MinimalRecipeCard from "@/components/MinimalRecipeCard.vue";
 import {Modal} from "bootstrap";
 
@@ -275,19 +276,25 @@ export default {
 	},
 
 	methods: {
-		recipe() {
-			return recipe
-		},
+		/**
+		 * Show all favourites page.
+		 */
 		selectAllPage(){
 			this.allPageSelected = true;
 			this.initAllFavourites(1);
 		},
 
+		/**
+		 * Show groups page.
+		 */
 		selectGroupsPage(){
 			this.allPageSelected = false;
 			this.initGroupRecipes(1);
 		},
 
+		/**
+		 * Initialize the number of user's all favourite recipes.
+		 */
 		async initFavouriteCount(){
 			try {
 				const response = await this.axios.get(`/favourite/allUserFavouriteCount`)
@@ -297,6 +304,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initialize current page of user's favourites recipe list.
+		 * @param page page to get
+		 */
 		async initAllFavourites(page){
 			window.scrollTo(0,0);
 
@@ -305,6 +316,7 @@ export default {
 				this.allFavourites = response.data;
 				this.allCurrentPage = page;
 
+				// get recipe images
 				for (let i = 0; i < this.allFavourites.length; i++) {
 					if(this.allFavourites[i].photo && this.allFavourites[i].photo !== "default"){
 						try {
@@ -321,6 +333,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initialize groups of current user that recipe is not in yet.
+		 */
 		async initSelectableGroups(){
 			try {
 
@@ -329,6 +344,7 @@ export default {
 					this.allFavouritesSelectableGroups[group.id] = group.name;
 				}
 
+				// subtract groups recipe is already in from all of user's groups
 				const groupsOfFavourite = await this.axios.get(`/favourite/groups/allGroupsOfFavourite/${this.allFavouritesAddToGroupRecipeId}`)
 				for (const groupId in this.allFavouritesSelectableGroups) {
 					for (let i = 0; i < groupsOfFavourite.data.length; i++) {
@@ -342,6 +358,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes all groups of user, and selects the first one if parameter is set to true.
+		 * @param selectFirstGroup true if first group should be selected
+		 */
 		async initUserGroups(selectFirstGroup=true){
 			try {
 				this.userGroups = {};
@@ -350,6 +370,8 @@ export default {
 				for(const group of response.data){
 					this.userGroups[group.id] = group.name;
 				}
+
+				// select first group
 				if(selectFirstGroup && Object.keys(this.userGroups).length > 0){
 					this.selectedUserGroup = response.data[0].id;
 				}
@@ -358,6 +380,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe count of the currently selected group.
+		 */
 		async initGroupRecipeCount(){
 			try {
 				const response = await this.axios.get(`/favourite/groups/recipeCount/${Number(this.selectedUserGroup)}`);
@@ -367,6 +392,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipes of the currently selected group by page, sorted by the currently selected sort type.
+		 * @param page page to get
+		 */
 		async initGroupRecipes(page){
 			window.scrollTo(0,0);
 
@@ -375,6 +404,7 @@ export default {
 				this.groupRecipes = response.data;
 				this.groupCurrentPage = page;
 
+				// get recipe images
 				for (let i = 0; i < this.groupRecipes.length; i++) {
 					if(this.groupRecipes[i].photo && this.groupRecipes[i].photo !== "default"){
 						try {
@@ -391,6 +421,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Adds the selected recipe to the selected group.
+		 */
 		async addToGroup(){
 			if(this.allFavouritesSelectedGroup) {
 				try {
@@ -411,6 +444,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes selected recipe from user's favourites.
+		 * @returns {Promise<void>}
+		 */
 		async removeFromFavourites(){
 			try {
 				await this.axios.get(`/favourite/delete/${this.allFavouritesDeleteId}`);
@@ -419,6 +456,7 @@ export default {
 				await this.initAllFavourites(this.allCurrentPage);
 				this.allFavouritesDeleteId = null;
 
+				// check if after delete the current page still exists, if not, navigate to previous one
 				if(!this.currentAllPageExists){
 					this.allCurrentPage--;
 
@@ -437,6 +475,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Removes recipe from the currently selected group.
+		 */
 		async removeRecipeFromGroup(){
 			try {
 				await this.axios.post(`/favourite/groups/deleteRecipe`, {
@@ -446,6 +487,7 @@ export default {
 				document.getElementById("remove-recipe-from-group-close-button").click();
 
 				await this.initGroupRecipeCount()
+				// check if after delete the current page still exists, if not, navigate to previous one
 				if(!this.currentGroupPageExists){
 					this.groupCurrentPage--;
 
@@ -465,7 +507,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Creates a new group for current user.
+		 */
 		async createGroup(){
+			// validate group name
 			this.newGroupErrors = this.groupInputsValid;
 
 			if(this.newGroupErrors.length === 0){
@@ -477,6 +523,7 @@ export default {
 					document.getElementById("create-group-close-button").click();
 
 					await this.initUserGroups();
+					// select newly created group
 					this.$refs["group-select-input"].select(response.data.id);
 
 					await this.initGroupRecipeCount();
@@ -491,7 +538,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edits name of currently selected group.
+		 */
 		async editGroup(){
+			// validate group name
 			this.newGroupErrors = this.groupInputsValid;
 
 			if(this.newGroupErrors.length === 0){
@@ -519,6 +570,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes currently selected group.
+		 */
 		async deleteGroup(){
 			try {
 				await this.axios.get(`/favourite/groups/delete/${Number(this.selectedUserGroup)}`);
@@ -555,15 +609,15 @@ export default {
 			this.initSelectableGroups();
 		},
 
-		setNewGroupNameToCurrentName(){
-			this.newGroupName = this.userGroups[this.selectedUserGroup];
-		},
-
 		openDeleteRecipeFromGroupModal(recipeId){
 			let deleteRecipeFromGroupModal = new Modal(document.getElementById("remove-recipe-from-group-modal"), {});
 			deleteRecipeFromGroupModal.show();
 
 			this.groupDeleteRecipeId = recipeId;
+		},
+
+		setNewGroupNameToCurrentName(){
+			this.newGroupName = this.userGroups[this.selectedUserGroup];
 		},
 
 		clearNewGroupName(){
@@ -574,6 +628,9 @@ export default {
 			this.allFavouritesSelectedGroup = "";
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers() {
 			const createGroupModal = document.getElementById('create-group-modal');
 			createGroupModal.addEventListener("hidden.bs.modal", () => this.clearNewGroupName());
@@ -587,26 +644,39 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Does the current page on the all favourites tab exists based on the recipe count and page size.
+		 * @returns true if page exists
+		 */
 		currentAllPageExists(){
 			let lastPage = Math.ceil(this.favouritesCount / 10)
 
 			return this.allCurrentPage <= lastPage;
 		},
 
+		/**
+		 * Does the current page on the groups tab exists based on the recipe count and page size.
+		 * @returns true if page exists
+		 */
 		currentGroupPageExists(){
 			let lastPage = Math.ceil(this.groupRecipeCount / 10)
 
 			return this.groupCurrentPage <= lastPage;
 		},
 
+		/**
+		 * Validates group name inputs.
+		 */
 		groupInputsValid(){
 			let errors = [];
 
+			// is group name field filled
 			if(this.newGroupName.trim() === ""){
 				errors.push("Please provide a name for the group.");
 
 			}
 
+			// is group name longer than 100 characters
 			if(this.newGroupName.trim().length > 100){
 				errors.push("Group name can't be longer than 100 characters.");
 			}

@@ -1,3 +1,5 @@
+<!-- Admin page, ranked users view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -47,7 +49,10 @@ export default {
 	},
 
 	methods: {
-		async initActiveUserCount(){
+		/**
+		 * Initializes number of all verified users (for pagination).
+		 */
+		async initVerifiedUserCount(){
 			try {
 				const response = await this.axios.get(`/user/admin/allUserCount/verified`);
 				this.activeUsersCount = response.data;
@@ -56,6 +61,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes ranked users of the given page.
+		 * @param page page to get
+		 */
 		async initRankedUsers(page){
 			window.scrollTo(0,0);
 
@@ -71,7 +80,7 @@ export default {
 	},
 
 	mounted() {
-		this.initActiveUserCount();
+		this.initVerifiedUserCount();
 		this.initRankedUsers(1);
 	}
 

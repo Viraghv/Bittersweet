@@ -1,3 +1,5 @@
+<!-- Home page -->
+
 <template>
 	<Searchbar @search="navigateToSearchPage"/>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
@@ -42,6 +44,10 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes recipes of page (the newest recipes in descending order).
+		 * @param page page to get
+		 */
 		async initRecipes(page){
 			window.scroll(0,0);
 
@@ -49,6 +55,7 @@ export default {
 				const response = await this.axios.get(`/recipe/getAllCardsWithPagination/${page}`)
 				this.recipes = response.data;
 
+				// get recipe images
 				for (let i = 0; i < this.recipes.length; i++) {
 					if(this.recipes[i].photo && this.recipes[i].photo !== "default"){
 						try {
@@ -65,6 +72,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes number of all recipes.
+		 */
 		async initAllRecipesCount(){
 			try {
 				const response = await this.axios.get(`/recipe/allRecipeCount`);
@@ -74,6 +84,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Navigates to search page with the entered search term in the URL params.
+		 * @param searchTerm
+		 */
 		navigateToSearchPage(searchTerm){
 			window.scrollTo(0, 0);
 

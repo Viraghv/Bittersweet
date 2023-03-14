@@ -1,3 +1,5 @@
+<!-- Admin page, statistics view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -89,6 +91,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes the number of all verified users.
+		 */
 		async initVerifiedUserCount(){
 			try {
 				const response = await this.axios.get(`/user/admin/allUserCount/verified`);
@@ -98,6 +103,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes the number of all recipes.
+		 */
 		async initRecipesCount(){
 			try {
 				const response = await this.axios.get(`/recipe/allRecipeCount`);
@@ -107,6 +115,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes the first page of ranked users (to get the top 5).
+		 */
 		async initRankedUsers(){
 			try {
 				const response = await this.axios.get(`/user/admin/ranked/1`);
@@ -116,6 +127,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes the first page of ranked categories (to get the top 5).
+		 */
 		async initRankedCategories(){
 			try {
 				const response = await this.axios.get(`/recipe/admin/categories/ranked/1`);

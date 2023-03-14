@@ -1,3 +1,5 @@
+<!-- Admin page, units view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -120,10 +122,14 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes list of units.
+		 */
 		async initUnits(){
 			try {
 				let response = await this.axios.get(`/recipe/units`);
 
+				// sort alphabetically
 				response.data.sort((a, b) => {
 					let textA = a.name.toUpperCase();
 					let textB = b.name.toUpperCase();
@@ -136,7 +142,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Add a unit to the list.
+		 */
 		async addUnit(){
+			// validate unit name
 			this.newUnitErrors = this.unitInputsAreValid;
 
 			if(this.newUnitErrors.length === 0){
@@ -157,7 +167,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edit the name of a unit.
+		 */
 		async editUnit(){
+			// validate allergen name
 			this.newUnitErrors = this.unitInputsAreValid;
 
 			if(this.newUnitErrors.length === 0){
@@ -178,6 +192,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Delete unit from list.
+		 */
 		async deleteUnit(){
 			try {
 				await this.axios.get(`/recipe/admin/units/delete/${this.currentUnitId}`);
@@ -224,6 +241,9 @@ export default {
 			this.currentUnitId = null;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const addUnitModal = document.getElementById('add-unit-modal');
 			addUnitModal.addEventListener("hidden.bs.modal", () => this.clearAddUnitModal());
@@ -237,14 +257,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Validates unit name.
+		 * @returns array of validation error messages
+		 */
 		unitInputsAreValid(){
 			let errors = [];
 
+			// is the name field filled
 			if(this.newUnitName.trim() === ""){
 				errors.push("Please provide a name for the unit.");
 
 			}
 
+			// is the name longer than 30 characters
 			if(this.newUnitName.trim().length > 30){
 				errors.push("Unit name can't be longer than 30 characters.");
 			}

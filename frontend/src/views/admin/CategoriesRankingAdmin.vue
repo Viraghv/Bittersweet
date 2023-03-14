@@ -1,3 +1,5 @@
+<!-- Admin page, ranked categories view -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="admin-navbar-container">
@@ -43,6 +45,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes number of all categories (for pagination).
+		 */
 		async initCategoriesCount(){
 			try {
 				const response = await this.axios.get(`/recipe/admin/categories/count`);
@@ -52,7 +57,12 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes ranked categories of the given page.
+		 * @param page page to get
+		 */
 		async initRankedCategories(page){
+			// scroll to top of page
 			window.scrollTo(0,0);
 
 			try {
