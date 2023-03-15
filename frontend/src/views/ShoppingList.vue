@@ -1,3 +1,5 @@
+<!-- Shopping list page, with category and list views -->
+
 <template>
 	<div class="content col-xxl-5 col-xl-7 col-lg-9 col-md-11 col-sm-11">
 		<h1 class="title-text">Shopping list</h1>
@@ -258,6 +260,9 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes the shopping list of current user, with the shopping list categories and the items in them.
+		 */
 		async initUserList() {
 			try {
 				const response = await this.axios.get(`/shoppingList/currentUserList`);
@@ -269,12 +274,18 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes the "Add new item" fields as empty.
+		 */
 		initAddNewItems(){
 			for (let i = 0; i < this.userList.length; i++) {
 				this.addedNewItems[this.userList[i].id] = [];
 			}
 		},
 
+		/**
+		 * Initializes unit options.
+		 */
 		async initUnits(){
 			try {
 				const response = await this.axios.get('/recipe/units');
@@ -286,6 +297,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes shopping list of the list view, lists items in alphabetical order and merging items with the same
+		 * name and unit.
+		 */
 		initAllShoppingListItems() {
 			this.allShoppingListItems = [];
 
@@ -293,14 +308,19 @@ export default {
 				for (let j = 0; j < this.userList[i].shoppingListItems.length; j++) {
 					let skip = false;
 					for (let k = 0; k < this.allShoppingListItems.length; k++) {
+						// if the items have the same name and unit
 						if(this.userList[i].shoppingListItems[j].name.toLowerCase().trim() === this.allShoppingListItems[k].name.toLowerCase().trim() &&
 						   this.userList[i].shoppingListItems[j].unit?.id === this.allShoppingListItems[k].unit?.id) {
 
+							// add the amounts together
 							this.allShoppingListItems[k].amount += Number(this.userList[i].shoppingListItems[j].amount);
+							// save new list item's connections to the items that make it up
 							this.allShoppingListItems[k].connectedItems.push(this.userList[i].shoppingListItems[j].id);
 
+							// if an item connected to it is not done, then the new item is not done either
 							if(this.userList[i].shoppingListItems[j].done === false) {
 								this.allShoppingListItems[k].done = false;
+							// if the item is done then add to the already checked amount
 							} else {
 								this.allShoppingListItems[k].checkedAmount += Number(this.userList[i].shoppingListItems[j].amount);
 							}
@@ -314,6 +334,7 @@ export default {
 						continue;
 					}
 
+					// if a matching item was not found to the current one, just add it to the new array as it is
 					this.allShoppingListItems.push({
 						name: this.userList[i].shoppingListItems[j].name,
 						amount: Number(this.userList[i].shoppingListItems[j].amount),
@@ -325,6 +346,7 @@ export default {
 				}
 			}
 
+			// sort alphabetically
 			this.allShoppingListItems.sort((a,b) => {
 				if (a.name.toLowerCase() < b.name.toLowerCase()) {
 					return -1;
@@ -336,6 +358,10 @@ export default {
 			});
 		},
 
+		/**
+		 * Changes the 'done' status of the item to the opposite value.
+		 * @param item item to change status of
+		 */
 		async setItemDone(item){
 			try {
 				await this.axios.post(`/shoppingList/edit/item/setDone/${item.id}`, {
@@ -348,6 +374,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Changes the 'done' status of multiple items to the opposite value.
+		 * @param itemIds array of itemIds to change the status of
+		 * @param done current 'done' status of the summing item containing all the connected ones (in the list view)
+		 */
 		async setItemsDone(itemIds, done) {
 			try {
 				for (let i = 0; i < itemIds.length; i++) {
@@ -361,10 +392,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Uploads multiple new items to shopping list category.
+		 * @param categoryId categoryId of category to add items to
+		 */
 		async uploadItems(categoryId){
+			// validate item inputs
 			this.itemUploadErrors[categoryId] = this.itemInputsValid(categoryId);
 
 			if(this.itemUploadErrors[categoryId].length === 0) {
+				// convert item objects to fit backend
 				for (let i = 0; i < this.addedNewItems[categoryId].length; i++) {
 					this.addedNewItems[categoryId][i].name = this.addedNewItems[categoryId][i].name.trim();
 					this.addedNewItems[categoryId][i].unitId = Number(this.addedNewItems[categoryId][i].unitId);
@@ -392,6 +429,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes all crossed off items from user's shopping list.
+		 */
 		async deleteCrossed(){
 			try {
 				await axios.get(`/shoppingList/delete/items/allDone`);
@@ -406,6 +446,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes all shopping list items and categories of user.
+		 */
 		async clearList(){
 			try {
 				await axios.get(`/shoppingList/delete/all/category`);
@@ -419,7 +462,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Adds a new shopping list category to user's shopping list.
+		 */
 		async addCategory(){
+			// validate name of category
 			this.newCategoryErrors = this.newCategoryInputsValid;
 
 			if(this.newCategoryErrors.length === 0){
@@ -443,7 +490,11 @@ export default {
 			}
 		},
 
+		/**
+		 * Edits name of an existing shopping list category of user.
+		 */
 		async editCategory(){
+			// validate name of category
 			this.newCategoryErrors = this.newCategoryInputsValid;
 
 			if(this.newCategoryErrors.length === 0){
@@ -467,6 +518,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Deletes shopping list category of user (with all the items in it).
+		 */
 		async deleteCategory(){
 			try {
 				await axios.get(`/shoppingList/delete/category/${this.deleteCategoryId}`);
@@ -480,6 +534,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Adds an empty new item field to shopping list category.
+		 * @param categoryId categoryId of category to add new item field to
+		 */
 		addNewItem(categoryId) {
 			this.addedNewItems[categoryId].push({
 				name: "",
@@ -488,6 +546,11 @@ export default {
 			});
 		},
 
+		/**
+		 * Deletes new item field from shopping list category.
+		 * @param categoryId categoryId of category to delete new item field from
+		 * @param index index of new item field
+		 */
 		deleteItem(categoryId, index){
 			this.addedNewItems[categoryId].splice(index, 1);
 
@@ -496,9 +559,15 @@ export default {
 			}
 		},
 
+		/**
+		 * Validates new item inputs of given shopping list category.
+		 * @param categoryId categoryId of category
+		 * @returns array of validation error messages
+		 */
 		itemInputsValid(categoryId){
 			let errors = [];
 
+			// does every item have a name
 			for(const item of this.addedNewItems[categoryId]){
 				if(item.name.trim() === ""){
 					errors.push("Please give the name of every item.");
@@ -506,6 +575,7 @@ export default {
 				}
 			}
 
+			// is the name of an item longer than 100 characters
 			for (let i = 0; i < this.addedNewItems[categoryId].length; i++) {
 				if(this.addedNewItems[categoryId][i].name.trim().length > 100){
 					errors.push("Item name can't be longer than 100 characters.");
@@ -516,10 +586,20 @@ export default {
 			return errors;
 		},
 
+		/**
+		 * Checks if name of category matches the search term.
+		 * @param category category to check
+		 * @returns {boolean} true if category name matches the search term
+		 */
 		categoryMatch(category){
 			return (category.name.toLowerCase()).includes(this.categorySearchInput.toLowerCase());
 		},
 
+		/**
+		 * Checks if item matches the search term.
+		 * @param item item to check
+		 * @returns {boolean} true if item matches the search term
+		 */
 		itemMatch(item){
 			let fullItemString = (item.amount ? item.amount + " " : "")  + (item.unit ? item.unit.name + " " : "") + item.name;
 			return (fullItemString.toLowerCase()).includes(this.itemSearchInput.toLowerCase());
@@ -544,6 +624,9 @@ export default {
 			this.deleteCategoryId = categoryId;
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers() {
 			const addCategoryModal = document.getElementById('add-category-modal');
 			addCategoryModal.addEventListener("hidden.bs.modal", () => this.clearAddCategoryName());
@@ -558,14 +641,20 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Validates shopping list category name inputs.
+		 * @returns array of validation error messages
+		 */
 		newCategoryInputsValid(){
 			let errors = [];
 
+			// is the category name field filled
 			if(this.newCategoryName.trim() === ""){
 				errors.push("Please provide a name for the category.");
 
 			}
 
+			// is the category name longer than 100 characters
 			if(this.newCategoryName.trim().length > 100){
 				errors.push("Category name can't be longer than 100 characters.");
 			}

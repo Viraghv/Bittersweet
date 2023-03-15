@@ -1,3 +1,5 @@
+<!-- Page for uploading new recipe or editing an existing one -->
+
 <template>
 	<h1 class="title" v-if="!recipeID">Upload recipe</h1>
 	<h1 class="title" v-else>Edit recipe</h1>
@@ -234,10 +236,16 @@ export default {
 		};
 	},
 	methods: {
+		/**
+		 * Opens the file select for uploading the recipe image.
+		 */
 		selectImage() {
 			this.$refs.fileInput.click()
 		},
 
+		/**
+		 * Sets the preview image for the uploaded recipe image.
+		 */
 		pickFile() {
 			let input = this.$refs.fileInput;
 			let file = input.files;
@@ -253,6 +261,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Validates uploaded recipe image and puts it in the recipe object.
+		 * @param event file upload event
+		 */
 		setRecipeImage(event){
 			this.imageErrors = [];
 
@@ -260,10 +272,12 @@ export default {
 				return;
 			}
 
+			// is file either in jpg or png format
 			if(event.target.files[0].type !== "image/jpeg" && event.target.files[0].type !== "image/png"){
 				this.imageErrors.push("Incorrect file type.")
 			}
 
+			// is file bigger than 1MB
 			if(event.target.files[0].size > 1024000){
 				this.imageErrors.push("File can't be bigger than 1MB.")
 			}
@@ -294,18 +308,27 @@ export default {
 		},
 
 
+		/**
+		 * Restricts hour input field so a number higher than 99 cannot be set.
+		 */
 		restrictHours(){
 			if(this.recipe.timeHour > 99){
 				this.recipe.timeHour = Math.floor(this.recipe.timeHour / 10) ;
 			}
 		},
 
+		/**
+		 * Restricts minute input field so a number higher than 59 cannot be set.
+		 */
 		restrictMins(){
 			if(this.recipe.timeMinute > 59){
 				this.recipe.timeMinute = Math.floor(this.recipe.timeMinute / 10) ;
 			}
 		},
 
+		/**
+		 * Initializes unit options.
+		 */
 		async initUnits(){
 			try {
 				const response = await this.axios.get('/recipe/units');
@@ -317,6 +340,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes difficulty options.
+		 */
 		async initDifficulties(){
 			try {
 				const response = await this.axios.get('/recipe/difficulties');
@@ -328,6 +354,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes cost options.
+		 */
 		async initCosts(){
 			try {
 				const response = await this.axios.get('/recipe/costs');
@@ -339,6 +368,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe category options.
+		 */
 		async initCategories(){
 			try {
 				const response = await this.axios.get('/recipe/categories');
@@ -350,6 +382,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes diet options.
+		 */
 		async initDiets(){
 			try {
 				const response = await this.axios.get('/recipe/diets');
@@ -361,6 +396,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes allergen options.
+		 */
 		async initAllergens(){
 			try {
 				const response = await this.axios.get('/recipe/allergens');
@@ -372,10 +410,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Initializes recipe data in input fields (when page is accessed for recipe editing).
+		 */
 		async initRecipe(){
+			// if page is in editing mode
 			if(this.recipeID){
 				try {
+					// get recipe data
 					const response = await this.axios.get(`/recipe/recipeById/${this.recipeID}`);
+					// put data in input fields
 					this.recipe.name = response.data.name;
 					this.recipe.description = response.data.description;
 
@@ -451,6 +495,7 @@ export default {
 						}
 					}
 
+					// get recipe image
 					if(response.data.photo && response.data.photo !== "default") {
 						const imageResponse = await this.axios.get(`/recipe/recipeImage/${response.data.photo}`);
 						this.editPreviewImage.image = imageResponse.data;
@@ -462,12 +507,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Uploads new recipe.
+		 */
 		async submitRecipe(){
+			// validate recipe inputs
 			this.errors = this.inputsValid;
 
 			if(this.errors.length === 0 && this.imageErrors.length === 0){
+				// convert recipe object to fit backend
 				let categories = [];
-
 				if(this.recipe.primaryCategory){
 					categories.push({
 						primary: true,
@@ -501,20 +550,9 @@ export default {
 				this.showLoader = true;
 				const formData = new FormData();
 				formData.append('image', this.recipe.image);
-				// formData.append('name', this.recipe.name);
-				// formData.append('description', this.recipe.description);
-				// formData.append('ingredients', this.recipe.ingredients);
-				// formData.append('steps', this.recipe.steps);
-				// formData.append('timeHour', this.recipe.timeHour);
-				// formData.append('timeMinute', this.recipe.timeMinute);
-				// formData.append('difficulty', this.recipe.difficulty);
-				// formData.append('cost', this.recipe.cost);
-				// formData.append('portions', this.recipe.portions);
-				// formData.append('calories', this.recipe.calories);
-				// formData.append('categories', categories);
-				// formData.append('allergens', this.recipe.allergens);
 
 				try {
+					// upload new recipe
 					const response = await this.axios.post("/recipe/create", {
 						name: this.recipe.name.trim(),
 						description: this.recipe.description.trim(),
@@ -533,7 +571,7 @@ export default {
 
 					const recipeId = response.data
 
-
+					// upload recipe image
 					await this.axios.post(
 						`/recipe/uploadImage/${recipeId}`,
 						formData,
@@ -546,6 +584,7 @@ export default {
 
 					this.showLoader = false;
 					window.scrollTo(0,0);
+					// go to recipe page of new recipe
 					await this.$router.push({path: `/recipe/${recipeId}`});
 				} catch (error) {
 					if(Array.isArray(error.response.data.errorMessage)){
@@ -558,12 +597,16 @@ export default {
 			}
 		},
 
+		/**
+		 * Edits existing recipe.
+		 */
 		async editRecipe(){
+			// validate recipe inputs
 			this.errors = this.inputsValid;
 
 			if(this.errors.length === 0 && this.imageErrors.length === 0){
+				// convert recipe object to fit backend
 				let categories = [];
-
 				if(this.recipe.primaryCategory){
 					categories.push({
 						primary: true,
@@ -601,7 +644,8 @@ export default {
 				formData.append('image', this.recipe.image);
 
 				try {
-					const response = await this.axios.post(`/recipe/edit/${this.recipeID}`, {
+					// upload edited recipe
+					await this.axios.post(`/recipe/edit/${this.recipeID}`, {
 						name: this.recipe.name.trim(),
 						description: this.recipe.description.trim(),
 						ingredients: this.recipe.ingredients,
@@ -617,6 +661,7 @@ export default {
 						allergens: this.recipe.allergens,
 					})
 
+					// upload recipe image, if new image was set
 					if(this.recipe.image){
 						await this.axios.post(
 							`/recipe/uploadImage/${this.recipeID}`,
@@ -631,6 +676,7 @@ export default {
 
 					this.showLoader = false;
 					window.scrollTo(0,0);
+					// go to recipe page of edited recipe
 					await this.$router.push({path: `/recipe/${this.recipeID}`});
 				} catch (error) {
 					if(Array.isArray(error.response.data.errorMessage)){
@@ -643,6 +689,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Sorts steps by their step number.
+		 */
 		sortSteps(){
 			this.recipe.steps.sort((a, b) => a.number - b.number);
 		},
@@ -705,7 +754,11 @@ export default {
 			this.initRecipe();
 		},
 	},
+
 	computed: {
+		/**
+		 * @returns array of categories without he primary category
+		 */
 		categoriesWithoutPrimary(){
 			let result = {...this.categoryOptions};
 
@@ -714,6 +767,9 @@ export default {
 			return result;
 		},
 
+		/**
+		 * @returns array of categories that have not been selected in the 'Other categories' field
+		 */
 		categoriesWithoutOther(){
 			let result = {...this.categoryOptions};
 
@@ -724,20 +780,28 @@ export default {
 			return result;
 		},
 
+		/**
+		 * Validates recipe inputs.
+		 * @returns array of validation error messages
+		 */
 		inputsValid(){
 			let errors = [];
 
+			// is recipe name and description fields filled
 			if(this.recipe.name.trim() === "" || this.recipe.description.trim() === ""){
 				errors.push("Please provide a recipe name and description.");
 			}
 
+			// is a valid recipe image uploaded
 			if(!this.recipe.image && !this.editPreviewImage.image){
 				errors.push("Please upload a valid image (jpg, png).");
 			}
 
+			// is there at least one ingredient given
 			if(this.recipe.ingredients.length === 0){
 				errors.push("Please list the necessary ingredients.");
 			} else {
+				// does every ingredient have a name
 				for(const ingredient of this.recipe.ingredients){
 					if(ingredient.name.trim() === ""){
 						errors.push("Please give the name of every ingredient.");
@@ -746,9 +810,11 @@ export default {
 				}
 			}
 
+			// is there at least one step given
 			if(this.recipe.steps.length === 0){
 				errors.push("Please list the necessary steps.");
 			} else {
+				// is there a description given for every step
 				for(const step of this.recipe.steps){
 					if(step.content.trim() === ""){
 						errors.push("Please give the description of every step.");
@@ -757,14 +823,17 @@ export default {
 				}
 			}
 
+			// is recipe name longer than 100 characters
 			if(this.recipe.name.trim().length > 100){
 				errors.push("Recipe name can't be longer than 100 characters.");
 			}
 
+			// is recipe description longer than 1000 characters
 			if(this.recipe.description.trim().length > 1000){
 				errors.push("Recipe description can't be longer than 1000 characters.");
 			}
 
+			// is the name of an ingredient longer than 100 characters
 			for(const ingredient of this.recipe.ingredients){
 				if(ingredient.name.trim().length > 100){
 					errors.push("Ingredient name can't be longer than 100 characters.");
@@ -772,6 +841,7 @@ export default {
 				}
 			}
 
+			// is the description of a step longer than 1000 characters
 			for(const step of this.recipe.steps){
 				if(step.content.trim().length > 1000){
 					errors.push("Step description can't be longer than 1000 characters.");
@@ -779,6 +849,7 @@ export default {
 				}
 			}
 
+			// are there only whole numbers in the Additional information section
 			if((this.recipe.timeHour && this.recipe.timeHour !== Math.floor(this.recipe.timeHour)) ||
 			   (this.recipe.timeMinute && this.recipe.timeMinute !== Math.floor(this.recipe.timeMinute)) ||
 			   (this.recipe.portions && this.recipe.portions !== Math.floor(this.recipe.portions)) ||

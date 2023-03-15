@@ -1,3 +1,5 @@
+<!-- Weekly menu page with this week and next week views -->
+
 <template>
 	<div class="content col-xxl-8 col-xl-9 col-lg-10 col-md-11 col-sm-11">
 		<div class="page-buttons-container">
@@ -405,11 +407,16 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Initializes weekly menu of currently opened week of user.
+		 */
 		async initWeeklyMenu(){
 			this.showInitLoader = true;
 			try {
+				// get weekly menu recipe cards of week
 				let response = await this.axios.get(`/weeklyMenu/recipeCardsOfCurrentUser/${this.nextWeek}`);
 
+				// get recipe images
 				for (let i = 0; i < response.data.length; i++) {
 					if(response.data[i].recipe?.photo && response.data[i].recipe?.photo !== "default"){
 						try {
@@ -422,6 +429,7 @@ export default {
 					}
 				}
 
+				// format weekly menu object for easier use
 				this.weeklyMenu.desserts = [];
 
 				for (let i = 0; i < response.data.length; i++) {
@@ -455,9 +463,12 @@ export default {
 			}
 		},
 
+		/**
+		 * Generate new weekly menu for currently viewed week of user.
+		 */
 		async generateWeek(){
 			try {
-				const response = await this.axios.get(`/weeklyMenu/generate/week/${this.nextWeek}`);
+				await this.axios.get(`/weeklyMenu/generate/week/${this.nextWeek}`);
 				document.getElementById("generate-week-close-button").click();
 				await this.initWeeklyMenu();
 
@@ -466,14 +477,18 @@ export default {
 			}
 		},
 
+		/**
+		 * Adds all ingredients of recipes on the weekly menu of currently viewed week to user's shopping list.
+		 */
 		async addAllRecipesToShoppingList(){
 			this.showAddAllToShoppingListLoader = true;
 
 			try {
+				// goes through every recipe and adds ingredients to shopping list
 				for (const day in this.weeklyMenu) {
 					for(const meal in this.weeklyMenu[day]) {
 						if(this.weeklyMenu[day][meal].recipe){
-							const response = await this.axios.post(`/shoppingList/add/categoryAndItems`, {
+							await this.axios.post(`/shoppingList/add/categoryAndItems`, {
 								categoryName: this.weeklyMenu[day][meal].recipe.name,
 								items: this.weeklyMenu[day][meal].recipe.ingredients,
 							});
@@ -489,9 +504,12 @@ export default {
 			}
 		},
 
+		/**
+		 * Generate one new recommended recipe instead of an already existing recommendation.
+		 */
 		async generateOne(){
 			try {
-				const response = await this.axios.post(`/weeklyMenu/generate/one`, this.generateOneData);
+				await this.axios.post(`/weeklyMenu/generate/one`, this.generateOneData);
 
 				document.getElementById("generate-one-close-button").click();
 				await this.initWeeklyMenu();
@@ -504,20 +522,27 @@ export default {
 			}
 		},
 
+		/**
+		 * Puts recipe on user's "Don't recommend" list and generates new recipes for the slots that recipe was previously in.
+		 * @returns {Promise<void>}
+		 */
 		async dontRecommend(){
 			try {
-				const response = await this.axios.get(`/weeklyMenu/dontRecommend/set/${this.dontRecommendRecipeId}`);
+				// put recipe on "Don't recommend" list
+				await this.axios.get(`/weeklyMenu/dontRecommend/set/${this.dontRecommendRecipeId}`);
 
 				document.getElementById("dont-recommend-close-button").click();
 
 				this.showInitLoader = true;
 
+				// get weekly menu recipes of both weeks
 				let thisWeek = await this.axios.get(`/weeklyMenu/recipeCardsOfCurrentUser/0`);
 				thisWeek = thisWeek.data;
 
 				let nextWeek = await this.axios.get(`/weeklyMenu/recipeCardsOfCurrentUser/1`);
 				nextWeek = nextWeek.data;
 
+				// if recipe has the same recipeId as the one set as not to recommend, generate new recipe in that slot
 				for (const item of thisWeek) {
 					console.log(item.recipe?.id);
 					console.log(this.dontRecommendRecipeId);
@@ -547,9 +572,12 @@ export default {
 			}
 		},
 
+		/**
+		 * Adds the ingredients of the selected recipe to the user's shopping list.
+		 */
 		async addOneToShoppingList(){
 			try {
-				const response = await this.axios.post(`/shoppingList/add/categoryAndItems`, this.addOneToShoppingListData);
+				await this.axios.post(`/shoppingList/add/categoryAndItems`, this.addOneToShoppingListData);
 				document.getElementById("add-one-to-shopping-list-close-button").click();
 
 			} catch (error) {
@@ -557,6 +585,9 @@ export default {
 			}
 		},
 
+		/**
+		 * Remove recommended meal for given slot, leaving it empty.
+		 */
 		async removeMeal(){
 			try {
 				await this.axios.post(`/weeklyMenu/set/one`, {
@@ -574,6 +605,10 @@ export default {
 			}
 		},
 
+		/**
+		 * Generate one new recommended recipe to given slot that's empty because recipe has been manually removed before.
+		 * @param item object containing the week, day, and meal of the item to generate
+		 */
 		async generateOneByMeal(item){
 			try {
 				await this.axios.post(`/weeklyMenu/generate/oneByMeal`, {
@@ -621,6 +656,9 @@ export default {
 			this.generateErrors = [];
 		},
 
+		/**
+		 * Add modal clearing functions to the modal closing events.
+		 */
 		setModalHandlers(){
 			const generateOneModal = document.getElementById('generate-one-modal');
 			generateOneModal.addEventListener("hidden.bs.modal", () => this.clearGenerateOneModal());
