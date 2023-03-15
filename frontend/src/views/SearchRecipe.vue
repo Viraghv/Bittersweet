@@ -464,24 +464,22 @@ export default {
 		},
 
 		clearFilters(){
-			this.localFilters = {
-				timeFrom: {
-					hour: null,
-					minute: null
-				},
-				timeTo: {
-					hour: null,
-					minute: null
-				},
-				excludeAllergens: [],
-				difficulties: [],
-				costs: [],
-				categories: [],
-				diets: [],
-				caloriesFrom: null,
-				caloriesTo: null,
-				portions: null
+			this.localFilters.timeFrom = {
+				hour: null,
+				minute: null
 			};
+			this.localFilters.timeTo = {
+				hour: null,
+				minute: null
+			};
+			this.localFilters.excludeAllergens = [];
+			this.localFilters.difficulties = [];
+			this.localFilters.costs = [];
+			this.localFilters.categories = [];
+			this.localFilters.diets = [];
+			this.localFilters.caloriesFrom = null;
+			this.localFilters.caloriesTo = null;
+			this.localFilters.portions= null;
 		},
 
 		/**

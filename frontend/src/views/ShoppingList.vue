@@ -68,13 +68,13 @@
 						<div class="no-items-container" v-if="category.shoppingListItems.length === 0">
 							<span class="no-items-text">This category is empty.</span>
 						</div>
-						<div class="category-list-item" v-for="(item, index) in category.shoppingListItems" :key="index">
-							<input class="checkbox-input" :checked="item.done" type="checkbox" :id="'check-item' + index" :value="item" @change="setItemDone(item)">
-							<label :for="'check-item' + index" :class="item.done ? 'crossed' : ''">
+						<div class="category-list-item" v-for="(item, index2) in category.shoppingListItems" :key="index2">
+							<input class="checkbox-input" :checked="item.done" type="checkbox" :id="'check-item' + index2" :value="item" @change="setItemDone(item)">
+							<span :class="item.done ? 'crossed' : ''">
 								<span class="amount">{{item.amount ? item.amount + " " : ""}}</span>
 								<span class="unit">{{item.unit ? item.unit.name + " " : ""}}</span>
 								<span class="name">{{item.name}}</span>
-							</label>
+							</span>
 						</div>
 						<div class="new-items-container">
 							<div class="new-item" v-for="(item, index) in addedNewItems[category.id]" :key="index">
@@ -637,6 +637,8 @@ export default {
 
 		clearAddCategoryName(){
 			this.newCategoryName = "";
+			this.newCategoryErrors = [];
+
 		},
 	},
 

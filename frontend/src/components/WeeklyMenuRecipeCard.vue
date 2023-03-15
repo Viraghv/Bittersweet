@@ -347,7 +347,7 @@ export default {
 		}
 	}
 
-	@media screen and (max-width: 1525px){
+	@media screen and (max-width: 1700px){
 		.info-container {
 			flex-direction: column;
 			gap: 10px;

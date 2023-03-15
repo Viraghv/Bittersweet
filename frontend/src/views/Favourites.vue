@@ -622,6 +622,7 @@ export default {
 
 		clearNewGroupName(){
 			this.newGroupName = "";
+			this.newGroupErrors = [];
 		},
 
 		clearAddToGroupModal(){

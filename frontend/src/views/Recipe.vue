@@ -168,7 +168,7 @@
 			</div>
 			<div class="description-container">
 				<h3 class="description-title">Description</h3>
-				<p>{{recipe.description}}</p>
+				<p class="description-content">{{recipe.description}}</p>
 			</div>
 		</div>
 		<div class="timestamp-container">
@@ -839,7 +839,13 @@ export default {
 					let shoppingListModal = new Modal(document.getElementById("shopping-list-modal"), {});
 					shoppingListModal.show();
 
-					document.getElementById("check-all").checked = false;
+
+					let checkAllBoxes = document.getElementsByClassName("check-all");
+
+					for (let i = 0; i < checkAllBoxes.length; i++) {
+						checkAllBoxes[i].checked = false;
+					}
+
 					this.allChecked = false;
 					this.selectedIngredients = [];
 				} catch (error) {
@@ -1147,6 +1153,26 @@ export default {
 		'weeklyMenuInputs.day'() {
 			if((this.weeklyMenuInputs.meal === "4" || this.weeklyMenuInputs.meal === "5") && this.weeklyMenuInputs.day !== null) {
 				this.weeklyMenuInputs.meal = null;
+			}
+		},
+
+		'selectedIngredients'(){
+			if(this.selectedIngredients.length < this.recipe.ingredients.length){
+				let checkAllBoxes = document.getElementsByClassName("check-all");
+
+				for (let i = 0; i < checkAllBoxes.length; i++) {
+					checkAllBoxes[i].checked = false;
+				}
+
+				this.allChecked = false;
+			} else {
+				let checkAllBoxes = document.getElementsByClassName("check-all");
+
+				for (let i = 0; i < checkAllBoxes.length; i++) {
+					checkAllBoxes[i].checked = true;
+				}
+
+				this.allChecked = true;
 			}
 		}
 	},
@@ -1621,6 +1647,10 @@ export default {
 
 				.description-title {
 					margin-bottom: 30px;
+				}
+
+				.description-content {
+					white-space: break-spaces;
 				}
 			}
 		}
